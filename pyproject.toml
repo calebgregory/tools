@@ -1,0 +1,28 @@
+[project]
+name = "tools"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[tool.black]
+line-length = 108
+
+[tool.isort]
+profile = "black"
+line_length = 108
+
+[tool.mypy]
+python_version = "3.13"
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+strict_equality = true
+
+[tool.flake8]
+extend-ignore = ["E501"] # ignore line-too-long errors, Black handles this

@@ -1,0 +1,62 @@
+{
+  // --- Editing ergonomics ---
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "editor.rulers": [108],
+
+  // --- Python language/analysis (Pylance) ---
+  "python.analysis.typeCheckingMode": "basic",                // try "strict" if you like
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.indexing": true,
+  "python.analysis.diagnosticMode": "workspace",
+  "python.terminal.activateEnvironment": true,                // auto-activates .venv/uv env in terminal
+  // (VS Code usually auto-detects .venv created by uv; if not, select the interpreter manually)
+
+  // --- Black as the formatter ---
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+      "source.fixAll": "explicit"
+    }
+  },
+  // If you set line length in pyproject.toml, Black will pick it up automatically.
+  // Example (in pyproject): tool.black -> line-length = 88
+
+  // --- isort configuration (respects pyproject; align with Black) ---
+  "isort.args": ["--profile", "black"],
+
+  // --- mypy (Problems pane integration) ---
+  "mypy-type-checker.runUsingActiveInterpreter": true,
+  "mypy-type-checker.useDaemon": false,                       // turn on if you prefer dmypy
+  "mypy-type-checker.showNotifications": "off",
+  "mypy-type-checker.reportingScope": "workspace",
+  "mypy-type-checker.args": ["--config-file", "pyproject.toml"],
+
+  // --- Testing (pytest by default) ---
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": ["-q", "tests"],
+
+  // --- Keep noise out of search/explorer ---
+  "files.exclude": {
+    "**/__pycache__": true,
+    ".mypy_cache": true,
+    ".pytest_cache": true,
+    ".ruff_cache": true,
+    ".venv": true,
+    ".uv": true,
+    "build": true,
+    "dist": true
+  },
+  "search.exclude": {
+    "**/__pycache__": true,
+    ".mypy_cache": true,
+    ".pytest_cache": true,
+    ".ruff_cache": true,
+    ".venv": true,
+    "build": true,
+    "dist": true
+  },
+  "python-envs.pythonProjects": []
+}
