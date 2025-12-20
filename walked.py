@@ -2,31 +2,71 @@
 """
 how much did i walk today?
 
+demo:
+
+```
+$ cal
+   December 2025
+Su Mo Tu We Th Fr Sa
+    1  2  3  4  5  6
+ 7  8  9 10 11 12 13
+14 15 16 17 18 19 20
+21 22 23 24 25 26 27
+28 29 30 31
+
+$ cat <<EOM > my_log_file.md  # example of log_file format
+2025-12-01: 1.5 3
+a note to self...
+2025-12-08: 2
+EOM
+
+$ ./walked.py my_log_file.md  # slimmed-down output is printed to the console
+2025-12-01: (04.50)  1.50 3.00
+---week---:  4.50
+2025-12-08: (02.00)  2.00
+---week---:  2.00
+
+$ cat my_log_file.md          # the script overwrites the input file with printed sums for day and week
+2025-12-01: (04.50)  1.50 3.00
+a note to self...
+---week---:  4.50
+2025-12-08: (02.00)  2.00
+---week---:  2.00
+```
+
 this script assumes the input log_file abides by a particular format, and it has
 certain limitations.
 
 the format:
 
 ```
-2025-12-25: 0.01 3.11  # this will be parsed as an entry
-some random line       # this will just be passed through and re-printed
-2025-12-26: 2.0        # another entry
+2025-12-25: 0.5 3.11
+# ^ this will be parsed as a daily entry; multiple entries per day are
+# supported, as we often walk multiple times per day
+
+some random line
+# ^ this will just be passed through and re-printed
+
+2025-12-26: 2.0
+# ^ another entry
 ```
 
-sums for the day and for the week will be generated for you.  you don't need to edit these.
+sums for the day and for the week will be generated and printed for you.  you
+don't need to edit these.
 
 the limitations:
 
 - our script pretty much assumes you are writing entries in order by date
-ascending.  the behavior when you are _not_ doing that is undefined.
+ascending - the later the date, the later the line.  the behavior when you are
+_not_ doing that is undefined.
 """
-import typing as ty
 
 import math
-from datetime import date, timedelta
 import re
-from pathlib import Path
+import typing as ty
 from dataclasses import dataclass, field
+from datetime import date, timedelta
+from pathlib import Path
 
 
 @dataclass
@@ -88,7 +128,7 @@ def _yield_weeks_in_range(start: date, end: date) -> ty.Iterator[_Week]:
     yield first_week
 
     num_weeks = math.ceil((end - first_week_start).days / 7)
-    for n in range(7, 7 * num_weeks, 7):
+    for n in range(7, 7 * num_weeks + 1, 7):
         yield _Week(first_week_start + timedelta(days=n), first_week_start + timedelta(days=n + 6))
 
 
@@ -160,7 +200,8 @@ class _Output:
 
     @property
     def log_file_s(self) -> str:
-        return "\n".join(self.log_file)
+        txt = "\n".join(self.log_file)
+        return txt if txt.endswith("\n") else txt + "\n"
 
     @property
     def console_s(self) -> str:
@@ -183,8 +224,7 @@ def _print_out(lines_out: list[_Line]) -> _Output:
     return out
 
 
-def main(log_file: Path):
-    print(log_file)
+def main(log_file: Path) -> None:
     output = _print_out(_derive_lines_out(_parse_lines_in(log_file.read_text())))
     print(output.console_s)
     log_file.write_text(output.log_file_s)
