@@ -1,12 +1,15 @@
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 
-def main():
+
+def main() -> None:
     start = datetime.utcnow()
     while True:
         time.sleep(5)
         dur = datetime.utcnow() - start
-        print(f'been counting for {dur}')
+        print(f"been counting for {dur}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
+    main()
     main()

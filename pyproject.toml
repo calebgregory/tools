@@ -25,4 +25,7 @@ no_implicit_optional = true
 strict_equality = true
 
 [tool.flake8]
-extend-ignore = ["E501"] # ignore line-too-long errors, Black handles this
+extend-ignore = [
+  "E501", # ignore line-too-long errors, Black handles this
+  "E203", # whitespace before :
+]

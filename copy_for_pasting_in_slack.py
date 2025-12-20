@@ -22,11 +22,11 @@ def _do(cmd: ty.List[str]) -> str:
     return subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0].rstrip().decode("utf-8")
 
 
-def _pbpaste():
+def _pbpaste() -> str:
     return _do(["pbpaste"])
 
 
-def _pbcopy(text_to_copy: str):
+def _pbcopy(text_to_copy: str) -> None:
     process = subprocess.Popen("pbcopy", env={"LANG": "en_US.UTF-8"}, stdin=subprocess.PIPE)
     process.communicate(text_to_copy.encode("utf-8"))
 
@@ -63,7 +63,7 @@ def _fmt_markdown_for_slack(md: str) -> str:
     return md
 
 
-def main():
+def main() -> None:
     input_ = _pbpaste() if sys.stdin.isatty() else sys.stdin.read()
     if not input_:
         print("nothing to reformat")

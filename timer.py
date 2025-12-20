@@ -4,12 +4,12 @@ import sys
 from datetime import datetime
 from math import floor
 from time import sleep
-import readline
 
-def main():
+
+def main() -> None:
     start = datetime.utcnow()
 
-    print(f'starting at {start.isoformat()}')
+    print(f"starting at {start.isoformat()}")
 
     while True:
         sleep(1)
@@ -22,6 +22,5 @@ def main():
         sys.stdout.flush()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
