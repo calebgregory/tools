@@ -148,7 +148,7 @@ def _yield_weeks(entries: ty.Iterable[_Entry]) -> ty.Iterator[_Week]:
 
 
 def _fmt_week(week: _Week) -> str:
-    return f"---week---:  {week.total:.2f}"
+    return f"---week---:  {week.total:0>5.2f}"
 
 
 _Line = _Entry | _Week | str
