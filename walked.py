@@ -61,7 +61,6 @@ ascending - the later the date, the later the line.  the behavior when you are
 _not_ doing that is undefined.
 """
 
-import math
 import re
 import typing as ty
 from dataclasses import dataclass, field
@@ -127,8 +126,11 @@ def _yield_weeks_in_range(start: date, end: date) -> ty.Iterator[_Week]:
     first_week = _Week(first_week_start, first_week_start + timedelta(days=6))
     yield first_week
 
-    num_weeks = math.ceil((end - first_week_start).days / 7)
-    for n in range(7, 7 * num_weeks + 1, 7):
+    start_of_week_after_range = end + timedelta(days=7 - end.weekday())
+    assert first_week_start.weekday() == start_of_week_after_range.weekday() == 0
+
+    num_weeks = (start_of_week_after_range - first_week_start).days // 7  # we know numerator is 7*n
+    for n in range(7, 7 * num_weeks, 7):
         yield _Week(first_week_start + timedelta(days=n), first_week_start + timedelta(days=n + 6))
 
 
