@@ -1,0 +1,21 @@
+#!/bin/bash
+#MISE description="put the pictures in an album"
+
+set -eou pipefail
+
+staged_dir="$HOME/Pictures/_staged"
+album_dir="$1"
+
+if [ -z "$(ls -A "$staged_dir")" ]; then
+  echo "$staged_dir is empty!"
+  exit 1
+fi
+
+if [ ! -d "$album_dir" ]; then
+  mkdir -p "$album_dir"
+  echo "created dir"
+fi
+
+mv "$staged_dir"/* "$album_dir"
+
+echo "moved to $album_dir"

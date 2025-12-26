@@ -1,0 +1,22 @@
+#!/bin/bash
+#MISE description="get the pictures off of the SD card"
+
+set -eou pipefail
+
+sd_card_volume='/Volumes/sandisk1'
+staged_dir="$HOME/Pictures/_staged"
+
+mkdir -p "$staged_dir"
+
+rm -f "$staged_dir/.DS_Store"
+
+if [ -n "$(ls -A "$staged_dir")" ]; then
+  echo "$staged_dir is not empty!"
+  exit 1
+fi
+
+mv $sd_card_volume/DCIM/*_FUJI/* "$staged_dir"
+
+open "$staged_dir"
+
+diskutil unmount "$sd_card_volume"

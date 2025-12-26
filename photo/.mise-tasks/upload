@@ -1,0 +1,13 @@
+#!/bin/bash
+#MISE description="upload the pictures to immich"
+
+set -eou pipefail
+
+album_dir="$1"
+
+if [ -z "$(ls -A "$album_dir")" ]; then
+  echo "$album_dir is empty!"
+  exit 1
+fi
+
+pnpm immich upload --album --ignore '**/*.MOV' "$album_dir"

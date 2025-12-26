@@ -1,0 +1,82 @@
+#!/bin/bash
+
+set -eou pipefail
+
+album_dir="$1"
+
+if [ -z "$(ls -A "$album_dir")" ]; then
+  echo "$album_dir is empty!"
+  exit 1
+fi
+
+in_dir="$album_dir"
+out_dir="$in_dir/720p-stabilized"
+mkdir -p "$out_dir"
+
+# A good heuristic is JOBS × FFMPEG_THREADS ~= 16–24 for x264 on a big Apple Silicon machine. e.g.,
+# - 8x2=16  (nice start)
+# - 12x2=24 (often near the top)
+JOBS="${JOBS:-8}"
+FFMPEG_THREADS="${FFMPEG_THREADS:-3}"
+
+transform-video() {
+  local in="$1"
+  local base out trf
+
+  base="$(basename "$in")"
+  out="$out_dir/${base%.MOV}.720p-stabilized.mp4"
+  if [[ -f "$out" ]]; then
+    echo "skip (exists): $out"
+    return 0
+  fi
+
+  trf="$(mktemp -t "vidstab_${base}.XXXXXX.trf")"
+  trap 'rm -f "$trf"' RETURN
+
+  ffmpeg -hide_banner -loglevel error -stats \
+    -threads "$FFMPEG_THREADS" -i "$in" \
+    -vf "vidstabdetect=shakiness=5:accuracy=15:result=${trf}" \
+    -f null - >/dev/null
+
+  ffmpeg -hide_banner -loglevel error -stats \
+    -threads "$FFMPEG_THREADS" -i "$in" \
+    -vf "vidstabtransform=input=${trf}:smoothing=14:zoom=1:maxangle=2:maxshift=20,scale='if(gte(iw,ih),-2,720)':'if(gte(iw,ih),720,-2)'" \
+    -metadata:s:v:0 rotate=0 \
+    -c:v libx264 -crf 20 -preset medium \
+    -c:a aac -b:a 160k \
+    "$out"
+}
+
+running=0
+for in in "$in_dir"/*.MOV; do
+  transform-video "$in" &
+  ((running+=1))
+
+  if (( running >= JOBS )); then
+    wait -n
+    ((running-=1))
+  fi
+done
+
+wait
+echo "done: $out_dir"
+
+# for in in "$album_dir"/*.MOV; do
+#   base="$(basename "$in")"
+#   out="$out_dir/${base%.MOV}.720p-stabilized.mp4"
+#
+#   trf="$(mktemp -t "vidstab_$base.trf")"
+#
+#   # 1. analyze motion
+#   ffmpeg -i "$in" \
+#     -vf "vidstabdetect=shakiness=5:accuracy=15:result=${trf}" \
+#     -f null -
+#
+#   # 2. stabilize + resize + encode
+#   ffmpeg -i "$in" \
+#     -vf "vidstabtransform=input=${trf}:smoothing=14:zoom=1:maxangle=2:maxshift=20,scale='if(gte(iw,ih),-2,720)':'if(gte(iw,ih),720,-2)'" \
+#     -metadata:s:v:0 rotate=0 \
+#     -c:v libx264 -crf 20 -preset medium \
+#     -c:a aac -b:a 160k \
+#     "$out"
+# done

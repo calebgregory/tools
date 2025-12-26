@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -euo pipefail
+
+album_dir="$1"
+
+if [ -z "$(ls -A "$album_dir")" ]; then
+  echo "$album_dir is empty!"
+  exit 1
+fi
+
+in_dir="$album_dir"
+out_dir="$in_dir/720p"
+mkdir -p "$out_dir"
+
+for in in "$in_dir"/*.MOV; do
+  base="$(basename "$in")"
+  out="$out_dir/${base%.MOV}.720p.mp4"
+
+  ffmpeg -i "$in" \
+    -vf "scale='if(gte(iw,ih),-2,720)':'if(gte(iw,ih),720,-2)':in_range=pc:out_range=pc,format=yuv420p" \
+    -color_range pc -pix_fmt yuv420p \
+    -c:v libx264 -crf 20 -preset medium \
+    -c:a aac -b:a 160k \
+    "$out"
+done
