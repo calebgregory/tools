@@ -3,7 +3,17 @@
 
 set -eou pipefail
 
-sd_card_volume='/Volumes/sandisk1'
+sd_card_volume=''
+for known in '/Volumes/sandisk1' '/Volumes/sandisk2'; do
+  if [ -d "$known" ]; then
+    sd_card_volume="$known"
+  fi
+done
+if [ -z "$sd_card_volume" ]; then
+  echo "sd_card not found!"
+  exit 1
+fi
+
 staged_dir="$HOME/Pictures/_staged"
 
 mkdir -p "$staged_dir"
@@ -15,7 +25,7 @@ if [ -n "$(ls -A "$staged_dir")" ]; then
   exit 1
 fi
 
-mv $sd_card_volume/DCIM/*_FUJI/* "$staged_dir"
+mv "$sd_card_volume"/DCIM/*_FUJI/* "$staged_dir"
 
 open "$staged_dir"
 
