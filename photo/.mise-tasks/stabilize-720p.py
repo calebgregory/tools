@@ -19,6 +19,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import timeit
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import partial
@@ -89,6 +90,10 @@ def _derive_parallelization(*, num_files: int) -> tuple[int, int]:
     return num_jobs, num_ffmpeg_threads
 
 
+def _duration(seconds: float) -> str:
+    return time.strftime("%H:%M:%S", time.gmtime(seconds))
+
+
 def main(album_dir: Path) -> None:
     if shutil.which("ffmpeg") is None:
         raise EnvironmentError("Error: ffmpeg not found on PATH.")
@@ -112,7 +117,8 @@ def main(album_dir: Path) -> None:
         try:
             for i, fut in enumerate(as_completed(futures)):
                 out, dur = fut.result()
-                print(f"[{i+1}/{len(mov_files)}] done: {out} ({dur/60:0>5.2f} min)")
+                if dur:
+                    print(f"[{i+1}/{len(mov_files)}] done: {out} ({_duration(dur)})")
         except KeyboardInterrupt:
             print("Interrupted. Cancelling queued tasks...", file=sys.stderr)
             ex.shutdown(cancel_futures=True)
@@ -121,7 +127,7 @@ def main(album_dir: Path) -> None:
             ex.shutdown(cancel_futures=True)
             raise
     end = timeit.default_timer()
-    print(f"done ({(end - start) / 60:0>5.2f} min)")
+    print(f"done ({_duration(end - start)})")
 
 
 if __name__ == "__main__":
