@@ -1,10 +1,11 @@
 #!/bin/bash
 #MISE description="put the pictures in an album"
+#USAGE arg "<dir>"
 
 set -eou pipefail
 
 staged_dir="$HOME/Pictures/_staged"
-album_dir="$1"
+album_dir="$usage_dir"
 
 if [ -z "$(ls -A "$staged_dir")" ]; then
   echo "$staged_dir is empty!"

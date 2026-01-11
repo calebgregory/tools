@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#MISE description="remove all .MOV files from directory"
+#USAGE arg "<dir>"
+
+set -eou pipefail
+
+album_dir="$usage_dir"
+
+if [ -z "$(ls -A "$album_dir")" ]; then
+  echo "$album_dir is empty!"
+  exit 0
+fi
+
+removed=0
+for mov in "$album_dir"/*.MOV; do
+  rm "$mov"
+  ((removed+=1))
+done
+
+echo "done: removed ${removed} .MOV files"

@@ -3,7 +3,8 @@
 tools for working with images imported from my camera + uploading them to our
 self-hosted-on-home-network immich app.
 
-assumes use of `mise.toml` from dotfiles, which manages python, node, pnpm versions.
+assumes use of `mise.toml` from dotfiles, which manages python, node, pnpm,
+usage versions.  mise also has a built-in task-runner, which we use.
 
 in addition to those,
 

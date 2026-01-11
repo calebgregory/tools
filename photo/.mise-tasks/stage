@@ -21,11 +21,14 @@ mkdir -p "$staged_dir"
 rm -f "$staged_dir/.DS_Store"
 
 if [ -n "$(ls -A "$staged_dir")" ]; then
-  echo "$staged_dir is not empty!"
-  exit 1
+  echo "WARNING: $staged_dir is not empty!"
 fi
 
 mv "$sd_card_volume"/DCIM/*_FUJI/* "$staged_dir"
+
+file_count="$(find "$staged_dir" -type f | wc -l)"
+total_size="$(du -sh "$staged_dir" | cut -f1)"
+echo "moved $file_count files ($total_size)"
 
 open "$staged_dir"
 
