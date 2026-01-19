@@ -29,3 +29,4 @@ extend-ignore = [
   "E501", # ignore line-too-long errors, Black handles this
   "E203", # whitespace before :
 ]
+
