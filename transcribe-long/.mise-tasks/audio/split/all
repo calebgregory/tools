@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+#MISE description="Extract audio and split into chunks (detect-silence + split-on-silence)"
 set -euo pipefail
 
-in="${1:?usage: mise run audio:smart_all <input.mp4> [workdir]}"
+in="${1:?usage: mise run audio:split:all <input.mp4> [workdir]}"
 workdir="${2:-}"
 
 if [[ -z "$workdir" ]]; then

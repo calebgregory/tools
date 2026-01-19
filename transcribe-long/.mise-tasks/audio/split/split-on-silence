@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
+#MISE description="Split audio into chunks at silence boundaries (~20min each)"
 set -euo pipefail
 
-in="${1:?usage: mise run audio:split_smart <audio.m4a> <workdir>}"
+in="${1:?usage: mise run audio:split:split-on-silence <audio.m4a> <workdir>}"
 workdir="${2:?usage: mise run audio:split_smart <audio.m4a> <workdir>}"
 
 log="$workdir/silence.log"
+cuts_file="$workdir/cuts.txt"
 chunks_dir="$workdir/chunks"
 mkdir -p "$chunks_dir"
 
@@ -14,7 +16,8 @@ if [[ ! -f "$log" ]]; then
 fi
 
 # 20 minutes = 1200s; pick nearest silence within +/- 90s (set window 0 to disable)
-CUTS="$(uv run transcribe/choose_silence_cuts.py "$log" --every 1200 --window 90)"
+uv run transcribe/choose_silence_cuts.py "$log" "$cuts_file" --every 1200 --window 90
+CUTS="$(cat "$cuts_file")"
 
 ffmpeg -hide_banner -loglevel error \
   -i "$in" \

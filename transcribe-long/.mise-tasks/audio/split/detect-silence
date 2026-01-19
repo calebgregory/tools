@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+#MISE description="Detect silence intervals in audio file using ffmpeg"
 set -euo pipefail
 
-in="${1:?usage: mise run audio:detect_silence <input.mp4|audio.m4a> <workdir>}"
+in="${1:?usage: mise run audio:split:detect-silence <input.mp4|audio.m4a> <workdir>}"
 workdir="${2:?usage: mise run audio:detect_silence <input> <workdir>}"
 
 mkdir -p "$workdir"

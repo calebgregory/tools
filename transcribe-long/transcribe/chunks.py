@@ -1,55 +1,68 @@
 #!/usr/bin/env -S uv run python
-from __future__ import annotations
-
+import argparse
 import json
-import os
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
 
-from litellm import transcription  # per LiteLLM docs :contentReference[oaicite:3]{index=3}
+from litellm import transcription
+
+from transcribe.config import TranscribeConfig, load_config
 
 
 @dataclass(frozen=True)
 class Job:
+    index: int
     chunk_path: Path
     out_json: Path
 
 
-def _to_jsonable(resp: Any) -> Any:
-    # LiteLLM responses vary by version/provider; handle common shapes.
+@dataclass
+class ChunkTranscript:
+    index: int
+    text: str
+    chunk_filename: str
+
+
+def _extract_text(resp: object) -> str:
+    """Extract text from a litellm transcription response."""
+    if hasattr(resp, "text") and isinstance(resp.text, str):
+        return resp.text
     if hasattr(resp, "model_dump"):
-        return resp.model_dump()
-    if hasattr(resp, "dict"):
-        return resp.dict()
-    if isinstance(resp, (dict, list, str, int, float, bool)) or resp is None:
-        return resp
-    # last resort:
-    return {"repr": repr(resp)}
+        data = resp.model_dump()
+        if isinstance(data, dict) and "text" in data:
+            return str(data["text"])
+    return ""
+
+
+def _extract_index_from_filename(filename: str) -> int:
+    """Extract chunk index from filename like 'chunk_001.m4a' -> 1."""
+    match = re.search(r"chunk_(\d+)", filename)
+    return int(match.group(1)) if match else 0
 
 
 def transcribe_one(job: Job, model: str) -> None:
     job.out_json.parent.mkdir(parents=True, exist_ok=True)
 
     with job.chunk_path.open("rb") as f:
-        # If your LiteLLM install supports filename+content_type tuples, this is the safest:
         file_param = (job.chunk_path.name, f, "audio/mp4")
         resp = transcription(model=model, file=file_param)
 
-    job.out_json.write_text(json.dumps(_to_jsonable(resp), ensure_ascii=False, indent=2), encoding="utf-8")
+    transcript = ChunkTranscript(
+        index=job.index,
+        text=_extract_text(resp),
+        chunk_filename=job.chunk_path.name,
+    )
+    job.out_json.write_text(json.dumps(asdict(transcript), ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def main() -> None:
-    import argparse
-
-    ap = argparse.ArgumentParser()
-    ap.add_argument("workdir", help="Work directory created by audio:split")
-    ap.add_argument("--model", default=os.environ.get("TRANSCRIBE_MODEL", "gpt-4o-transcribe-diarize"))
-    ap.add_argument("--jobs", type=int, default=int(os.environ.get("TRANSCRIBE_JOBS", "2")))
-    args = ap.parse_args()
-
-    workdir = Path(args.workdir)
+def main(
+    workdir: Path,
+    config: TranscribeConfig | None = None,
+) -> None:
+    if config is None:
+        config = load_config(workdir=workdir)
     chunks_dir = workdir / "chunks"
     out_dir = workdir / "transcripts"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -58,11 +71,18 @@ def main() -> None:
     if not chunks:
         raise SystemExit(f"No chunks found in {chunks_dir}")
 
-    jobs = [Job(chunk_path=p, out_json=out_dir / (p.stem + ".json")) for p in chunks]
+    jobs = [
+        Job(
+            index=_extract_index_from_filename(p.name),
+            chunk_path=p,
+            out_json=out_dir / (p.stem + ".json"),
+        )
+        for p in chunks
+    ]
 
     failures: list[tuple[Path, str]] = []
-    with ThreadPoolExecutor(max_workers=args.jobs) as ex:
-        futs = {ex.submit(transcribe_one, j, args.model): j for j in jobs}
+    with ThreadPoolExecutor(max_workers=config.transcription_jobs) as ex:
+        futs = {ex.submit(transcribe_one, j, config.transcription_model): j for j in jobs}
         for fut in as_completed(futs):
             j = futs[fut]
             try:
@@ -82,4 +102,16 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("workdir", help="Work directory created by audio:split")
+    ap.add_argument("--model", help="Transcription model (overrides config)")
+    ap.add_argument("--jobs", type=int, help="Number of parallel jobs (overrides config)")
+    args = ap.parse_args()
+
+    config = load_config(workdir=Path(args.workdir))
+    if args.model:
+        config.transcription_model = args.model
+    if args.jobs:
+        config.transcription_jobs = args.jobs
+
+    main(workdir=Path(args.workdir), config=config)
