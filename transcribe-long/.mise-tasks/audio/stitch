@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+workdir="${1:?usage: mise run audio:stitch <workdir>}"
+uv run transcribe/stitch_transcripts.py "$workdir"

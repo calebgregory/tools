@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+in="${1:?usage: mise run audio:detect_silence <input.mp4|audio.m4a> <workdir>}"
+workdir="${2:?usage: mise run audio:detect_silence <input> <workdir>}"
+
+mkdir -p "$workdir"
+log="$workdir/silence.log"
+
+# Tune noise/d as needed
+ffmpeg -hide_banner -i "$in" -vn \
+  -af "silencedetect=noise=-35dB:d=0.4" \
+  -f null - 2> "$log"
+
+echo "Wrote: $log"

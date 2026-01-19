@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+workdir="${1:?usage: mise run audio:transcribe <workdir>}"
+
+# Optional overrides:
+#   TRANSCRIBE_MODEL=gpt-4o-transcribe-diarize
+#   TRANSCRIBE_JOBS=2
+uv run transcribe/chunks.py "$workdir"

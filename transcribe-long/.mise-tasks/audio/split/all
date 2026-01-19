@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+in="${1:?usage: mise run audio:smart_all <input.mp4> [workdir]}"
+workdir="${2:-}"
+
+if [[ -z "$workdir" ]]; then
+  base="$(basename "$in")"
+  stem="${base%.*}"
+  workdir="./.transcribe/${stem}"
+fi
+
+mkdir -p "$workdir"
+
+# Extract AAC audio for consistent downstream steps
+audio="$workdir/audio.m4a"
+ffmpeg -hide_banner -loglevel error -i "$in" -vn -map 0:a:0 -c:a copy "$audio"
+
+mise run audio:split:detect-silence -- "$audio" "$workdir"
+mise run audio:split:split-on-silence -- "$audio" "$workdir"
+
+echo "Workdir: $workdir"
