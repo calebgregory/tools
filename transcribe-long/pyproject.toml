@@ -1,15 +1,21 @@
 [project]
 name = "transcribe-long"
 version = "0.1.0"
-description = "Add your description here"
+description = "Transcribe large audio files by splitting on silence, transcribing chunks, and stitching"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "litellm>=1.81.0",
+    "thds-core>=1.50.20260117040119",
+    "thds-mops>=3.13.20260117040131",
 ]
+
+[project.scripts]
+transcribe = "transcribe.__main__:main"
 
 [dependency-groups]
 dev = [
+    "mypy>=1.19.1",
     "pytest>=9.0.2",
     "ruff>=0.14.13",
 ]
@@ -19,3 +25,9 @@ line-length = 108
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+
+[tool.mypy]
+exclude = [
+    '^venv/',
+    '^tests/'
+]

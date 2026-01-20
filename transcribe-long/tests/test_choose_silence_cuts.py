@@ -1,18 +1,18 @@
 import pytest
 
-from transcribe.choose_silence_cuts import Silence, choose_cuts, parse_silences
+from transcribe.split.choose_silence_cuts import Silence, _choose_cuts, _parse_silences
 
 
 class TestParseSilences:
     def test_empty_input(self):
-        assert parse_silences([]) == []
+        assert _parse_silences([]) == []
 
     def test_single_silence(self):
         lines = [
             "[silencedetect @ 0x123] silence_start: 10.5",
             "[silencedetect @ 0x123] silence_end: 11.2 | silence_duration: 0.7",
         ]
-        result = parse_silences(lines)
+        result = _parse_silences(lines)
         assert len(result) == 1
         assert result[0].start == 10.5
         assert result[0].end == 11.2
@@ -26,7 +26,7 @@ class TestParseSilences:
             "silence_start: 300.0",
             "silence_end: 300.5",
         ]
-        result = parse_silences(lines)
+        result = _parse_silences(lines)
         assert len(result) == 3
         assert result[0] == Silence(start=100.0, end=101.5)
         assert result[1] == Silence(start=200.0, end=202.0)
@@ -38,7 +38,7 @@ class TestParseSilences:
             "silence_start: 100.0",
             "silence_end: 101.0",
         ]
-        result = parse_silences(lines)
+        result = _parse_silences(lines)
         assert len(result) == 1
         assert result[0] == Silence(start=100.0, end=101.0)
 
@@ -47,7 +47,7 @@ class TestParseSilences:
             "silence_start: 100.0",
             "silence_end: 99.0",  # end before start - should be ignored
         ]
-        result = parse_silences(lines)
+        result = _parse_silences(lines)
         assert len(result) == 0
 
     def test_handles_integer_timestamps(self):
@@ -55,7 +55,7 @@ class TestParseSilences:
             "silence_start: 100",
             "silence_end: 200",
         ]
-        result = parse_silences(lines)
+        result = _parse_silences(lines)
         assert len(result) == 1
         assert result[0].start == 100.0
         assert result[0].end == 200.0
@@ -69,7 +69,7 @@ class TestParseSilences:
             "silence_end: 10.987654 | silence_duration: 0.864198",
             "even more output",
         ]
-        result = parse_silences(lines)
+        result = _parse_silences(lines)
         assert len(result) == 1
         assert result[0].start == pytest.approx(10.123456)
         assert result[0].end == pytest.approx(10.987654)
@@ -87,7 +87,7 @@ class TestSilenceMid:
 
 class TestChooseCuts:
     def test_empty_mids(self):
-        result = choose_cuts(
+        result = _choose_cuts(
             mids=[],
             every=1200,
             duration=None,
@@ -99,7 +99,7 @@ class TestChooseCuts:
 
     def test_single_cut(self):
         mids = [1200.0]
-        result = choose_cuts(
+        result = _choose_cuts(
             mids=mids,
             every=1200,
             duration=3600,
@@ -115,7 +115,7 @@ class TestChooseCuts:
 
     def test_nearest_silence_chosen(self):
         mids = [1150.0, 1190.0, 1250.0]  # 1190 is closest to target 1200
-        result = choose_cuts(
+        result = _choose_cuts(
             mids=mids,
             every=1200,
             duration=2000,  # short duration to only have one cut
@@ -129,7 +129,7 @@ class TestChooseCuts:
     def test_window_constraint(self):
         # 1000 is outside window of 90s from target 1200
         mids = [1000.0, 1150.0]
-        result = choose_cuts(
+        result = _choose_cuts(
             mids=mids,
             every=1200,
             duration=2000,  # short duration to only have one cut
@@ -143,7 +143,7 @@ class TestChooseCuts:
     def test_no_window(self):
         # With window=None, should pick global nearest
         mids = [500.0]  # far from 1200 but only option
-        result = choose_cuts(
+        result = _choose_cuts(
             mids=mids,
             every=1200,
             duration=3600,
@@ -156,7 +156,7 @@ class TestChooseCuts:
 
     def test_multiple_cuts(self):
         mids = [1200.0, 2400.0, 3600.0]
-        result = choose_cuts(
+        result = _choose_cuts(
             mids=mids,
             every=1200,
             duration=5000,
@@ -172,7 +172,7 @@ class TestChooseCuts:
     def test_stop_before_end(self):
         # Don't place cut within 30s of end (duration=3600)
         mids = [1200.0, 2400.0, 3580.0]  # 3580 is within 30s of 3600
-        result = choose_cuts(
+        result = _choose_cuts(
             mids=mids,
             every=1200,
             duration=3600,
@@ -186,7 +186,7 @@ class TestChooseCuts:
     def test_no_reuse_of_mids(self):
         # Only one mid available, but two targets
         mids = [1200.0]
-        result = choose_cuts(
+        result = _choose_cuts(
             mids=mids,
             every=1200,
             duration=3600,
@@ -200,7 +200,7 @@ class TestChooseCuts:
     def test_fallback_to_global_when_window_exhausted(self):
         # Window is 10s, but nearest within window already used
         mids = [1195.0, 2500.0]  # 1195 near target 1200, 2500 far from target 2400
-        result = choose_cuts(
+        result = _choose_cuts(
             mids=mids,
             every=1200,
             duration=4000,
@@ -215,7 +215,7 @@ class TestChooseCuts:
     def test_inferred_duration(self):
         # When duration is None, infer from last mid + every
         mids = [1200.0]
-        result = choose_cuts(
+        result = _choose_cuts(
             mids=mids,
             every=1200,
             duration=None,

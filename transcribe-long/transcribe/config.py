@@ -21,37 +21,24 @@ class TranscribeConfig:
         return cls(**filtered)
 
 
-def find_config_file(input_path: Path | None = None, workdir: Path | None = None) -> Path | None:
+def find_config_file(input_path: Path | None = None) -> Path | None:
     """
     Find a config file in order of precedence:
     1. Peer to input file (e.g., /path/to/audio.m4a -> /path/to/transcribe.toml)
-    2. In workdir
-    3. In current working directory
+    2. In current working directory
 
     Returns None if no config file is found.
     """
-    candidates: list[Path] = []
+    candidates = [input_path.parent / CONFIG_FILENAME if input_path else None, Path.cwd() / CONFIG_FILENAME]
 
-    if input_path is not None:
-        candidates.append(input_path.parent / CONFIG_FILENAME)
-
-    if workdir is not None:
-        candidates.append(workdir / CONFIG_FILENAME)
-
-    candidates.append(Path.cwd() / CONFIG_FILENAME)
-
-    for candidate in candidates:
+    for candidate in filter(None, candidates):
         if candidate.is_file():
             return candidate
 
     return None
 
 
-def load_config(
-    input_path: Path | None = None,
-    workdir: Path | None = None,
-    config_path: Path | None = None,
-) -> TranscribeConfig:
+def load_config(input_path: Path | None = None, config_path: Path | None = None) -> TranscribeConfig:
     """
     Load config from TOML file, with environment variable overrides.
 
@@ -65,7 +52,7 @@ def load_config(
 
     # Try to load from file
     if config_path is None:
-        config_path = find_config_file(input_path, workdir)
+        config_path = find_config_file(input_path)
 
     if config_path is not None and config_path.is_file():
         with open(config_path, "rb") as f:

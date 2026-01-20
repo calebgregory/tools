@@ -1,13 +1,10 @@
 #!/usr/bin/env -S uv run python
-import argparse
-import json
-from dataclasses import asdict
 from pathlib import Path
 
 from litellm import completion
 
-from transcribe.chunks import ChunkTranscript
-from transcribe.config import TranscribeConfig, load_config
+from transcribe.config import TranscribeConfig
+from transcribe.transcribe_chunks import ChunkTranscript
 
 REFORMAT_SYSTEM_PROMPT = """\
 You are a transcript editor. The user will provide a transcript that has been \
@@ -28,7 +25,7 @@ CRITICAL RULES:
 """
 
 
-def reformat_transcript(text: str, model: str) -> str:
+def _reformat_transcript(text: str, model: str) -> str:
     """
     Send the stitched transcript to an LLM to fix capitalization/punctuation
     and add paragraph breaks.
@@ -44,73 +41,26 @@ def reformat_transcript(text: str, model: str) -> str:
     return content.strip() if content else text
 
 
-def load_transcript(path: Path) -> ChunkTranscript:
-    """Load a ChunkTranscript from a JSON file."""
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return ChunkTranscript(**data)
+def stitch_transcripts(
+    chunk_transcripts: list[ChunkTranscript], workdir: Path, config: TranscribeConfig
+) -> Path:
+    chunk_transcripts = sorted(chunk_transcripts, key=lambda t: t.index)
 
-
-def main(
-    workdir: Path,
-    config: TranscribeConfig | None = None,
-    skip_reformat: bool = False,
-) -> None:
-    if config is None:
-        config = load_config(workdir=workdir)
-
-    transcripts_dir = workdir / "transcripts"
-    files = sorted(transcripts_dir.glob("chunk_*.json"))
-    if not files:
-        raise SystemExit(f"No transcripts found in {transcripts_dir}")
-
-    transcripts = [load_transcript(f) for f in files]
-    transcripts.sort(key=lambda t: t.index)
-
-    out_jsonl = workdir / "transcript.jsonl"
-    out_raw = workdir / "transcript.raw.txt"
-    out_txt = workdir / "transcript.txt"
-
-    txt_parts: list[str] = []
-
-    with out_jsonl.open("w", encoding="utf-8") as w:
-        for t in transcripts:
-            w.write(json.dumps(asdict(t), ensure_ascii=False) + "\n")
-            if t.text:
-                txt_parts.append(t.text.strip())
-
-    print(f"Wrote: {out_jsonl}")
+    txt_parts = [txt for t in chunk_transcripts if (txt := t.text.strip())]
 
     if not txt_parts:
-        print("No text found in transcripts.")
-        return
+        raise ValueError("No text found in transcripts.")
+
+    out_raw = workdir / "transcript.raw.txt"
+    out_txt = workdir / "transcript.txt"
 
     raw_text = "\n\n".join(txt_parts)
     out_raw.write_text(raw_text + "\n", encoding="utf-8")
     print(f"Wrote: {out_raw}")
 
-    if skip_reformat:
-        out_txt.write_text(raw_text + "\n", encoding="utf-8")
-        print(f"Wrote: {out_txt} (reformat skipped)")
-    else:
-        print(f"Reformatting with {config.reformat_model}...")
-        reformatted = reformat_transcript(raw_text, config.reformat_model)
-        out_txt.write_text(reformatted + "\n", encoding="utf-8")
-        print(f"Wrote: {out_txt}")
+    print(f"Reformatting with {config.reformat_model}...")
+    reformatted = _reformat_transcript(raw_text, config.reformat_model)
+    out_txt.write_text(reformatted + "\n", encoding="utf-8")
+    print(f"Wrote: {out_txt}")
 
-
-if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    ap.add_argument("workdir")
-    ap.add_argument("--skip-reformat", action="store_true", help="Skip the LLM reformat step")
-    ap.add_argument("--reformat-model", help="Model to use for reformatting (overrides config)")
-    args = ap.parse_args()
-
-    config = load_config(workdir=Path(args.workdir))
-    if args.reformat_model:
-        config.reformat_model = args.reformat_model
-
-    main(
-        workdir=Path(args.workdir),
-        config=config,
-        skip_reformat=args.skip_reformat,
-    )
+    return out_txt
