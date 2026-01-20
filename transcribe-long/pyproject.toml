@@ -12,6 +12,12 @@ dependencies = [
 
 [project.scripts]
 transcribe = "transcribe.__main__:main"
+transcribe-diarize = "transcribe.diarize.__main__:main"
+
+[project.optional-dependencies]
+diarize = [
+    "pyannote-audio>=3.1",
+]
 
 [dependency-groups]
 dev = [

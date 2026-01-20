@@ -4,13 +4,13 @@
 import argparse
 from pathlib import Path
 
-from thds.core import hashing
 from thds.mops import pure
 
 from transcribe.config import load_config
 from transcribe.split import split_audio_on_silences
 from transcribe.stitch_transcripts import stitch_transcripts as stitch_transcripts
 from transcribe.transcribe_chunks import transcribe_chunks
+from transcribe.workdir import derive_workdir
 
 pure.magic.blob_root(Path(__file__).parent.parent)
 
@@ -19,19 +19,12 @@ transcribe = pure.magic()(transcribe_chunks)
 stitch = pure.magic()(stitch_transcripts)
 
 
-def _workdir(input_file: Path) -> Path:
-    dirname = input_file.stem.replace(" ", "-")
-    sha256 = str(hashing.file("sha256", input_file), encoding="utf-8")
-    workdir = Path(f".transcribe/{dirname}/{sha256}")
-    return workdir
-
-
 def main(input_file: Path, workdir: Path | None = None) -> None:
     if not input_file.exists():
         raise FileNotFoundError(f"Input file not found: {input_file}")
 
     if not workdir:
-        workdir = _workdir(input_file)
+        workdir = derive_workdir(input_file)
 
     workdir.mkdir(parents=True, exist_ok=True)
 

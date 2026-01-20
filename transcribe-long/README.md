@@ -6,45 +6,44 @@ Transcribe large audio files using OpenAI's transcription API by splitting on si
 
 - Python 3.13+
 - [uv](https://github.com/astral-sh/uv)
-- [mise](https://mise.jdx.dev/)
 - ffmpeg
 - OpenAI API key (set `OPENAI_API_KEY` environment variable)
+
+## Installation
+
+```bash
+uv pip install -e .
+```
 
 ## Usage
 
 ```bash
-# 1. Detect silence in audio file
-mise run audio:split:detect-silence -- input.m4a workdir/
-
-# 2. Split on silence (creates ~20min chunks)
-mise run audio:split:split-on-silence -- input.m4a workdir/
-
-# 3. Transcribe chunks in parallel
-mise run audio:transcribe -- workdir/
-
-# 4. Stitch transcripts and reformat
-mise run audio:stitch -- workdir/
+transcribe input.mp4
 ```
 
-Or run all steps:
+The pipeline is idempotent and memoizing - re-running the same command will skip already-completed steps.
+
+### Options
 
 ```bash
-mise run audio:all -- input.m4a workdir/
+transcribe input.mp4 --workdir ./my-workdir
 ```
+
+By default, working directory is `.transcribe/<input_stem>/<sha256>/`.
 
 ## Output
 
-After running, `workdir/` contains:
+After running, the working directory contains:
 
+- `audio.m4a` - Extracted audio track
 - `chunks/` - Split audio files
 - `transcripts/` - Individual chunk transcripts (JSON)
 - `transcript.raw.txt` - Stitched transcript (unformatted)
 - `transcript.txt` - Final transcript (reformatted with proper paragraphs)
-- `transcript.jsonl` - All chunks as JSON lines
 
 ## Configuration
 
-Create `transcribe.toml` next to your input file or in the working directory:
+Create `transcribe.toml` next to your input file:
 
 ```toml
 transcription_model = "gpt-4o-transcribe"
@@ -58,13 +57,6 @@ Environment variables override config file values:
 - `TRANSCRIBE_JOBS` - Number of parallel transcription jobs
 - `REFORMAT_MODEL` - Model for post-processing reformatting
 
-## CLI Options
+## Speaker Diarization
 
-```bash
-# Skip the LLM reformat step
-mise run audio:stitch -- workdir/ --skip-reformat
-
-# Override models via CLI
-uv run transcribe/chunks.py workdir/ --model gpt-4o-transcribe --jobs 4
-uv run transcribe/stitch_transcripts.py workdir/ --reformat-model gpt-4o-mini
-```
+For multi-speaker audio, see [transcribe/diarize/README.md](transcribe/diarize/README.md) for speaker identification support.
