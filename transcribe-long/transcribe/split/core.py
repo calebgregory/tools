@@ -6,47 +6,47 @@ import typing as ty
 from dataclasses import dataclass
 from pathlib import Path
 
+from thds.core.source import Source
+
 from transcribe.split.choose_silence_cuts import Cut, choose_cuts
+from transcribe.workdir import workdir
 
 
 @dataclass(frozen=True)
 class Chunk:
     index: int
-    file: Path
+    file: Source
     start_time: float = 0.0
     end_time: float | None = None
 
 
-def extract_audio(input_file: Path, workdir: Path) -> Path:
+def extract_audio(input_file: Source) -> Source:
     """Extract audio track from input file to m4a format."""
-    audio_file = workdir / "audio.m4a"
-    if audio_file.exists():
-        return audio_file
+    output_audio_file = workdir() / "audio.m4a"
+    workdir().mkdir(parents=True, exist_ok=True)
 
-    workdir.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
             *"ffmpeg -hide_banner -loglevel error -i".split(),
-            str(input_file),
+            str(input_file.path()),
             *"-vn -map 0:a:0 -c:a copy".split(),
-            str(audio_file),
+            str(output_audio_file),
         ],
         check=True,
     )
-    return audio_file
+    return Source.from_file(output_audio_file)
 
 
-def _detect_silence(audio_file: Path, workdir: Path) -> Path:
+def _detect_silence(audio_file: Source) -> Source:
     """Run ffmpeg silencedetect and write log file."""
-    log_file = workdir / "silence.log"
-
-    workdir.mkdir(parents=True, exist_ok=True)
+    log_file = workdir() / "silence.log"
+    workdir().mkdir(parents=True, exist_ok=True)
 
     # ffmpeg writes silencedetect output to stderr
     result = subprocess.run(
         [
             *"ffmpeg -hide_banner -i".split(),
-            str(audio_file),
+            str(audio_file.path()),
             *"-vn -af silencedetect=noise=-35dB:d=0.4 -f null -".split(),
         ],
         capture_output=True,
@@ -55,7 +55,7 @@ def _detect_silence(audio_file: Path, workdir: Path) -> Path:
 
     log_file.write_text(result.stderr, encoding="utf-8")
     print(f"Wrote: {log_file}")
-    return log_file
+    return Source.from_file(log_file)
 
 
 def _extract_index_from_filename(filename: str) -> int:
@@ -64,12 +64,12 @@ def _extract_index_from_filename(filename: str) -> int:
     return int(match.group(1)) if match else 0
 
 
-def _get_audio_duration(audio_file: Path) -> float:
+def _get_audio_duration(audio_file: Source) -> float:
     """Get duration of audio file in seconds using ffprobe."""
     result = subprocess.run(
         [
             *"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1".split(),
-            str(audio_file),
+            str(audio_file.path()),
         ],
         capture_output=True,
         text=True,
@@ -86,9 +86,9 @@ def _fmt_cuts_for_ffmpeg(cuts: ty.Iterable[Cut]) -> str:
     return ",".join(_fmt_float(cut.chosen, digits=6) for cut in cuts)
 
 
-def _split_on_silence(audio_file: Path, cuts: list[Cut], workdir: Path) -> list[Chunk]:
+def _split_on_silence(audio_file: Source, cuts: list[Cut]) -> list[Chunk]:
     """Split audio file at the specified cut points."""
-    chunks_dir = workdir / "chunks"
+    chunks_dir = workdir() / "chunks"
     chunks_dir.mkdir(parents=True, exist_ok=True)
 
     if cuts:
@@ -96,7 +96,7 @@ def _split_on_silence(audio_file: Path, cuts: list[Cut], workdir: Path) -> list[
         subprocess.run(
             [
                 *"ffmpeg -hide_banner -loglevel error -i".split(),
-                str(audio_file),
+                str(audio_file.path()),
                 *f"-f segment -segment_times {cuts_str} -reset_timestamps 1 -c copy".split(),
                 f"{chunks_dir}/chunk_%03d.m4a",
             ],
@@ -107,7 +107,7 @@ def _split_on_silence(audio_file: Path, cuts: list[Cut], workdir: Path) -> list[
         subprocess.run(
             [
                 *"ffmpeg -hide_banner -loglevel error -i".split(),
-                str(audio_file),
+                str(audio_file.path()),
                 *"-c copy {chunks_dir}/chunk_000.m4a".split(),
             ],
             check=True,
@@ -123,7 +123,7 @@ def _split_on_silence(audio_file: Path, cuts: list[Cut], workdir: Path) -> list[
     return [
         Chunk(
             index=_extract_index_from_filename(f.name),
-            file=f,
+            file=Source.from_file(f),
             start_time=boundaries[i],
             end_time=boundaries[i + 1],
         )
@@ -131,12 +131,10 @@ def _split_on_silence(audio_file: Path, cuts: list[Cut], workdir: Path) -> list[
     ]
 
 
-def split_audio_on_silences(
-    input_file: Path, workdir: Path, every: float = 1200.0, window: float = 90.0
-) -> list[Chunk]:
+def split_audio_on_silences(input_file: Source, every: float = 1200.0, window: float = 90.0) -> list[Chunk]:
     """Run the full split pipeline: extract audio, detect silence, choose cuts, split."""
-    audio_file = extract_audio(input_file, workdir)
-    log_file = _detect_silence(audio_file, workdir)
+    audio_file = extract_audio(input_file)
+    log_file = _detect_silence(audio_file)
     cuts = choose_cuts(silence_log_path=log_file, every=every, window=window)
-    chunks = _split_on_silence(audio_file, cuts, workdir)
+    chunks = _split_on_silence(audio_file, cuts)
     return chunks

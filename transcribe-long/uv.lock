@@ -3100,7 +3100,9 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "litellm" },
+    { name = "openai" },
     { name = "thds-core" },
+    { name = "thds-humenc" },
     { name = "thds-mops" },
 ]
 
@@ -3119,8 +3121,10 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "litellm", specifier = ">=1.81.0" },
+    { name = "openai", specifier = ">=1.0.0" },
     { name = "pyannote-audio", marker = "extra == 'diarize'", specifier = ">=4" },
     { name = "thds-core", specifier = ">=1.50.20260117040119" },
+    { name = "thds-humenc", specifier = ">=1.1.20260117040109" },
     { name = "thds-mops", specifier = ">=3.13.20260117040131" },
 ]
 provides-extras = ["diarize"]

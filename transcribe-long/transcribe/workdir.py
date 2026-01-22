@@ -1,10 +1,17 @@
+import typing as ty
 from pathlib import Path
 
-from thds.core import hashing
+from thds import humenc
+from thds.core import config, hashing
+
+_WORKDIR_ROOT: ty.Final = Path(__file__).parent.parent / ".out"
 
 
-def derive_workdir(input_file: Path, root_dirname=".transcribe") -> Path:
+def derive_workdir(input_file: Path, kind="transcribe") -> Path:
     dirname = input_file.stem.replace(" ", "-")
-    sha256 = hashing.file("sha256", input_file).hex()
-    workdir = Path(f"{root_dirname}/{dirname}/{sha256}")
+    sha256_wordybin = humenc.encode(hashing.file("sha256", input_file))
+    workdir = _WORKDIR_ROOT / kind / dirname / sha256_wordybin
     return workdir
+
+
+workdir: config.ConfigItem[Path] = config.item("workdir", parse=Path, default=_WORKDIR_ROOT)

@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run python
+import os
 import re
 import typing as ty
 from dataclasses import dataclass
@@ -114,7 +115,7 @@ def _choose_cuts(
 
 
 def choose_cuts(
-    silence_log_path: Path,
+    silence_log_path: os.PathLike[str] | Path,
     *,
     every: float = 1200.0,
     duration: float | None = None,
@@ -125,6 +126,7 @@ def choose_cuts(
     effective_window = window
     effective_start_at = start_at if start_at is not None else every
 
+    # open() works with both Path and Source (Source implements __fspath__)
     with open(silence_log_path, "r", encoding="utf-8", errors="replace") as f:
         silences = _parse_silences(f)
 

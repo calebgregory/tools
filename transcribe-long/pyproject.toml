@@ -6,9 +6,14 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "litellm>=1.81.0",
+    "openai>=1.0.0",
     "thds-core>=1.50.20260117040119",
+    "thds-humenc>=1.1.20260117040109",
     "thds-mops>=3.13.20260117040131",
 ]
+
+[project.scripts]
+transcribe-diarize-gpt = "transcribe.gpt_diarize.__main__:main"
 
 [project.optional-dependencies]
 diarize = [
