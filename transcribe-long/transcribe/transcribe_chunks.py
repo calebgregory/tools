@@ -6,13 +6,15 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from litellm import transcription
+from thds.core.source import Source
 
 from transcribe.config import TranscribeConfig
 from transcribe.split import Chunk
+from transcribe.workdir import workdir
 
 
 @dataclass(frozen=True)
-class Job:
+class _Job:
     index: int
     chunk_path: Path
     out_json: Path
@@ -22,7 +24,7 @@ class Job:
 class ChunkTranscript:
     index: int
     text: str
-    chunk_filename: str
+    chunk_file: Source
 
 
 class _TranscriptionError(Exception):
@@ -42,7 +44,7 @@ def _extract_text(resp: object) -> str:
     return ""
 
 
-def _transcribe_one(job: Job, model: str) -> ChunkTranscript:
+def _transcribe_one(job: _Job, model: str) -> ChunkTranscript:
     job.out_json.parent.mkdir(parents=True, exist_ok=True)
 
     with job.chunk_path.open("rb") as f:
@@ -52,7 +54,7 @@ def _transcribe_one(job: Job, model: str) -> ChunkTranscript:
     transcript = ChunkTranscript(
         index=job.index,
         text=_extract_text(resp),
-        chunk_filename=job.chunk_path.name,
+        chunk_file=Source.from_file(job.chunk_path),
     )
 
     # maybe useful
@@ -61,16 +63,15 @@ def _transcribe_one(job: Job, model: str) -> ChunkTranscript:
     return transcript
 
 
-def transcribe_chunks(
-    chunks: ty.Iterable[Chunk], workdir: Path, config: TranscribeConfig
-) -> list[ChunkTranscript]:
-    out_dir = workdir / "transcripts"
+def transcribe_chunks(chunks: ty.Iterable[Chunk], config: TranscribeConfig) -> list[ChunkTranscript]:
+    out_dir = workdir() / "transcripts"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     chunks = sorted(chunks, key=lambda c: c.index)
 
     jobs = [
-        Job(index=c.index, chunk_path=c.file, out_json=out_dir / (c.file.stem + ".json")) for c in chunks
+        _Job(index=c.index, chunk_path=c.file.path(), out_json=out_dir / (c.file.path().stem + ".json"))
+        for c in chunks
     ]
 
     print(f"transcribing {len(chunks)} chunks...")

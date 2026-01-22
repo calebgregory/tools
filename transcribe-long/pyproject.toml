@@ -15,11 +15,6 @@ dependencies = [
 [project.scripts]
 transcribe-diarize-gpt = "transcribe.gpt_diarize.__main__:main"
 
-[project.optional-dependencies]
-diarize = [
-    "pyannote-audio>=4",
-]
-
 [dependency-groups]
 dev = [
     "mypy>=1.19.1",

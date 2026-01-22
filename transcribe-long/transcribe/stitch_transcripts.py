@@ -1,10 +1,10 @@
 #!/usr/bin/env -S uv run python
-from pathlib import Path
-
 from litellm import completion
+from thds.core.source import Source
 
 from transcribe.config import TranscribeConfig
 from transcribe.transcribe_chunks import ChunkTranscript
+from transcribe.workdir import workdir
 
 REFORMAT_SYSTEM_PROMPT = """\
 You are a transcript editor. The user will provide a transcript that has been \
@@ -41,9 +41,7 @@ def _reformat_transcript(text: str, model: str) -> str:
     return content.strip() if content else text
 
 
-def stitch_transcripts(
-    chunk_transcripts: list[ChunkTranscript], workdir: Path, config: TranscribeConfig
-) -> Path:
+def stitch_transcripts(chunk_transcripts: list[ChunkTranscript], config: TranscribeConfig) -> Source:
     chunk_transcripts = sorted(chunk_transcripts, key=lambda t: t.index)
 
     txt_parts = [txt for t in chunk_transcripts if (txt := t.text.strip())]
@@ -51,8 +49,8 @@ def stitch_transcripts(
     if not txt_parts:
         raise ValueError("No text found in transcripts.")
 
-    out_raw = workdir / "transcript.raw.txt"
-    out_txt = workdir / "transcript.txt"
+    out_raw = workdir() / "transcript.raw.txt"
+    out_txt = workdir() / "transcript.txt"
 
     raw_text = "\n\n".join(txt_parts)
     out_raw.write_text(raw_text + "\n", encoding="utf-8")
@@ -63,4 +61,4 @@ def stitch_transcripts(
     out_txt.write_text(reformatted + "\n", encoding="utf-8")
     print(f"Wrote: {out_txt}")
 
-    return out_txt
+    return Source.from_file(out_txt)
