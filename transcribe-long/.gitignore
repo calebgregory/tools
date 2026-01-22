@@ -1,0 +1,6 @@
+.transcribe
+.transcribe-diarize
+
+*.egg-info
+
+.mops

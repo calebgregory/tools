@@ -19,11 +19,17 @@ def diarize_audio(audio_file: Path) -> list[SpeakerSegment]:
 
     pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization-3.1",
-        use_auth_token=hf_token,
+        token=hf_token,
     )
 
     # Run diarization
-    diarization = pipeline(str(audio_file))
+    result = pipeline(str(audio_file))
+
+    # pyannote-audio v4 returns DiarizeOutput, v3 returned Annotation directly
+    if hasattr(result, "speaker_diarization"):
+        diarization = result.speaker_diarization
+    else:
+        diarization = result
 
     segments: list[SpeakerSegment] = []
     for turn, _, speaker in diarization.itertracks(yield_label=True):

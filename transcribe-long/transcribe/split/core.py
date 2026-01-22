@@ -25,7 +25,12 @@ def extract_audio(input_file: Path, workdir: Path) -> Path:
 
     workdir.mkdir(parents=True, exist_ok=True)
     subprocess.run(
-        f"ffmpeg -hide_banner -loglevel error -i {input_file} -vn -map 0:a:0 -c:a copy {audio_file}".split(),
+        [
+            *"ffmpeg -hide_banner -loglevel error -i".split(),
+            str(input_file),
+            *"-vn -map 0:a:0 -c:a copy".split(),
+            str(audio_file),
+        ],
         check=True,
     )
     return audio_file
@@ -39,7 +44,11 @@ def _detect_silence(audio_file: Path, workdir: Path) -> Path:
 
     # ffmpeg writes silencedetect output to stderr
     result = subprocess.run(
-        f"ffmpeg -hide_banner -i {audio_file} -vn -af silencedetect=noise=-35dB:d=0.4 -f null -".split(),
+        [
+            *"ffmpeg -hide_banner -i".split(),
+            str(audio_file),
+            *"-vn -af silencedetect=noise=-35dB:d=0.4 -f null -".split(),
+        ],
         capture_output=True,
         text=True,
     )
@@ -58,7 +67,10 @@ def _extract_index_from_filename(filename: str) -> int:
 def _get_audio_duration(audio_file: Path) -> float:
     """Get duration of audio file in seconds using ffprobe."""
     result = subprocess.run(
-        f"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {audio_file}".split(),
+        [
+            *"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1".split(),
+            str(audio_file),
+        ],
         capture_output=True,
         text=True,
         check=True,
@@ -82,13 +94,22 @@ def _split_on_silence(audio_file: Path, cuts: list[Cut], workdir: Path) -> list[
     if cuts:
         cuts_str = _fmt_cuts_for_ffmpeg(cuts)
         subprocess.run(
-            f"ffmpeg -hide_banner -loglevel error -i {audio_file} -f segment -segment_times {cuts_str} -reset_timestamps 1 -c copy {chunks_dir}/chunk_%03d.m4a".split(),
+            [
+                *"ffmpeg -hide_banner -loglevel error -i".split(),
+                str(audio_file),
+                *f"-f segment -segment_times {cuts_str} -reset_timestamps 1 -c copy".split(),
+                f"{chunks_dir}/chunk_%03d.m4a",
+            ],
             check=True,
         )
     else:
         # No cuts - just copy the whole file as chunk_000
         subprocess.run(
-            f"ffmpeg -hide_banner -loglevel error -i {audio_file} -c copy {chunks_dir}/chunk_000.m4a".split(),
+            [
+                *"ffmpeg -hide_banner -loglevel error -i".split(),
+                str(audio_file),
+                *"-c copy {chunks_dir}/chunk_000.m4a".split(),
+            ],
             check=True,
         )
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run python
 """CLI entry point for transcribe-diarize."""
 
 import argparse
@@ -8,6 +8,7 @@ from thds.mops import pure
 
 from transcribe.config import load_config
 from transcribe.diarize.core import diarize_audio
+from transcribe.diarize.refine import refine_transcript
 from transcribe.diarize.stitch import stitch_with_speakers
 from transcribe.diarize.transcribe import transcribe_chunks_with_timestamps
 from transcribe.split import extract_audio, split_audio_on_silences
@@ -19,6 +20,7 @@ split = pure.magic()(split_audio_on_silences)
 diarize = pure.magic()(diarize_audio)
 transcribe = pure.magic()(transcribe_chunks_with_timestamps)
 stitch = pure.magic()(stitch_with_speakers)
+refine = pure.magic()(refine_transcript)
 
 
 def main(input_file: Path, workdir: Path | None = None) -> None:
@@ -32,10 +34,7 @@ def main(input_file: Path, workdir: Path | None = None) -> None:
 
     config = load_config(input_path=input_file)
 
-    # Extract audio for diarization (full file)
-    audio_file = workdir / "audio.m4a"
-    if not audio_file.exists():
-        extract_audio(input_file, workdir)
+    audio_file = extract_audio(input_file, workdir)
 
     # Run diarization on full audio (can run in parallel with split)
     print("Running speaker diarization...")
@@ -49,10 +48,15 @@ def main(input_file: Path, workdir: Path | None = None) -> None:
     transcripts = transcribe(chunks, workdir, config=config)
 
     # Stitch with speaker labels
-    final = stitch(transcripts, segments, workdir)
+    raw_transcript = stitch(transcripts, segments, workdir)
+
+    # Refine with LLM (assign unknown speakers, add punctuation)
+    print("Refining transcript with LLM...")
+    refined = refine(raw_transcript, workdir, model=config.reformat_model)
 
     print(f"\nDone. Output in: {workdir}")
-    print(f"  transcript.txt: {final}")
+    print(f"  transcript.txt (raw): {raw_transcript}")
+    print(f"  transcript.refined.txt: {refined}")
 
 
 if __name__ == "__main__":

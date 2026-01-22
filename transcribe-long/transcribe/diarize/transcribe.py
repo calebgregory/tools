@@ -37,8 +37,10 @@ def _transcribe_chunk_with_timestamps(chunk: Chunk, model: str, out_dir: Path) -
     """Transcribe a single chunk with word-level timestamps."""
     with chunk.file.open("rb") as f:
         file_param = (chunk.file.name, f, "audio/mp4")
+        # whisper-1 is required for verbose_json with word-level timestamps
+        # gpt-4o-transcribe doesn't support this format
         resp = transcription(
-            model=model,
+            model="whisper-1",
             file=file_param,
             response_format="verbose_json",
             timestamp_granularities=["word"],
