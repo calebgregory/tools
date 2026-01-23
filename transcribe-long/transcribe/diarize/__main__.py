@@ -8,8 +8,9 @@ from thds.core import source
 from thds.mops import pure
 
 from transcribe.config import load_config
-from transcribe.gpt_diarize.stitch import stitch_diarized_chunks
-from transcribe.gpt_diarize.transcribe import transcribe_chunks_diarized
+from transcribe.diarize.format import format_diarized_transcripts
+from transcribe.diarize.label import extract_speakers
+from transcribe.diarize.transcribe import transcribe_chunks_diarized
 from transcribe.split import split_audio_on_silences
 from transcribe.workdir import derive_workdir, workdir
 
@@ -17,7 +18,7 @@ pure.magic.blob_root(Path(__file__).parent.parent.parent)
 
 split = pure.magic()(split_audio_on_silences)
 transcribe_diarized = pure.magic()(transcribe_chunks_diarized)
-stitch = pure.magic()(stitch_diarized_chunks)
+format_transcripts = pure.magic()(format_diarized_transcripts)
 
 
 def main(input_file: Path) -> None:
@@ -31,16 +32,22 @@ def main(input_file: Path) -> None:
 
     # Split audio into chunks on silences
     print("Splitting audio on silences...")
-    chunks = split(source.from_file(input_file), every=300.0, window=60.0)  # 5min chunks, 60s window
+    chunks = split(source.from_file(input_file))
     print(f"Split into {len(chunks)} chunks")
 
     # Transcribe chunks with GPT-4o diarization (per-chunk speaker labels)
     print("Transcribing with diarization...")
     transcripts = transcribe_diarized(chunks, config)
 
-    # Stitch with LLM (merge split sentences, add punctuation)
-    print("Stitching transcript...")
-    output = stitch(transcripts, config)
+    # Format transcript (merge same-speaker segments, add paragraph breaks)
+    print("Formatting transcript...")
+    output = format_transcripts(transcripts)
+
+    # Write speakers list for labeling
+    speakers = extract_speakers(transcript=output.path().read_text(encoding="utf-8"))
+    speakers_toml = workdir() / "speakers.toml"
+    speakers_toml.write_text("\n".join(f"# {s}" for s in speakers) + "\n", encoding="utf-8")
+    print(f"Wrote: {speakers_toml} ({len(speakers)} speakers)")
 
     print(f"\nDone. Output: {output}")
 

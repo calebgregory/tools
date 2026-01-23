@@ -12,9 +12,6 @@ dependencies = [
     "thds-mops>=3.13.20260117040131",
 ]
 
-[project.scripts]
-transcribe-diarize-gpt = "transcribe.gpt_diarize.__main__:main"
-
 [dependency-groups]
 dev = [
     "mypy>=1.19.1",

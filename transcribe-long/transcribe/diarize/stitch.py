@@ -4,7 +4,7 @@ from litellm import completion
 from thds.core.source import Source
 
 from transcribe.config import TranscribeConfig
-from transcribe.gpt_diarize.types import DiarizedChunkTranscript
+from transcribe.diarize.types import DiarizedChunkTranscript
 from transcribe.workdir import workdir
 
 STITCH_PROMPT = """You are formatting a transcript from multiple audio chunks. Each chunk has

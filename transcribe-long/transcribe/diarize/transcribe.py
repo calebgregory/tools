@@ -8,7 +8,7 @@ from pathlib import Path
 from openai import OpenAI
 
 from transcribe.config import TranscribeConfig
-from transcribe.gpt_diarize.types import DiarizedChunkTranscript, DiarizedSegment
+from transcribe.diarize.types import DiarizedChunkTranscript, DiarizedSegment
 from transcribe.split import Chunk
 from transcribe.workdir import workdir
 
