@@ -1,7 +1,7 @@
 #!/bin/bash
 
-alias transcribe="uv run python -m transcribe"
+this_dir=~/tools/transcribe-long
 
-alias transcribe-diarize="uv run python -m transcribe.diarize"
-
-alias transcribe-label="uv run python -m transcribe.diarize.label"
+alias transcribe="uv --project ${this_dir} run python -m transcribe"
+alias transcribe-diarize="uv --project ${thid_dir} run python -m transcribe.diarize"
+alias transcribe-label="uv --project ${thid_dir} run python -m transcribe.diarize.label"
