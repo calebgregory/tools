@@ -1,0 +1,3 @@
+[submodule "confident-confidant"]
+	path = confident-confidant
+	url = ./confident-confidant
