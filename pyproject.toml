@@ -4,7 +4,11 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = ["confident-confidant", "transcribe-long"]
+
+[tool.uv.sources]
+confident-confidant = { path = "./confident-confidant", editable = true }
+transcribe-long = { path = "./transcribe-long", editable = true }
 
 [tool.black]
 line-length = 108
@@ -29,4 +33,3 @@ extend-ignore = [
   "E501", # ignore line-too-long errors, Black handles this
   "E203", # whitespace before :
 ]
-

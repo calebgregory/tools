@@ -1,0 +1,13 @@
+{
+  "folders": [
+    { "path": "..", "name": "root" },
+    { "path": "../confident-confidant" },
+    { "path": "../transcribe-long" }
+  ],
+  "settings": {
+    "files.exclude": {
+      "confident-confidant": true,
+      "transcribe-long": true
+    }
+  }
+}
