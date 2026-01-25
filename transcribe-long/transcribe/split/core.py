@@ -82,6 +82,27 @@ def _fmt_float(x: float, digits: int) -> str:
     return f"{x:.{digits}f}".rstrip("0").rstrip(".")
 
 
+def _get_max_volume(audio_file: Path) -> float | None:
+    """Get max volume of audio file in dB using ffmpeg volumedetect."""
+    result = subprocess.run(
+        [
+            *"ffmpeg -hide_banner -i".split(),
+            str(audio_file),
+            *"-af volumedetect -f null -".split(),
+        ],
+        capture_output=True,
+        text=True,
+    )
+    match = re.search(r"max_volume:\s*(-?\d+\.?\d*)\s*dB", result.stderr)
+    return float(match.group(1)) if match else None
+
+
+def _is_silent(audio_file: Path, threshold_db: float = -35.0) -> bool:
+    """Check if audio file is silent (max volume below threshold)."""
+    max_vol = _get_max_volume(audio_file)
+    return max_vol is not None and max_vol < threshold_db
+
+
 def _fmt_cuts_for_ffmpeg(cuts: ty.Iterable[Cut]) -> str:
     return ",".join(_fmt_float(cut.chosen, digits=6) for cut in cuts)
 
@@ -120,7 +141,7 @@ def _split_on_silence(audio_file: Source, cuts: list[Cut]) -> list[Chunk]:
 
     print(f"Chunks in: {chunks_dir}")
     chunk_files = sorted(chunks_dir.glob("*.m4a"), key=lambda f: f.name)
-    return [
+    chunks = [
         Chunk(
             index=_extract_index_from_filename(f.name),
             file=Source.from_file(f),
@@ -129,6 +150,13 @@ def _split_on_silence(audio_file: Source, cuts: list[Cut]) -> list[Chunk]:
         )
         for i, f in enumerate(chunk_files)
     ]
+
+    # Filter out silent chunks
+    non_silent = [c for c in chunks if not _is_silent(c.file.path())]
+    if skipped := len(chunks) - len(non_silent):
+        print(f"Skipped {skipped} silent chunk(s)")
+
+    return non_silent
 
 
 def split_audio_on_silences(input_file: Source, every: float = 1200.0, window: float = 90.0) -> list[Chunk]:

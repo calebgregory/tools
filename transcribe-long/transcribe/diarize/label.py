@@ -1,4 +1,3 @@
-#!/usr/bin/env -S uv run python
 """Replace CHUNK_N_X speaker labels with human-readable names."""
 
 import argparse
@@ -168,9 +167,9 @@ def apply_labels(transcript_path: Path, labels_path: Path) -> None:
     print(f"\nWrote: {output_path}")
 
 
-if __name__ == "__main__":
+def cli() -> None:
     parser = argparse.ArgumentParser(
-        prog="transcript-label",
+        prog="transcribe-label",
         description="Replace CHUNK_N_X speaker labels with human-readable names.",
     )
     parser.add_argument("transcript", help="Path to transcript.txt", type=Path)
@@ -188,3 +187,7 @@ if __name__ == "__main__":
         if not args.labels:
             parser.error("labels file is required unless --extract is specified")
         apply_labels(transcript_path=args.transcript, labels_path=args.labels)
+
+
+if __name__ == "__main__":
+    cli()

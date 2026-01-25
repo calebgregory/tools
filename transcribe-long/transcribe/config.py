@@ -13,6 +13,7 @@ class TranscribeConfig:
     transcription_jobs: int = 2
     reformat_model: str = "gpt-4o"
     diarization_model: str = "gpt-4o-transcribe-diarize"
+    split_every_s: int = 20 * 60 # 20 minutes
 
     @classmethod
     def from_dict(cls, data: dict) -> "TranscribeConfig":

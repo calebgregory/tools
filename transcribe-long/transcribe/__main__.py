@@ -1,4 +1,3 @@
-#!/usr/bin/env -S uv run python
 """Main CLI entry point for transcribe-long."""
 
 import argparse
@@ -30,7 +29,7 @@ def main(input_file: Path) -> None:
     config = load_config(input_path=input_file)
 
     # Run pipeline steps (decorator handles caching)
-    chunks = split(source.from_file(input_file))
+    chunks = split(source.from_file(input_file), every=config.split_every_s)
     chunk_transcripts = transcribe(chunks, config=config)
     final = stitch(chunk_transcripts, config=config)
 
@@ -38,12 +37,15 @@ def main(input_file: Path) -> None:
     print(f"  transcript.txt: {final}")
 
 
-if __name__ == "__main__":
+def cli() -> None:
     parser = argparse.ArgumentParser(
         prog="transcribe",
         description="Transcribe large audio files by splitting, transcribing chunks, and stitching.",
     )
     parser.add_argument("input", help="Input audio/video file", type=Path)
     args = parser.parse_args()
-
     main(input_file=args.input)
+
+
+if __name__ == "__main__":
+    cli()

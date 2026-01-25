@@ -12,6 +12,11 @@ dependencies = [
     "thds-mops>=3.13.20260117040131",
 ]
 
+[project.scripts]
+transcribe = "transcribe.__main__:cli"
+transcribe-diarize = "transcribe.diarize.__main__:cli"
+transcribe-label = "transcribe.diarize.label:cli"
+
 [dependency-groups]
 dev = [
     "mypy>=1.19.1",

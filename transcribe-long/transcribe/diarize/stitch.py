@@ -1,4 +1,6 @@
-"""Stitch diarized chunks using LLM for punctuation and formatting."""
+"""Stitch diarized chunks using LLM for punctuation and formatting.
+
+DEAD CODE!!!"""
 
 from litellm import completion
 from thds.core.source import Source

@@ -1,4 +1,3 @@
-#!/usr/bin/env -S uv run python
 """CLI entry point for GPT-4o based transcribe-diarize."""
 
 import argparse
@@ -32,7 +31,7 @@ def main(input_file: Path) -> None:
 
     # Split audio into chunks on silences
     print("Splitting audio on silences...")
-    chunks = split(source.from_file(input_file))
+    chunks = split(source.from_file(input_file), every=config.split_every_s)
     print(f"Split into {len(chunks)} chunks")
 
     # Transcribe chunks with GPT-4o diarization (per-chunk speaker labels)
@@ -52,12 +51,15 @@ def main(input_file: Path) -> None:
     print(f"\nDone. Output: {output}")
 
 
-if __name__ == "__main__":
+def cli() -> None:
     parser = argparse.ArgumentParser(
-        prog="transcribe-diarize-gpt",
+        prog="transcribe-diarize",
         description="Transcribe audio with GPT-4o speaker diarization.",
     )
     parser.add_argument("input", help="Input audio/video file", type=Path)
     args = parser.parse_args()
-
     main(input_file=args.input)
+
+
+if __name__ == "__main__":
+    cli()
