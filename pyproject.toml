@@ -10,6 +10,9 @@ dependencies = ["confident-confidant", "transcribe-long"]
 confident-confidant = { path = "./confident-confidant", editable = true }
 transcribe-long = { path = "./transcribe-long", editable = true }
 
+[project.scripts]
+trans-coco = "transcribe_long_summarize:cli"
+
 [tool.black]
 line-length = 108
 
@@ -32,4 +35,9 @@ strict_equality = true
 extend-ignore = [
   "E501", # ignore line-too-long errors, Black handles this
   "E203", # whitespace before :
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
 ]

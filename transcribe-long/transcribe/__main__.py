@@ -19,7 +19,15 @@ transcribe = pure.magic()(transcribe_chunks)
 stitch = pure.magic()(stitch_transcripts)
 
 
-def main(input_file: Path) -> None:
+def transcribe_audio_file(input_file: Path) -> Path:
+    """Transcribe an audio file, returning the path to the final transcript.
+
+    Args:
+        input_file: Path to the audio file to transcribe
+
+    Returns:
+        Path to the generated transcript file
+    """
     if not input_file.exists():
         raise FileNotFoundError(f"Input file not found: {input_file}")
 
@@ -36,6 +44,8 @@ def main(input_file: Path) -> None:
     print(f"\nDone. Output in: {workdir()}")
     print(f"  transcript.txt: {final}")
 
+    return final.path()
+
 
 def cli() -> None:
     parser = argparse.ArgumentParser(
@@ -44,7 +54,7 @@ def cli() -> None:
     )
     parser.add_argument("input", help="Input audio/video file", type=Path)
     args = parser.parse_args()
-    main(input_file=args.input)
+    transcribe_audio_file(input_file=args.input)
 
 
 if __name__ == "__main__":
