@@ -3,7 +3,7 @@ from litellm import completion
 from thds.core.source import Source
 
 from transcribe.config import TranscribeConfig
-from transcribe.transcribe_chunks import ChunkTranscript
+from transcribe.llm.transcribe_chunks import ChunkTranscript
 from transcribe.workdir import workdir
 
 REFORMAT_SYSTEM_PROMPT = """\

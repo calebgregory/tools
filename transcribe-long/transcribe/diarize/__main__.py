@@ -10,7 +10,7 @@ from thds.mops import pure
 from transcribe.config import load_config
 from transcribe.diarize.format import format_diarized_transcripts
 from transcribe.diarize.label import extract_speakers
-from transcribe.diarize.transcribe_chunks import transcribe_chunks_diarized
+from transcribe.diarize.llm.transcribe_chunks import transcribe_chunks_diarized
 from transcribe.split import split_audio_on_silences
 from transcribe.workdir import derive_workdir, workdir
 

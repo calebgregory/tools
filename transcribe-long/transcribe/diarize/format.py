@@ -2,7 +2,7 @@
 
 from thds.core.source import Source
 
-from transcribe.diarize.transcribe_chunks import DiarizedChunkTranscript
+from transcribe.diarize.llm.transcribe_chunks import DiarizedChunkTranscript
 from transcribe.workdir import workdir
 
 

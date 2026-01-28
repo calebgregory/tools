@@ -7,9 +7,9 @@ from thds.core import source
 from thds.mops import pure
 
 from transcribe.config import load_config
+from transcribe.llm.stitch_transcripts import stitch_transcripts
+from transcribe.llm.transcribe_chunks import transcribe_chunks
 from transcribe.split import split_audio_on_silences
-from transcribe.stitch_transcripts import stitch_transcripts as stitch_transcripts
-from transcribe.transcribe_chunks import transcribe_chunks
 from transcribe.workdir import derive_workdir, workdir
 
 pure.magic.blob_root(Path(__file__).parent.parent)
