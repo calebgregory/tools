@@ -1,9 +1,13 @@
-"""Audio splitting functionality using ffmpeg."""
+"""Audio splitting functionality using ffmpeg.
+
+We are splitting long files into chunks.  We want to split _on silent sections
+of the audio file_ so that all spoken words in the audio remain intact."""
 
 import re
 import subprocess
 import typing as ty
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 from thds.core.source import Source
@@ -69,6 +73,7 @@ def _extract_index_from_filename(filename: str) -> int:
     return int(match.group(1)) if match else 0
 
 
+@lru_cache()
 def _get_audio_duration(audio_file: Source) -> float:
     """Get duration of audio file in seconds using ffprobe."""
     which_ffmpeg_or_raise()
@@ -170,9 +175,20 @@ def _split_on_silence(audio_file: Source, cuts: list[Cut]) -> list[Chunk]:
     return non_silent
 
 
+def _is_audio_file_chunk_sized(audio_file_duration: float, split_every_s: float, window_s: float) -> bool:
+    max_chunk_size = split_every_s + window_s
+    return audio_file_duration <= max_chunk_size
+
+
 def split_audio_on_silences(input_file: Source, every: float = 1200.0, window: float = 90.0) -> list[Chunk]:
     """Run the full split pipeline: extract audio, detect silence, choose cuts, split."""
     audio_file = extract_audio(input_file)
+
+    audio_duration = _get_audio_duration(audio_file)
+    if _is_audio_file_chunk_sized(audio_duration, every, window):
+        # don't split
+        return [Chunk(index=0, file=Source.from_file(audio_file), start_time=0, end_time=audio_duration)]
+
     log_file = _detect_silence(audio_file)
     cuts = choose_cuts(silence_log_path=log_file, every=every, window=window)
     chunks = _split_on_silence(audio_file, cuts)
