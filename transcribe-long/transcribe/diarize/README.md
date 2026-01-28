@@ -11,6 +11,7 @@ transcribe-diarize path/to/audio.m4a
 ```
 
 This outputs to `.out/transcribe-gpt-diarize/<filename>/`:
+
 - `transcript.txt` - formatted transcript with speaker labels like `CHUNK_0_A`, `CHUNK_1_B`
 - `speakers.toml` - template file listing all distinct speakers (commented out)
 
@@ -38,6 +39,7 @@ transcribe-label transcript.txt speakers.toml
 ```
 
 This outputs `transcript.labeled.txt` with:
+
 - Speaker labels replaced (`CHUNK_0_A` -> `Caleb`)
 - Consecutive same-speaker blocks merged
 
@@ -46,8 +48,8 @@ This outputs `transcript.labeled.txt` with:
 | Command | Description |
 |---------|-------------|
 | `transcribe-diarize <audio>` | Transcribe with diarization |
-| `transcribe-label <transcript> <labels.toml>` | Apply speaker labels |
 | `transcribe-label --speakers <transcript>` | List distinct speakers in a transcript |
+| `transcribe-label <transcript> <labels.toml>` | Apply speaker labels |
 
 ## Example
 

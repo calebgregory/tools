@@ -2,15 +2,34 @@
 
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from openai import OpenAI
+from thds.core.source import Source
 
 from transcribe.config import TranscribeConfig
-from transcribe.diarize.types import DiarizedChunkTranscript, DiarizedSegment
 from transcribe.split import Chunk
 from transcribe.workdir import workdir
+
+
+@dataclass(frozen=True)
+class DiarizedSegment:
+    """A segment of speech attributed to a speaker within a chunk."""
+
+    speaker: str  # e.g., "CHUNK_0_A", "CHUNK_1_B"
+    text: str
+    start: float
+    end: float
+
+
+@dataclass(frozen=True)
+class DiarizedChunkTranscript:
+    """Transcription result for a single chunk with diarization."""
+
+    index: int
+    chunk_file: Source  # Use Source instead of Path/str for memoization
+    segments: list[DiarizedSegment]
 
 
 def _rename_speaker(original: str, chunk_index: int) -> str:
@@ -84,7 +103,7 @@ def transcribe_chunks_diarized(
     successes: list[DiarizedChunkTranscript] = []
     failures: list[_TranscriptionError] = []
 
-    with ThreadPoolExecutor(max_workers=config.transcription_jobs) as ex:
+    with ThreadPoolExecutor(max_workers=2) as ex:
         futs = {ex.submit(_transcribe_chunk_diarized, c, model, out_dir): c for c in chunks}
         for fut in as_completed(futs):
             chunk = futs[fut]

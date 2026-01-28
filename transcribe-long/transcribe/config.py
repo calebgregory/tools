@@ -1,5 +1,4 @@
 #!/usr/bin/env -S uv run python
-import os
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,10 +9,9 @@ CONFIG_FILENAME = "transcribe.toml"
 @dataclass
 class TranscribeConfig:
     transcription_model: str = "gpt-4o-transcribe"
-    transcription_jobs: int = 2
-    reformat_model: str = "gpt-4o"
     diarization_model: str = "gpt-4o-transcribe-diarize"
-    split_every_s: int = 20 * 60 # 20 minutes
+    reformat_model: str = "gpt-4o"
+    split_audio_approx_every_s: int = 20 * 60  # 20 minutes
 
     @classmethod
     def from_dict(cls, data: dict) -> "TranscribeConfig":
@@ -60,18 +58,5 @@ def load_config(input_path: Path | None = None, config_path: Path | None = None)
         with open(config_path, "rb") as f:
             data = tomllib.load(f)
         config = TranscribeConfig.from_dict(data)
-
-    # Environment variable overrides
-    if env_model := os.environ.get("TRANSCRIBE_MODEL"):
-        config.transcription_model = env_model
-
-    if env_jobs := os.environ.get("TRANSCRIBE_JOBS"):
-        config.transcription_jobs = int(env_jobs)
-
-    if env_reformat := os.environ.get("REFORMAT_MODEL"):
-        config.reformat_model = env_reformat
-
-    if env_diarize := os.environ.get("DIARIZATION_MODEL"):
-        config.diarization_model = env_diarize
 
     return config

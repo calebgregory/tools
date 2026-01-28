@@ -9,6 +9,7 @@ from pathlib import Path
 from thds.core.source import Source
 
 from transcribe.split.choose_silence_cuts import Cut, choose_cuts
+from transcribe.split.env import which_ffmpeg_or_raise
 from transcribe.workdir import workdir
 
 
@@ -22,13 +23,15 @@ class Chunk:
 
 def extract_audio(input_file: Source) -> Source:
     """Extract audio track from input file to m4a format."""
+    which_ffmpeg_or_raise()
+
     output_audio_file = workdir() / "audio.m4a"
     workdir().mkdir(parents=True, exist_ok=True)
 
     subprocess.run(
         [
             *"ffmpeg -hide_banner -loglevel error -i".split(),
-            str(input_file.path()),
+            str(input_file.path()),  # paths can have spaces in them
             *"-vn -map 0:a:0 -c:a copy".split(),
             str(output_audio_file),
         ],
@@ -39,6 +42,8 @@ def extract_audio(input_file: Source) -> Source:
 
 def _detect_silence(audio_file: Source) -> Source:
     """Run ffmpeg silencedetect and write log file."""
+    which_ffmpeg_or_raise()
+
     log_file = workdir() / "silence.log"
     workdir().mkdir(parents=True, exist_ok=True)
 
@@ -46,7 +51,7 @@ def _detect_silence(audio_file: Source) -> Source:
     result = subprocess.run(
         [
             *"ffmpeg -hide_banner -i".split(),
-            str(audio_file.path()),
+            str(audio_file.path()),  # paths can have spaces in them
             *"-vn -af silencedetect=noise=-35dB:d=0.4 -f null -".split(),
         ],
         capture_output=True,
@@ -66,10 +71,12 @@ def _extract_index_from_filename(filename: str) -> int:
 
 def _get_audio_duration(audio_file: Source) -> float:
     """Get duration of audio file in seconds using ffprobe."""
+    which_ffmpeg_or_raise()
+
     result = subprocess.run(
         [
             *"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1".split(),
-            str(audio_file.path()),
+            str(audio_file.path()),  # paths can have spaces in them
         ],
         capture_output=True,
         text=True,
@@ -84,10 +91,12 @@ def _fmt_float(x: float, digits: int) -> str:
 
 def _get_max_volume(audio_file: Path) -> float | None:
     """Get max volume of audio file in dB using ffmpeg volumedetect."""
+    which_ffmpeg_or_raise()
+
     result = subprocess.run(
         [
             *"ffmpeg -hide_banner -i".split(),
-            str(audio_file),
+            str(audio_file),  # paths can have spaces in them
             *"-af volumedetect -f null -".split(),
         ],
         capture_output=True,
@@ -109,6 +118,8 @@ def _fmt_cuts_for_ffmpeg(cuts: ty.Iterable[Cut]) -> str:
 
 def _split_on_silence(audio_file: Source, cuts: list[Cut]) -> list[Chunk]:
     """Split audio file at the specified cut points."""
+    which_ffmpeg_or_raise()
+
     chunks_dir = workdir() / "chunks"
     chunks_dir.mkdir(parents=True, exist_ok=True)
 
@@ -117,7 +128,7 @@ def _split_on_silence(audio_file: Source, cuts: list[Cut]) -> list[Chunk]:
         subprocess.run(
             [
                 *"ffmpeg -hide_banner -loglevel error -i".split(),
-                str(audio_file.path()),
+                str(audio_file.path()),  # paths can have spaces in them
                 *f"-f segment -segment_times {cuts_str} -reset_timestamps 1 -c copy".split(),
                 f"{chunks_dir}/chunk_%03d.m4a",
             ],

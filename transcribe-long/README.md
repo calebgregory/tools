@@ -23,14 +23,6 @@ transcribe input.mp4
 
 The pipeline is idempotent and memoizing - re-running the same command will skip already-completed steps.
 
-### Options
-
-```bash
-transcribe input.mp4 --workdir ./my-workdir
-```
-
-By default, working directory is `.transcribe/<input_stem>/<sha256>/`.
-
 ## Output
 
 After running, the working directory contains:
@@ -47,15 +39,8 @@ Create `transcribe.toml` next to your input file:
 
 ```toml
 transcription_model = "gpt-4o-transcribe"
-transcription_jobs = 2
 reformat_model = "gpt-4o"
 ```
-
-Environment variables override config file values:
-
-- `TRANSCRIBE_MODEL` - Model for transcription
-- `TRANSCRIBE_JOBS` - Number of parallel transcription jobs
-- `REFORMAT_MODEL` - Model for post-processing reformatting
 
 ## Speaker Diarization
 

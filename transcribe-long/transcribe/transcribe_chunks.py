@@ -72,7 +72,7 @@ def transcribe_chunks(chunks: ty.Iterable[Chunk], config: TranscribeConfig) -> l
     print(f"transcribing {len(chunks)} chunks...")
     successes: list[ChunkTranscript] = []
     failures: list[_TranscriptionError] = []
-    with ThreadPoolExecutor(max_workers=config.transcription_jobs) as ex:
+    with ThreadPoolExecutor(max_workers=2) as ex:
         futs = {ex.submit(_transcribe_one, j, config.transcription_model): j for j in jobs}
         for fut in as_completed(futs):
             j = futs[fut]

@@ -13,10 +13,11 @@ from transcribe.transcribe_chunks import transcribe_chunks
 from transcribe.workdir import derive_workdir, workdir
 
 pure.magic.blob_root(Path(__file__).parent.parent)
+pure.magic.pipeline_id("transcribe")
 
-split = pure.magic()(split_audio_on_silences)
-transcribe = pure.magic()(transcribe_chunks)
-stitch = pure.magic()(stitch_transcripts)
+_split_audio_on_silences = pure.magic()(split_audio_on_silences)
+_transcribe_chunks = pure.magic()(transcribe_chunks)
+_stitch_transcripts = pure.magic()(stitch_transcripts)
 
 
 def transcribe_audio_file(input_file: Path) -> Path:
@@ -37,9 +38,9 @@ def transcribe_audio_file(input_file: Path) -> Path:
     config = load_config(input_path=input_file)
 
     # Run pipeline steps (decorator handles caching)
-    chunks = split(source.from_file(input_file), every=config.split_every_s)
-    chunk_transcripts = transcribe(chunks, config=config)
-    final = stitch(chunk_transcripts, config=config)
+    chunks = _split_audio_on_silences(source.from_file(input_file), every=config.split_audio_approx_every_s)
+    chunk_transcripts = _transcribe_chunks(chunks, config=config)
+    final = _stitch_transcripts(chunk_transcripts, config=config)
 
     print(f"\nDone. Output in: {workdir()}")
     print(f"  transcript.txt: {final}")
