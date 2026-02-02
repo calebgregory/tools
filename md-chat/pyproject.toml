@@ -1,0 +1,29 @@
+[project]
+name = "md-chat"
+version = "0.1.0"
+description = "Chat with an LLM through a .md file"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = ["litellm>=1.63.0", "watchdog>=6.0.0"]
+
+[project.scripts]
+md-chat = "main:cli"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "pytest>=9.0.2",
+    "ruff>=0.14.13",
+]
+
+[tool.ruff]
+line-length = 108
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[tool.mypy]
+exclude = [
+    '^venv/',
+    '^tests/'
+]

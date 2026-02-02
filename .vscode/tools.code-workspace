@@ -2,11 +2,13 @@
   "folders": [
     { "path": "..", "name": "root" },
     { "path": "../confident-confidant" },
+    { "path": "../md-chat" },
     { "path": "../transcribe-long" }
   ],
   "settings": {
     "files.exclude": {
       "confident-confidant": true,
+      "md-chat": true,
       "transcribe-long": true
     }
   }
