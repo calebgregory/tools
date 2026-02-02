@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Usage: extract_audio <input_file> [output_file]" >&2
+  exit 1
+fi
+
+input_file="$1"
+output_file="${2:-${input_file%.*}.aac}"
+
+ffmpeg -hide_banner -i "${input_file}" \
+  -vn -map 0:a:0 -c:a aac "${output_file}"
