@@ -4,10 +4,12 @@ Per-project `.claude/` directories contain skills, agents, output styles, and pr
 
 ## What lives here
 
-| Directory | Symlinked to | Purpose |
-|-----------|-------------|---------|
-| `vault-main/` | `~/_/main/.claude` | Personal task management tools for the Obsidian vault |
-| `work-org/` | `~/work/notes/personal-work/.claude` | Work task management (Shape-up, monorepo-aware). Company-specific context lives in project's `CLAUDE.md`. |
+| Directory | Purpose |
+|-----------|---------|
+| `vault-main/` | Personal task management tools for the Obsidian vault |
+| `work-org/` | Work task management (Shape-up, monorepo-aware). Company-specific context lives in project's `CLAUDE.md`. |
+
+Symlink targets are configured in `~/tools/.env.toml` under `[claude.project-targets]`.
 
 ## What does NOT live here
 
@@ -21,7 +23,7 @@ Per-project `.claude/` directories contain skills, agents, output styles, and pr
 If a new project needs Claude config and isn't independently git-tracked:
 
 1. Create `<project-name>/` here with the config
-2. Add a symlink entry to `bootstrap.py`
+2. Add `<project-name> = "/path/to/project"` under `[claude.project-targets]` in `~/tools/.env.toml`
 3. Run `./bootstrap.py`
 
 If a project IS independently git-tracked (has its own `.git/`), keep `.claude/` in-project — same rationale as the wedding project.
@@ -29,3 +31,5 @@ If a project IS independently git-tracked (has its own `.git/`), keep `.claude/`
 ## Bootstrap
 
 Run `./bootstrap.py` after cloning on a new machine.
+
+If `~/tools/.env.toml` doesn't exist, the script copies `.env.template.toml` and exits — fill it out, then re-run.
