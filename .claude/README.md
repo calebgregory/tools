@@ -15,7 +15,7 @@ Symlink targets are configured in `~/tools/.env.toml` under `[claude.project-tar
 
 | Config | Location | Reason |
 |--------|----------|--------|
-| `~/.dotfiles/.claude/` | `~/.dotfiles` | Global Claude settings (model, hooks, statusline). Already managed by dotfiles bootstrap. Symlinked to `~/.claude/`. |
+| [`~/.dotfiles/.claude/`](https://github.com/calebgregory/dotfiles/tree/master/.claude) | `~/.dotfiles` | Global Claude settings (model, hooks, statusline). Already managed by dotfiles bootstrap. Symlinked to `~/.claude/`. |
 | `andrew-and-kayla-wedding/.claude/` | `~/_/main/projects/andrew-and-kayla-wedding/.claude/` | Project-specific tools (ceremony drafting, interview prep, story bank agents). Lives in-project because: (1) it's already git-tracked in its own repo, (2) the skills/agents reference project-relative paths and are tightly coupled to that project's structure, (3) it has its own output style and will be archived with the project when the wedding is done. No benefit to centralizing. |
 
 ## Adding a new project
