@@ -11,23 +11,44 @@ Generate a daily standup update based on recent tasks, commits, and voice memos.
 ## Output Format
 
 ```
-**Previous workday | Today**
+# Standup — YYYY-MM-DD HH:MMam/pm
 
-**Yesterday:**
+**Yesterday (YYYY-MM-DD):**
+
+\`\`\`
 - completed task or work item
-  - detail or context
-  - [PR #123](github-url) merged
+    - detail or context
+    - PR #123 merged ([link](<github-url>))
 - another item
+\`\`\`
 
-**Today:**
+**Today (YYYY-MM-DD):**
+
+\`\`\`
 - planned task
-  - subtask or detail
-- [thread](slack-url) follow up on X
+    - subtask or detail
+- follow up on X ([thread](<slack-url>))
+\`\`\`
 ```
+
+## Formatting Rules (for DailyBot compatibility)
+
+1. **4-space indentation** for nested bullets (DailyBot requires this for proper nesting)
+2. **Links in trailing parentheses**: `([thread](<url>))` or `([link](<url>))`
+   - Keeps URLs out of the main text
+   - Avoids issues with `->` in text being parsed as link closers
+3. **Wrap each section's bullet list in triple backticks** to preserve indentation in editor
+4. The H1 header is a generation timestamp: `# Standup — YYYY-MM-DD HH:MMam/pm`
+5. Section headers include the date: `**Yesterday (YYYY-MM-DD):**`
 
 ## Arguments
 
 - `tomorrow` — Shift perspective for end-of-day prep: treat today as "yesterday" and tomorrow as "today". Useful for preparing tomorrow's standup the night before.
+
+## Output File
+
+- **Default**: Write to `todo/today.md`
+- **`tomorrow` arg**: Write to `todo/tomorrow.md`
 
 ## Steps
 
@@ -48,11 +69,13 @@ Generate a daily standup update based on recent tasks, commits, and voice memos.
 
 4. **Format the update**:
    - Group related items together
-   - Include links to PRs, Slack threads where relevant
+   - Include links to PRs, Slack threads as trailing parentheticals: `([link](<url>))`
    - Keep bullets concise — details go in sub-bullets
    - Use past tense for yesterday, future/present for today
+   - Use 4-space indentation for nesting
+   - Wrap each section in triple backticks
 
-5. **Output the formatted standup** ready to copy-paste
+5. **Write the standup** to `todo/today.md` (or `todo/tomorrow.md` if `tomorrow` arg)
 
 ## Content Priority
 
