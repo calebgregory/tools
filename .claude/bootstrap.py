@@ -18,6 +18,7 @@ _CONFIGS_DIR = Path(__file__).parent
 # Add new projects here:
 _LINKS = {
     _CONFIGS_DIR / "vault-main": _HOME / "_/main/.claude",
+    _CONFIGS_DIR / "work-org": _HOME / "work/notes/personal-work/.claude",
 }
 
 

@@ -388,25 +388,19 @@ wheels = [
 
 [[package]]
 name = "confident-confidant"
-version = "2.0.0"
+version = "1.0.0"
 source = { editable = "confident-confidant" }
 dependencies = [
     { name = "hjson" },
     { name = "litellm" },
     { name = "openai" },
-    { name = "thds-core" },
-    { name = "thds-humenc" },
-    { name = "thds-mops" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "hjson" },
     { name = "litellm" },
-    { name = "openai", specifier = ">=2.0.0" },
-    { name = "thds-core" },
-    { name = "thds-humenc" },
-    { name = "thds-mops" },
+    { name = "openai" },
 ]
 
 [package.metadata.requires-dev]
@@ -1705,7 +1699,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "litellm", specifier = ">=1.81.0" },
-    { name = "openai", specifier = ">=2.0.0" },
+    { name = "openai", specifier = ">=1.0.0" },
     { name = "thds-core", specifier = ">=1.50.20260117040119" },
     { name = "thds-humenc", specifier = ">=1.1.20260117040109" },
     { name = "thds-mops", specifier = ">=3.13.20260117040131" },
