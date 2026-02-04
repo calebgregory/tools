@@ -1,0 +1,23 @@
+{
+  "model": "opus",
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": ["-", "\\", "|", "/"]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python $HOME/tools/.claude/global/statusline.py write-last-message-time"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "python $HOME/tools/.claude/global/statusline.py"
+  }
+}

@@ -1,18 +1,19 @@
 #!/usr/bin/env -S uv run python
 """
-Symlinks per-project .claude/ configs into place.
-Run after cloning ~/tools on a new machine.
+Symlinks Claude configs into place. Run after cloning ~/tools on a new machine.
 
-Global config (~/.claude/) is handled separately by ~/.dotfiles/.claude/bootstrap.sh
+- Per-project configs: symlinked based on .env.toml [claude.project-targets]
+- Global config (global/): symlinked into ~/.claude/
 
 Note: any project .claude/'s that have their own .git/-tracking are NOT managed here.
 Those live in-project (with own git repo) — see README.md for rationale.
 """
 
 import shutil
-from pathlib import Path
 import tomllib
+import typing as ty
 from dataclasses import dataclass, field
+from pathlib import Path
 
 _CONFIGS_DIR = Path(__file__).parent
 _PROJECT_ROOT = _CONFIGS_DIR.parent
@@ -69,7 +70,7 @@ def _ensure_claude_suffix(path: Path) -> Path:
     return path if path.name == ".claude" else path / ".claude"
 
 
-def _derive_symlink_src_onto_target(claude_config: ClaudeConfig) -> dict[Path, Path]:
+def _derive_projects_symlink_src_onto_target(claude_config: ClaudeConfig) -> dict[Path, Path]:
     src_onto_target = {}
     for dir_name, target_str in claude_config.project_targets.items():
         if not target_str:
@@ -92,11 +93,7 @@ def _derive_symlink_src_onto_target(claude_config: ClaudeConfig) -> dict[Path, P
     return src_onto_target
 
 
-def _link_config(src: Path, target: Path) -> None:
-    if not src.is_dir():
-        print(f"✗ source missing: {src}")
-        return
-
+def _symlink(src: Path, target: Path) -> None:
     if target.is_symlink():
         print(f"✓ {target} already linked → {target.resolve()}")
     elif target.is_dir():
@@ -106,9 +103,43 @@ def _link_config(src: Path, target: Path) -> None:
         print(f"→ linked {target} → {src}")
 
 
-def cli():
-    for src, target in _derive_symlink_src_onto_target(require_env().claude).items():
-        _link_config(src, target)
+def _link_project_config(src: Path, target: Path) -> None:
+    if not src.is_dir():
+        print(f"✗ source missing: {src}")
+        return
+    _symlink(src, target)
+
+
+#
+# global ~/.claude config
+#
+
+_GLOBAL_CONFIG_FILES = ("CLAUDE.md", "settings.json", "rules")
+
+
+def _make_global_symlink_src_onto_target(
+    global_config_files: ty.Iterable[str] = _GLOBAL_CONFIG_FILES,
+) -> dict[Path, Path]:
+    return {
+        _CONFIGS_DIR / "global" / file_name: Path.home() / ".claude" / file_name
+        for file_name in global_config_files
+    }
+
+
+def _link_global_config(src: Path, target: Path) -> None:
+    if not src.exists():
+        print(f"✗ source missing: {src}")
+        return
+
+    _symlink(src, target)
+
+
+def cli() -> None:
+    for src, target in _derive_projects_symlink_src_onto_target(require_env().claude).items():
+        _link_project_config(src, target)
+
+    for src, target in _make_global_symlink_src_onto_target(_GLOBAL_CONFIG_FILES).items():
+        _link_global_config(src, target)
 
 
 if __name__ == "__main__":
