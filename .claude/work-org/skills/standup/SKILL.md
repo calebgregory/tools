@@ -16,18 +16,23 @@ Generate a daily standup update based on recent tasks, commits, and voice memos.
 **Yesterday (YYYY-MM-DD):**
 
 \`\`\`
-- completed task or work item
-    - detail or context
-    - PR #123 merged ([link](<github-url>))
-- another item
+- workstream or project name
+    - met with X; decided to do Y
+    - narrative about what happened and why
+    - PR review remediation
+- support things
+    - investigated X for Y reason
 \`\`\`
 
 **Today (YYYY-MM-DD):**
 
 \`\`\`
-- planned task
-    - subtask or detail
-- follow up on X ([thread](<slack-url>))
+- main goal for the day, with context
+- support
+    - follow up on X
+    - context about status or blockers
+- get around to trying Z
+- maybe more work on W if time permits
 \`\`\`
 ```
 
@@ -52,15 +57,19 @@ Generate a daily standup update based on recent tasks, commits, and voice memos.
 
 ## Steps
 
-1. **Determine timeframe**:
-   - **Default**: yesterday = previous workday (Friday if Monday), today = today
-   - **`tomorrow` arg**: yesterday = today, today = next workday (Monday if Friday)
+1. **Determine timeframe** using the shared script (do not guess weekdays):
+   ```bash
+   ~/tools/relative_workdates.py
+   ```
+   - **Default**: yesterday = `prev_workday`, today = `today`
+   - **`tomorrow` arg**: yesterday = `today`, today = `next_workday`
 
-2. **Gather "yesterday" content**:
+2. **Gather "yesterday" content** (in priority order):
+   - **Daily notes first**: Check `todo/cc/notes/` for transcripts from previous day — these capture meetings, decisions, and context
    - Read `todo/_archive/` for the previous workday's completed tasks
-   - Run `git -C <monorepo> log --oneline --since="<prev-day> 00:00" --until="<prev-day> 23:59" --author="<user>"`
-   - Check `<project-dir>/cc/notes/` (via `current-project.md`) for transcripts from previous day
    - Read todo.md for any tasks marked complete that haven't been archived yet
+   - Git log as background context only (don't enumerate commits):
+     `git -C <monorepo> log --oneline --since="<prev-day> 00:00" --until="<prev-day> 23:59" --author="<user>"`
 
 3. **Gather "today" content**:
    - Read todo.md for open tasks, especially those with `{due: today}` or no due date
@@ -81,22 +90,24 @@ Generate a daily standup update based on recent tasks, commits, and voice memos.
 
 **Yesterday (what to include):**
 
-- Completed tasks with meaningful work (not trivial checkboxes)
-- PRs merged or reviewed
-- Key discussions or decisions from Slack
+- **Meetings and decisions first** — "met with X; out of that meeting, we decided to..."
+- Narrative about what happened and *why*, not just what code changed
+- Group by workstream/project, not flat list of tasks
+- PRs as context, not the main event
 - Blockers resolved
 
 **Today (what to include):**
 
-- High-priority open tasks
-- Items with deadlines
-- Follow-ups on yesterday's work
-- Meetings or syncs if mentioned
+- Main goal with context ("deploy X after finishing Y, then solicit feedback")
+- Follow-ups with status context ("I reviewed X and had questions about Y")
+- Softer commitments for lower-priority items ("get around to", "maybe more")
+- Avoid pure checkbox lists — show intent
 
 ## Rules
 
+- **Don't enumerate commits** — summarize the work narratively
+- Group by workstream/project (current project, support, etc.)
 - Keep it scannable — managers skim these
 - Link to artifacts (PRs, threads) when they add context
-- Don't pad with trivial items
 - If nothing significant happened, say so briefly
-- Match the team's typical level of detail
+- Use conversational sub-bullets when context helps ("we're very nearly done with that")

@@ -15,7 +15,7 @@ Example: If today is Wednesday 2026-02-05, the file is `todo/_archive/2026/02-03
 
 ## Steps
 
-1. **Calculate the Monday of this week** for the archive filename
+1. **Get the Monday of this week** by running `~/tools/relative_workdates.py` and using `week_start` for the archive path: `todo/_archive/{YYYY}/{MM-DD}.md`
 2. **Read todo.md** (see Environment in CLAUDE.md)
 3. **Find all completed tasks** (`- [x]` lines), including their subtasks and notes
 4. **Gather context for each task**:

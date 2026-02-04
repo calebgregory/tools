@@ -66,10 +66,7 @@ Look for phrases like:
 - "Tomorrow I'll...", "Next I need to..."
 - "Blocked on...", "Waiting for..."
 
-Extract due dates from context:
-- "Tomorrow" → next day's date
-- "By end of week" → Friday's date
-- "Monday" → next Monday's date
+Extract due dates by running `~/tools/relative_workdates.py` and using matching keys (`tomorrow`, `monday`, `end_of_week`, etc.).
 
 ## Context Worth Capturing
 

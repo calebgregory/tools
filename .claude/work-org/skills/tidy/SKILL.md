@@ -47,11 +47,7 @@ Only suggest groupings that reduce cognitive load. Don't over-organize.
 
 ## Date Normalization
 
-Convert relative dates to concrete YYYY-MM-DD:
-- "today" → current date
-- "tomorrow" → next day
-- "end of week" → Friday's date
-- "end of month" → last day of month
+Convert relative dates to concrete YYYY-MM-DD by running `~/tools/relative_workdates.py` and using matching keys (`today`, `tomorrow`, `monday`, `end_of_week`, `end_of_month`, etc.).
 
 Preserve time qualifiers: "by noon", "end of day", "at 10:30am"
 
