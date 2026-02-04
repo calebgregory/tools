@@ -65,13 +65,14 @@ Generate a daily standup update based on recent tasks, commits, and voice memos.
    - **`tomorrow` arg**: yesterday = `today`, today = `next_workday`
 
 2. **Gather "yesterday" content** (in priority order):
-   - **Daily notes first**: Check `todo/cc/notes/` for transcripts from previous day — these capture meetings, decisions, and context
+   - **Daily note first**: Read `daily/{YYYY}/{YYYY-MM-DD}.md` for the previous workday — this has the composite summary, outline, and transcripts from `/daily-note`
    - Read `todo/_archive/` for the previous workday's completed tasks
    - Read todo.md for any tasks marked complete that haven't been archived yet
    - Git log as background context only (don't enumerate commits):
      `git -C <monorepo> log --oneline --since="<prev-day> 00:00" --until="<prev-day> 23:59" --author="<user>"`
 
 3. **Gather "today" content**:
+   - Check if daily note exists for today (`daily/{YYYY}/{YYYY-MM-DD}.md`) — use its Tasks section for planned work
    - Read todo.md for open tasks, especially those with `{due: today}` or no due date
    - Check for `{status: awaiting ...}` items that need follow-up
    - Note any blockers or dependencies
@@ -90,7 +91,8 @@ Generate a daily standup update based on recent tasks, commits, and voice memos.
 
 **Yesterday (what to include):**
 
-- **Meetings and decisions first** — "met with X; out of that meeting, we decided to..."
+- **Use the daily note's Summary and Outline** — these are already in a good narrative format
+- Meetings and decisions first — "met with X; out of that meeting, we decided to..."
 - Narrative about what happened and *why*, not just what code changed
 - Group by workstream/project, not flat list of tasks
 - PRs as context, not the main event
