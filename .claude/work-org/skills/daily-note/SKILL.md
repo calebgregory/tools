@@ -6,21 +6,22 @@ argument-hint: [date]
 
 # Daily Note
 
-Transcribe voice memos embedded in `todo/today.md`, accumulate transcripts, and generate a composite summary. Designed for incremental use throughout the day.
+End-of-day workflow: archive completed tasks, transcribe voice memos, and generate a composite summary. Designed for incremental use throughout the day.
 
 ## Arguments
 
-- No argument: process today's memos
-- `yesterday`: process yesterday's memos
+- No argument: process today
+- `yesterday`: process yesterday
 - `YYYY-MM-DD`: process a specific date
 
-## Source
+## Source Files
 
-`todo/today.md` — contains Obsidian audio embeds: `![[path/to/audio.m4a]]`
+- `todo/todo.md` — completed tasks to archive
+- `todo/today.md` — Obsidian audio embeds: `![[path/to/audio.m4a]]`
 
 ## Destination
 
-`daily/{YYYY}/{YYYY-MM-DD}.md` — composite note with summary + raw transcripts
+`daily/{YYYY}/{YYYY-MM-DD}.md` — composite note with summary, completed tasks, and transcripts
 
 ## Temp Directory
 
@@ -28,69 +29,87 @@ Transcribe voice memos embedded in `todo/today.md`, accumulate transcripts, and 
 
 ## Steps
 
-1. **Parse source file** for `![[...m4a]]` or `![[...mp3]]` links
-   - Extract audio file paths (resolve relative to vault root if needed)
+### 1. Archive completed tasks
 
-2. **For each audio file**:
+1. Read `todo/todo.md` and find all `[x]` tasks
+2. If any completed tasks exist:
+   - Gather context (git commits, PR status) — see Context Enrichment below
+   - Append to `## Completed` section in the daily note
+   - Remove archived tasks from todo.md
+3. If no completed tasks, skip to transcription
+
+### 2. Transcribe voice memos
+
+1. Parse `todo/today.md` for `![[...m4a]]` or `![[...mp3]]` links
+2. For each audio file:
    - Get file mtime (use `stat -f %m` on macOS)
    - Check if transcript exists in `.out/{date}/{mtime}_{basename}.txt`
    - If not, transcribe: `transcribe <audio-path> -o <temp-transcript-path>`
+3. Concatenate transcripts (sorted by mtime) with `## HH:MM` headers
+4. Append to `# Transcripts` section (avoid duplicating existing transcripts)
 
-3. **Concatenate transcripts** (sorted by mtime):
-   - Format each with a header showing the time: `## HH:MM` (derived from mtime)
-   - Preserve the raw transcript text
+### 3. Generate summary
 
-4. **Generate summary**:
-   - Use all transcripts as context
-   - First-person perspective (user is the speaker)
-   - Format as: Summary (2-3 sentences) + Outline (things worked on, tasks, insights)
-   - If destination file already exists, read it to understand what's already summarized
+1. Read the full daily note (completed tasks + transcripts)
+2. Generate/update:
+   - **Summary**: 2-3 sentences, first-person, what I worked on and key outcomes
+   - **Outline**: Things worked on, tasks for the future, insights
 
-5. **Write destination file**:
-   ```
-   # Daily Note — YYYY-MM-DD
+## Daily Note Structure
 
-   ## Summary
+```markdown
+# Daily Note — YYYY-MM-DD
 
-   {composite summary}
+## Summary
 
-   ## Outline
+{composite summary}
 
-   {merged outline: things worked on, tasks, insights}
+## Outline
 
-   ---
+**Work completed:**
+- bullet points
 
-   # Transcripts
+**Follow-ups:**
+- [ ] task
 
-   ## HH:MM
+**Notes:**
+- insights
 
-   {transcript 1}
+## Completed
 
-   ## HH:MM
+### project name
 
-   {transcript 2}
-   ```
+- [x] task description [thread](url)
+  - context note
+  - commit: `abc123`
+
+---
+
+# Transcripts
+
+## HH:MM
+
+{transcript text}
+```
+
+## Context Enrichment (for completed tasks)
+
+**Git commits**: `git -C <monorepo> log --oneline --since="today" --author="<user>"` — match to tasks by keyword/branch
+
+**PR links**: If task has GitHub PR URL, note if merged
+
+**Project context**: Read `current-project.md` for grouping
 
 ## Incremental Behavior
 
-When run multiple times in a day:
-- Only transcribe new audio files (check by mtime in temp dir)
-- Append new transcripts to existing ones
+When run multiple times:
+- Only archive newly-completed tasks (check what's already in Completed section)
+- Only transcribe new audio files (check by mtime)
 - Re-generate summary incorporating all content
-- New information should update/extend the summary, not replace unrelated parts
 
-## Summary Format
+## Rules
 
-Use the same style as confident-confidant:
-
-- **Summary**: 2-3 sentences, first-person, what I worked on and key outcomes
-- **Outline**:
-  - Things I worked on (bullet points)
-  - Tasks for the future (`- [ ] task`)
-  - Insights or points to ponder
-
-## Notes
-
-- mtime is Unix timestamp; convert to readable time for headers
-- Audio files are typically in `todo/cc/audio/` or relative paths from today.md
-- If no audio embeds found, report that and exit
+- First-person perspective (user is the speaker in transcripts)
+- Don't over-enrich completed tasks — add context useful for weekly updates
+- Preserve existing content when updating
+- If no completed tasks AND no audio embeds, report that and exit

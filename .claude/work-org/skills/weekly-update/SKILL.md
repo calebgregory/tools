@@ -33,9 +33,10 @@ Generate a project-focused weekly update summarizing progress across workstreams
    - This becomes the primary section header
 
 2. **Gather week's accomplishments**:
-   - Read `todo/_archive/` for all entries from this week (Monday through today)
+   - Read daily notes for the week: `daily/{YYYY}/{YYYY-MM-DD}.md` for Monday through today
+     - Use the `## Completed` section for tasks finished each day
+     - Use the `## Summary` and `## Outline` for context
    - Run `git -C <monorepo> log --oneline --since="last monday" --author="<user>"`
-   - Check `<project-dir>/cc/notes/` for all transcripts this week
    - Look for patterns: what themes emerge from the work?
 
 3. **Organize by workstream**:
@@ -58,9 +59,8 @@ Generate a project-focused weekly update summarizing progress across workstreams
 
 | Source | What to extract |
 |--------|-----------------|
-| Archive | Completed tasks with context |
+| Daily notes | Completed tasks, summaries, context |
 | Git log | Commits grouped by feature/PR |
-| Transcripts | Key decisions, context, quotes |
 | Todo.md | Upcoming work for "next" section |
 | current-project.md | Project name, channel |
 

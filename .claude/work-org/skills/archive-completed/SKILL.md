@@ -1,72 +1,34 @@
 ---
 name: archive-completed
-description: Move completed tasks from todo.md to the weekly archive file, enriched with context from git commits and related notes.
+description: Move completed tasks from todo.md to the daily note (standalone — usually handled by /daily-note).
 ---
 
 # Archive Completed Tasks
 
-Move all completed `[x]` tasks from todo.md to the weekly archive, enriching them with context.
+Move completed `[x]` tasks from todo.md to today's daily note.
 
-## Archive Location
+**Note:** This is now handled automatically by `/daily-note`. Use this skill standalone only for mid-day archiving when you don't want to run the full daily-note workflow.
 
-`todo/_archive/{YYYY}/{MM-DD}.md` — named by the Monday of the current week.
+## Destination
 
-Example: If today is Wednesday 2026-02-05, the file is `todo/_archive/2026/02-03.md` (Monday).
+`daily/{YYYY}/{YYYY-MM-DD}.md`
 
 ## Steps
 
-1. **Get the Monday of this week** by running `~/tools/relative_workdates.py` and using `week_start` for the archive path: `todo/_archive/{YYYY}/{MM-DD}.md`
-2. **Read todo.md** (see Environment in CLAUDE.md)
-3. **Find all completed tasks** (`- [x]` lines), including their subtasks and notes
-4. **Gather context for each task**:
-   - Check git log (monorepo) for today's commits by the user
-   - If task has PR/GitHub links, note the resolution
-   - Check if task relates to current project (read `current-project.md`)
-   - Look for voice memo transcripts from today in `<project-dir>/cc/notes/` (get project dir from `current-project.md`)
-5. **Determine archive structure** for each task:
-   - Simple task with minimal context → single `[x]` line with brief note
-   - Task with rich context → heading + task + indented elaboration
-   - Adapt based on how much context is available
-6. **Create or append to the weekly archive file**:
-   - If file exists, append under today's date header
-   - If file doesn't exist, create with week header and today's date
-   - If today's date section exists, append to it
-7. **Remove archived tasks from todo.md**
-8. **Confirm** what was archived
-
-## Archive File Format
-
-```markdown
-# Week of 2026-02-03
-
-## 2026-02-03 Monday
-
-- [x] simple task
-  - Brief context note
-
-## 2026-02-04 Tuesday
-
-### larger task with context
-- [x] task description [thread](url)
-  - What was accomplished
-  - Related commits: `abc123` (commit message)
-  - Notes from daily memo: "relevant quote"
-```
+1. Get today's date via `~/tools/relative_workdates.py`
+2. Read `todo/todo.md`, find all `[x]` tasks
+3. Gather context (git commits, PR status, project grouping)
+4. Append to `## Completed` section in daily note
+5. Remove archived tasks from todo.md
 
 ## Context Enrichment
 
-**Git commits**: Run `git -C <monorepo> log --oneline --since="today" --author="<user>"` to find related commits. Match commits to tasks by keyword/branch name.
-
-**PR links**: If task contains a GitHub PR URL, check if it was merged or its current status.
-
-**Voice memos**: Read `current-project.md` to get project directory, then check `<project-dir>/cc/notes/` for today's transcripts. Extract relevant context.
-
-**Project context**: Read `current-project.md` for current Shape-up project info.
+- **Git commits**: `git -C <monorepo> log --oneline --since="today" --author="<user>"`
+- **PR links**: Note if merged
+- **Project**: Read `current-project.md` for grouping
 
 ## Rules
 
-- Only archive tasks that are marked `[x]` — leave `[ ]` tasks in todo.md
-- When a parent task is `[x]` but has `[ ]` subtasks, archive the parent but keep subtasks in todo.md (or ask)
-- Preserve all links and tags when archiving
-- Don't over-enrich — add context that's genuinely useful for weekly updates
-- Create year directories as needed (`_archive/2026/`)
+- Only archive `[x]` tasks
+- If parent is `[x]` but has `[ ]` subtasks, archive parent, keep subtasks in todo.md
+- Don't duplicate — check what's already in Completed section

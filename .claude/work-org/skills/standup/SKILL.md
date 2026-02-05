@@ -6,7 +6,7 @@ argument-hint: [tomorrow]
 
 # Generate Standup Update
 
-Generate a daily standup update based on recent tasks, commits, and voice memos.
+Generate a daily standup update based on daily notes and open tasks.
 
 ## Output Format
 
@@ -64,15 +64,17 @@ Generate a daily standup update based on recent tasks, commits, and voice memos.
    - **Default**: yesterday = `prev_workday`, today = `today`
    - **`tomorrow` arg**: yesterday = `today`, today = `next_workday`
 
-2. **Gather "yesterday" content** (in priority order):
-   - **Daily note first**: Read `daily/{YYYY}/{YYYY-MM-DD}.md` for the previous workday — this has the composite summary, outline, and transcripts from `/daily-note`
-   - Read `todo/_archive/` for the previous workday's completed tasks
+2. **Gather "yesterday" content**:
+   - **Read the daily note**: `daily/{YYYY}/{YYYY-MM-DD}.md` for the previous workday
+     - Use the Summary and Outline sections for narrative
+     - Use the Completed section for specific tasks finished
+     - Use Transcripts for additional context if needed
    - Read todo.md for any tasks marked complete that haven't been archived yet
    - Git log as background context only (don't enumerate commits):
      `git -C <monorepo> log --oneline --since="<prev-day> 00:00" --until="<prev-day> 23:59" --author="<user>"`
 
 3. **Gather "today" content**:
-   - Check if daily note exists for today (`daily/{YYYY}/{YYYY-MM-DD}.md`) — use its Tasks section for planned work
+   - Check if daily note exists for today (`daily/{YYYY}/{YYYY-MM-DD}.md`) — use its outline for planned work
    - Read todo.md for open tasks, especially those with `{due: today}` or no due date
    - Check for `{status: awaiting ...}` items that need follow-up
    - Note any blockers or dependencies
@@ -92,6 +94,7 @@ Generate a daily standup update based on recent tasks, commits, and voice memos.
 **Yesterday (what to include):**
 
 - **Use the daily note's Summary and Outline** — these are already in a good narrative format
+- **Use the Completed section** for specific tasks that were finished
 - Meetings and decisions first — "met with X; out of that meeting, we decided to..."
 - Narrative about what happened and *why*, not just what code changed
 - Group by workstream/project, not flat list of tasks
