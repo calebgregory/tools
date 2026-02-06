@@ -3,12 +3,10 @@
     { "path": "..", "name": "root" },
     { "path": "../confident-confidant" },
     { "path": "../pr-respond" },
-    { "path": "../transcribe-long" }
   ],
   "settings": {
     "files.exclude": {
       "confident-confidant": true,
-      "transcribe-long": true,
       "pr-respond": true
     }
   }

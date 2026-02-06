@@ -4,14 +4,6 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["confident-confidant", "transcribe-long"]
-
-[tool.uv.sources]
-confident-confidant = { path = "./confident-confidant", editable = true }
-transcribe-long = { path = "./transcribe-long", editable = true }
-
-[project.scripts]
-trans-coco = "transcribe_long_summarize:cli"
 
 [tool.ruff]
 line-length = 108
