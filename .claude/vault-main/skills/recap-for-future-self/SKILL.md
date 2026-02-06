@@ -1,11 +1,11 @@
 ---
-name: session-recap
-description: End-of-session recap for re-entry after days away. Shows what changed, what's due soon, and where to pick up.
+name: recap-for-future-self
+description: Summarize recent activity and context so future-you can reload quickly. Writes to todo/most-recent-recap.md.
 ---
 
-# Session Recap
+# Recap for Future Self
 
-Generate a recap of recent vault activity and upcoming deadlines for easy re-entry.
+Capture what happened recently and where things stand, so the next session can pick up with full context.
 
 ## Git note
 
@@ -18,17 +18,17 @@ The vault root is NOT a git repo. Some subdirectories have their own `.git/` (e.
 
 1. Find git repos in the vault: look for `.git/` directories (skip `.obsidian/`, `node_modules/`, `.venv/`, `_archive/`)
 2. For each git repo found, run `git -C <repo-path> log --oneline --since="3 days ago"` and `git -C <repo-path> diff --name-only HEAD~10 2>/dev/null` to find recent changes
-3. Scan all `todo.md` files (skip `.obsidian/`, `.git/`, `node_modules/`, `.venv/`, `_archive/`) for:
-   - Items with `{due:...}` dates within the next 7 days
-   - Items tagged `{due:this week}`
+3. Run `~/tools/relative_dates.py` to get today's date and date boundaries
+4. Scan all `todo.md` files (skip `.obsidian/`, `.git/`, `node_modules/`, `.venv/`, `_archive/`) for:
+   - Items with `{due:YYYY-MM-DD}` dates within the next 7 days
    - Items recently marked `[x]` (cross-reference with git diffs if available)
-4. Group activity by type:
+5. Group activity by type:
    - **Tasks completed** — recently checked off
    - **Files changed** — notes, todo edits, new files
    - **Coming up** — items due within 7 days
-5. Present the recap before writing
-6. Ask the user (via AskUserQuestion): "Anything to note before I save this recap?"
-7. Write to `todo/most-recent-recap.md` (overwrite previous recap) — only after user confirms
+6. Present the recap before writing
+7. Ask the user (via AskUserQuestion): "Anything to note before I save this recap?"
+8. Write to `todo/most-recent-recap.md` (overwrite previous recap) — only after user confirms
 
 ## Output format
 

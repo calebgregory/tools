@@ -19,30 +19,28 @@ The vault root is NOT a git repo. Some subdirectories have their own `.git/`. Do
 
 ## Steps
 
-1. **Find weekly tasks**: scan all todo files for items tagged `{due:this week}`
-2. **Separate completed vs. incomplete**: check if each is `[x]` or `[ ]`
-3. **Find other completions**: scan for recently completed items (`[x]`) that weren't tagged `{due:this week}` — bonus wins worth noting (check git diffs in any git-tracked subdirectories if available, otherwise just scan file contents)
-4. **For incomplete weekly items**, propose one of:
-   - **Roll over** → keep `{due:this week}` for next week
-   - **Reschedule** → change to `{due:YYYY-MM-DD}` or `{due:this month}`
-   - **Drop** → remove the `{due:this week}` tag, revert to natural timeframe
-5. **Present the sync report** and ask the user to confirm actions for each incomplete item
-6. **Apply changes** only after user confirms — use Edit tool
+1. Run `~/tools/relative_dates.py` to get `week_start`, `end_of_workweek`, and `next_monday`
+2. **Find weekly tasks**: scan all todo files for items with `{due:YYYY-MM-DD}` where the date falls in `[week_start, week_start+6]`
+3. **Separate completed vs. incomplete**: check if each is `[x]` or `[ ]`
+4. **Find other completions**: scan for recently completed items (`[x]`) not in the weekly date range — bonus wins worth noting (check git diffs in any git-tracked subdirectories if available, otherwise just scan file contents)
+5. **For incomplete weekly items**, propose one of:
+   - **Roll over** → update `{due:...}` to next Thursday (next week's `end_of_workweek`)
+   - **Reschedule** → replace with a new `{due:YYYY-MM-DD}`
+   - **Drop** → remove the `{due:...}` tag entirely
+6. **Present the sync report** and ask the user to confirm actions for each incomplete item
+7. **Apply changes** only after user confirms — use Edit tool
 
 ## Output format
 
 ```
 # Weekly Sync — week of [date]
 
-## Completed This Week ✅
-- [x] task — `file.md`
-- [x] task — `file.md`
+## Completed This Week
+- [x] task {due:2026-02-05} — `file.md`
 
 ## Not Completed
-- [ ] task — `file.md`
-  → Suggest: roll over / reschedule to [date] / drop
-- [ ] task — `file.md`
-  → Suggest: roll over / reschedule to [date] / drop
+- [ ] task {due:2026-02-05} — `file.md`
+  → Suggest: roll over to 2026-02-12 / reschedule to [date] / drop
 
 ## Bonus Wins (completed but not on the weekly list)
 - [x] task — `file.md`
@@ -54,8 +52,8 @@ The vault root is NOT a git repo. Some subdirectories have their own `.git/`. Do
 ## Rules
 
 - **Ask before making any changes.** Present the report first, get confirmation, then edit.
-- When rolling over, keep the `{due:this week}` tag as-is (it applies to the new current week).
-- When dropping, remove `{due:this week}` entirely — the task reverts to whatever section/timeframe it naturally belongs in.
-- When rescheduling, replace `{due:this week}` with the new tag.
+- When rolling over, update `{due:...}` to next week's Thursday (compute from `next_monday + 3 days`).
+- When dropping, remove `{due:...}` entirely — the task reverts to whatever section/timeframe it naturally belongs in.
+- When rescheduling, replace `{due:...}` with the new `{due:YYYY-MM-DD}`.
 - Be honest about what didn't get done — no judgment, just facts and options.
-- If nothing was tagged `{due:this week}`, say so and suggest running `/plan-week`.
+- If no tasks have due dates in the current week's range, say so and suggest running `/plan-week`.

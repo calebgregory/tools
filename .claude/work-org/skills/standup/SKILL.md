@@ -59,7 +59,7 @@ Generate a daily standup update based on daily notes and open tasks.
 
 1. **Determine timeframe** using the shared script (do not guess weekdays):
    ```bash
-   ~/tools/relative_workdates.py
+   ~/tools/relative_dates.py
    ```
    - **Default**: yesterday = `prev_workday`, today = `today`
    - **`tomorrow` arg**: yesterday = `today`, today = `next_workday`

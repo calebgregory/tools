@@ -15,7 +15,7 @@ Move completed `[x]` tasks from todo.md to today's daily note.
 
 ## Steps
 
-1. Get today's date via `~/tools/relative_workdates.py`
+1. Get today's date via `~/tools/relative_dates.py`
 2. Read `todo/todo.md`, find all `[x]` tasks
 3. Gather context (git commits, PR status, project grouping)
 4. Append to `## Completed` section in daily note

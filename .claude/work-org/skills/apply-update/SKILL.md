@@ -66,7 +66,7 @@ Look for phrases like:
 - "Tomorrow I'll...", "Next I need to..."
 - "Blocked on...", "Waiting for..."
 
-Extract due dates by running `~/tools/relative_workdates.py` and using matching keys (`tomorrow`, `monday`, `end_of_week`, etc.).
+Extract due dates by running `~/tools/relative_dates.py` and using matching keys (`tomorrow`, `monday`, `end_of_week`, etc.).
 
 ## Context Worth Capturing
 

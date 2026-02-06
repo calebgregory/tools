@@ -34,19 +34,37 @@ Use markdown checklists in `.md` files. Each task is a line:
 
 ```
 - [ ] task description {due:2026-02-15} {area:home}
-- [ ] task description {due:this week}
 - [x] completed task
 ```
 
 Metadata tags in curly braces:
 
-- `{due:YYYY-MM-DD}` — hard deadline
-- `{due:this week}`, `{due:this month}`, `{due:someday}` — soft timeframes
+- `{due:YYYY-MM-DD}` — absolute date, always. No soft timeframes.
 - `{area:...}` — life area, if not obvious from section heading
 - `{waiting:reason}` — blocked/waiting on something
 - `{project:name}` — links task to a larger project
 
+Tasks with no deadline simply have no `{due:...}` tag.
+
 Keep files human-readable. No databases, no JSON. Markdown that looks good in any editor and in Obsidian.
+
+## Date Normalization
+
+All due dates are absolute `YYYY-MM-DD`. When the user says a relative date, normalize it by running `~/tools/relative_dates.py` and mapping to the appropriate key:
+
+| User says | Key | Example |
+|-----------|-----|---------|
+| "today" | `today` | 2026-02-06 |
+| "tomorrow" | `tomorrow` | 2026-02-07 |
+| "this week", "end of week" | `end_of_workweek` | Thursday |
+| "friday", "saturday", etc. | `friday`, `saturday` | upcoming occurrence |
+| "this weekend" | `this_weekend` | upcoming Friday |
+| "end of month" | `end_of_month` | last day of month |
+| "next monday" | `next_monday` | Monday of next week |
+
+## Display Convention
+
+When presenting tasks to the user, annotate due dates with parenthetical context computed fresh from today's date — e.g., `{due:2026-02-07} (this friday)`. This is display-only; the parenthetical is never stored in files.
 
 ## Tone and Format
 

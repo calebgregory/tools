@@ -1,5 +1,5 @@
 ---
-name: breakdown
+name: decompose-vague-task
 description: Break a vague or large task into concrete next actions. Use when a task needs decomposition into smaller steps.
 argument-hint: <partial task description to match>
 disable-model-invocation: true
