@@ -1,9 +1,5 @@
 {
   "model": "opus",
-  "spinnerVerbs": {
-    "mode": "replace",
-    "verbs": ["-", "\\", "|", "/"]
-  },
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -19,5 +15,14 @@
   "statusLine": {
     "type": "command",
     "command": "python $HOME/tools/.claude/global/statusline.py"
+  },
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "-",
+      "\\",
+      "|",
+      "/"
+    ]
   }
 }
