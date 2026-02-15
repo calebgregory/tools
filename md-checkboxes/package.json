@@ -1,0 +1,29 @@
+{
+  "name": "md-checkboxes",
+  "displayName": "Markdown Checkboxes",
+  "description": "Syntax highlighting for markdown checkbox markers without overriding surrounding text",
+  "version": "1.0.0",
+  "publisher": "calebgregory",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/calebgregory/tools"
+  },
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "grammars": [
+      {
+        "scopeName": "source.checkboxes.md",
+        "path": "./syntaxes/md-checkboxes.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ]
+      }
+    ]
+  }
+}
