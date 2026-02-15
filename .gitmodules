@@ -1,3 +1,6 @@
 [submodule "confident-confidant"]
 	path = confident-confidant
 	url = git@github.com:calebgregory/confident-confidant.git
+[submodule "lemonaid"]
+	path = lemonaid
+	url = git@github.com:calebgregory/lemonaid.git
