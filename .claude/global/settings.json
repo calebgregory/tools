@@ -6,7 +6,28 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python $HOME/tools/.claude/global/statusline.py write-last-message-time"
+            "command": "lemonaid-claude-statusline write-last-message-time"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "lemonaid claude notify"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "lemonaid claude notify"
           }
         ]
       }
@@ -14,7 +35,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "python $HOME/tools/.claude/global/statusline.py"
+    "command": "lemonaid-claude-statusline"
   },
   "spinnerVerbs": {
     "mode": "replace",
