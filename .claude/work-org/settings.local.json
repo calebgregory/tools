@@ -1,3 +1,6 @@
 {
+  "permissions": {
+    "allow": ["Bash(transcribe:*)", "Bash(~/tools/relative_dates.py)"]
+  },
   "outputStyle": "Work Task Manager"
 }
