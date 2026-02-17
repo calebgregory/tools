@@ -1,0 +1,6 @@
+{
+  "permissions": {
+    "allow": ["Bash(transcribe:*)", "Bash(relative-dates:*)"]
+  },
+  "outputStyle": "Work Task Manager"
+}

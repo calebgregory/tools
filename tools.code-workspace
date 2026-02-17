@@ -1,0 +1,28 @@
+{
+  "folders": [
+    { "path": ".", "name": "root" },
+    { "path": "./main" },
+    { "path": "./claude" },
+    { "path": "./confident-confidant" },
+    { "path": "./lemonaid" },
+    { "path": "./pr-respond" },
+  ],
+  "settings": {
+    "files.exclude": {
+      "confident-confidant": true,
+      "main": true,
+      "claude": true,
+      "lemonaid": true,
+      "pr-respond": true
+    },
+    "[python]": {
+      "editor.codeActionsOnSave": {
+        "source.organizeImports.ruff": "explicit",
+        "source.fixAll.ruff": "explicit"
+      },
+      "editor.defaultFormatter": "charliermarsh.ruff",
+      "editor.formatOnSave": true
+    },
+    "ruff.path": ["./.venv/bin/ruff"]
+  }
+}

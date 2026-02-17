@@ -1,0 +1,25 @@
+[project]
+name = "tools"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.9.26,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "tools"
+module-root = "src"
+
+[dependency-groups]
+dev = ["mypy>=1.19.1", "pytest>=9.0.2"]
+
+[project.scripts]
+relative-dates = "tools.dates.relative_dates:cli"
+slackmd = "tools.md.copy_for_pasting_in_slack:cli"
+unllm = "tools.md.un_llm:cli"
+walked = "tools.vault.walked:cli"
+timer = "tools.timer.timer:main"

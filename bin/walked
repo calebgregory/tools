@@ -1,7 +1,0 @@
-#!/bin/bash
-
-BIN_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-source "$BIN_DIR/../.secret"
-
-"$BIN_DIR/../walked.py" "$WALKED_LOG_FILE"

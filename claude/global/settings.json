@@ -1,0 +1,45 @@
+{
+  "model": "opus",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "lemonaid-claude-statusline write-last-message-time"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "lemonaid claude notify"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "lemonaid claude notify"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": { "allow": ["Bash(obsidian-open *)"] },
+  "statusLine": {
+    "type": "command",
+    "command": "lemonaid-claude-statusline"
+  },
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": ["."]
+  }
+}
