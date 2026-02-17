@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = ["thds.termtool"]
 
 [build-system]
 requires = ["uv_build>=0.9.26,<0.10.0"]
@@ -22,4 +22,5 @@ relative-dates = "tools.dates.relative_dates:cli"
 slackmd = "tools.md.copy_for_pasting_in_slack:cli"
 unllm = "tools.md.un_llm:cli"
 walked = "tools.vault.walked:cli"
+conflict-files = "tools.vault.conflict_files:cli"
 timer = "tools.timer.timer:main"

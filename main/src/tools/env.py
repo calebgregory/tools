@@ -15,10 +15,16 @@ class ClaudeConfig:
 
 
 @dataclass
+class MainVaultConfig:
+    root: Path | None = None
+    walked_file: Path | None = None
+
+
+@dataclass
 class VaultConfig:
     """as in, Obsidian vault"""
 
-    walked_file: Path | None = None
+    main: MainVaultConfig = field(default_factory=MainVaultConfig)
 
 
 @dataclass
@@ -28,33 +34,37 @@ class EnvTomlConfig:
     vault: VaultConfig = field(default_factory=VaultConfig)
 
 
+def _expand_user(s: str | None) -> Path | None:
+    return Path(s).expanduser() if s else None
+
+
 def load_env() -> EnvTomlConfig | None:
     if not _ENV_TOML.exists():
         return None
     with _ENV_TOML.open("rb") as f:
         data = tomllib.load(f)
 
+    config = EnvTomlConfig()
+    config.computer_name = data.get("computer_name", "")
+
     claude_data = data.get("claude", {})
-    claude_config = ClaudeConfig(
+    config.claude = ClaudeConfig(
         project_targets={
-            project_name: Path(target_str).expanduser()
+            project_name: target
             for project_name, target_str in claude_data.get("project-targets", {}).items()
-            if target_str
+            if (target := _expand_user(target_str))
         }
     )
 
-    vault_data = data.get("vault", {})
-    vault_config = VaultConfig(
-        walked_file=Path(walked_file).expanduser()
-        if (walked_file := vault_data.get("walked-file"))
-        else None
+    main_vault_data = data.get("vault", {}).get("main", {})
+    config.vault = VaultConfig(
+        main=MainVaultConfig(
+            root=_expand_user(main_vault_data.get("root")),
+            walked_file=_expand_user(main_vault_data.get("walked-file")),
+        )
     )
 
-    return EnvTomlConfig(
-        computer_name=data.get("computer_name", ""),
-        claude=claude_config,
-        vault=vault_config,
-    )
+    return config
 
 
 def require_env() -> EnvTomlConfig:
