@@ -5,8 +5,10 @@ from pathlib import Path
 
 from tools import git
 
-_ENV_TOML = git.repo_root() / ".env.toml"
-_ENV_TEMPLATE = git.repo_root() / ".env.template.toml"
+_THIS_REPO_ROOT = git.repo_root(Path(__file__))
+print(_THIS_REPO_ROOT)
+_ENV_TOML = _THIS_REPO_ROOT / ".env.toml"
+_ENV_TEMPLATE = _THIS_REPO_ROOT / ".env.template.toml"
 
 
 @dataclass

@@ -238,7 +238,7 @@ def cli() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--file", type=Path, default=require_env().vault.walked_file)
+    parser.add_argument("--file", type=Path, default=require_env().vault.main.walked_file)
     args = parser.parse_args()
 
     assert args.file
