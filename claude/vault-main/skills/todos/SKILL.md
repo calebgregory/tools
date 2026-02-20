@@ -1,5 +1,5 @@
 ---
-name: review
+name: todos
 description: Show a status overview of all open tasks across the vault. Use when starting a session, when the user asks what's going on, or wants to see their task list.
 ---
 

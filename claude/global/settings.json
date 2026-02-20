@@ -33,7 +33,16 @@
       }
     ]
   },
-  "permissions": { "allow": ["Bash(obsidian-open *)"] },
+  "permissions": {
+    "allow": [
+      "Bash(obsidian-open *)",
+      "Bash(relative-dates:*)",
+      "Glob(~/_/main/**/todo.md)",
+      "Read(~/_/main/**/todo.md)",
+      "Glob(~/_/main/**/contact.md)",
+      "Read(~/_/main/**/contact.md)"
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "lemonaid-claude-statusline"
