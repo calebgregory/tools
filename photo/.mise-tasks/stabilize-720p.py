@@ -13,6 +13,7 @@ libvidstab is fairly featured, and depending on the particulars of the input
 video, you may want to use different options.  maybe at some point i'll play
 with that.  this is at least a decent starting point.
 """
+
 import argparse
 import math
 import shutil
@@ -105,7 +106,7 @@ def main(album_dir: Path) -> None:
     if not mov_files:
         raise FileNotFoundError(f"{album_dir} has no *.MOV files!")
 
-    out_dir = album_dir / "720p-stabilized"
+    out_dir = album_dir
     out_dir.mkdir(parents=True, exist_ok=True)
 
     num_jobs, num_ffmpeg_threads = _derive_parallelization(num_files=len(mov_files))
@@ -118,7 +119,7 @@ def main(album_dir: Path) -> None:
             for i, fut in enumerate(as_completed(futures)):
                 out, dur = fut.result()
                 if dur:
-                    print(f"[{i+1}/{len(mov_files)}] done: {out} ({_duration(dur)})")
+                    print(f"[{i + 1}/{len(mov_files)}] done: {out} ({_duration(dur)})")
         except KeyboardInterrupt:
             print("Interrupted. Cancelling queued tasks...", file=sys.stderr)
             ex.shutdown(cancel_futures=True)

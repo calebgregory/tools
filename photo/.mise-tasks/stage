@@ -24,11 +24,20 @@ if [ -n "$(ls -A "$staged_dir")" ]; then
   echo "WARNING: $staged_dir is not empty!"
 fi
 
-mv "$sd_card_volume"/DCIM/*_FUJI/* "$staged_dir"
+shopt -s nullglob
+files=("$sd_card_volume"/DCIM/*_FUJI/*)
+shopt -u nullglob
 
-file_count="$(find "$staged_dir" -type f | wc -l)"
-total_size="$(du -sh "$staged_dir" | cut -f1)"
-echo "moved $file_count files ($total_size)"
+file_count="${#files[@]}"
+if [ "${file_count}" -eq 0 ]; then
+  echo "no files found on $sd_card_volume"
+  exit 0
+fi
+
+total_size="$(du -ch "${files[@]}" 2>/dev/null | tail -1 | cut -f1)"
+echo "staging $file_count files ($total_size)..."
+
+mv -v "${files[@]}" "$staged_dir"
 
 open "$staged_dir"
 
