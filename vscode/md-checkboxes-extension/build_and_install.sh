@@ -3,8 +3,8 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-mkdir dist/
+mkdir -p dist/
 
-pnpx @vscode/vsce package --skip-license --out dist/md-checkboxes.vsix
+pnpm dlx @vscode/vsce package --skip-license --out dist/md-checkboxes.vsix
 
 code --install-extension dist/md-checkboxes.vsix
