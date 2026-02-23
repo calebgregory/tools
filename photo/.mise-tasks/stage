@@ -37,7 +37,24 @@ fi
 total_size="$(du -ch "${files[@]}" 2>/dev/null | tail -1 | cut -f1)"
 echo "staging $file_count files ($total_size)..."
 
-mv -v "${files[@]}" "$staged_dir"
+progress-bar() {
+  total="$1"
+  num_completed="$2"
+
+  pct=$((num_completed * 100 / total))
+  filled=$((pct * 40 / 100))
+  bar=$(printf '%*s' "$filled" '' | tr ' ' '#')
+  empty=$(printf '%*s' "$((40 - filled))" '' | tr ' ' '-')
+  printf "\r[%s%s] %d/%d (%d%%)" "$bar" "$empty" "$num_completed" "$total" "$pct"
+}
+
+moved=0
+for f in "${files[@]}"; do
+    mv "$f" "$staged_dir"
+    ((moved++))
+    progress-bar "$file_count" "$moved"
+done
+printf "\n"
 
 open "$staged_dir"
 
