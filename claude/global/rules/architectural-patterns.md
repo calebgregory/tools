@@ -34,3 +34,9 @@ Resolution: For **type conversion functions** whose purpose is transforming betw
 For **utility functions** that operate on data incidentally, minimize dependence—don't accept a composite type just because that's where the data came from.
 
 Heuristic: Would changing the input type change what the function conceptually does? If yes, use the domain type. If no, use minimal data.
+
+## Prefer reference over restatement
+
+When documenting anything — code, configuration, processes, systems — link to the canonical source rather than restating what it says. This applies to READMEs, comments, docstrings, and any explanatory prose.
+
+Duplication creates a sync burden: now two things must be kept in agreement. Instead, tell the reader *where* to look, not *what* they'll see. Trust that the source material is readable.

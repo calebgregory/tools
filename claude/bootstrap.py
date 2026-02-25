@@ -74,7 +74,7 @@ def _link_project_config(src: Path, target: Path) -> None:
 # global ~/.claude config
 #
 
-_GLOBAL_CONFIG_FILES = ("CLAUDE.md", "settings.json", "settings.local.json", "rules")
+_GLOBAL_CONFIG_FILES = ("CLAUDE.md", "settings.json", "settings.local.json", "rules", "skills")
 
 
 def _make_global_symlink_src_onto_target(
