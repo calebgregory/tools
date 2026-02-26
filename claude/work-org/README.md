@@ -12,11 +12,11 @@ daily/{date}.md    → single source of truth per day
 ## End-of-Day Workflow
 
 ```
-                    ┌─────────────────┐
-                    │  todo/todo.md   │ (completed tasks)
-                    └────────┬────────┘
-                             │
-                             ▼
+                       ┌─────────────────┐
+                       │  todo/todo.md   │ (completed tasks)
+                       └────────┬────────┘
+                                │
+                                ▼
 ┌─────────────────┐    ┌─────────────────┐
 │  todo/today.md  │───►│   /daily-note   │
 │  (voice memos)  │    │                 │
@@ -42,6 +42,7 @@ daily/{date}.md    → single source of truth per day
 ```
 
 **Steps:**
+
 1. `/daily-note` — archives completed tasks, transcribes voice memos, generates summary
 2. `/standup tomorrow` — generates tomorrow's standup from today's daily note + open tasks
 3. Edit `todo/tomorrow.md` as needed, then post to DailyBot
@@ -66,7 +67,7 @@ daily/{date}.md    → single source of truth per day
 
 ```
 ┌─────────────────────────────────────┐
-│  daily/2026/2026-02-{02-06}.md     │ (Mon-Fri daily notes)
+│  daily/2026/2026-02-{02-06}.md      │ (Mon-Fri daily notes)
 └────────────────┬────────────────────┘
                  │
                  ▼
@@ -86,8 +87,6 @@ daily/{date}.md    → single source of truth per day
 | `/standup [tomorrow]` | Generate standup update | End of day (`tomorrow`) or morning (default) |
 | `/tidy` | Reorder todo.md by urgency | When list feels disorganized |
 | `/weekly-update` | Generate weekly summary | Friday / end of week |
-| `/archive-completed` | Archive tasks only (no transcription) | Mid-day cleanup |
-| `/apply-update` | Process voice memo to update tasks | Ad-hoc task updates |
 
 See [skills/](./skills/) for full documentation of each skill.
 
