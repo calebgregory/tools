@@ -52,9 +52,7 @@ def _select_only_resultant_audio_files(all_voice_memo_files: dict[str, Path]) ->
     resultant_audio_files = {
         relpath: abspath
         for relpath, abspath in all_voice_memo_files.items()
-        if relpath.startswith("Recordings")
-        and relpath.endswith(".m4a")
-        and "/fragments/" not in relpath
+        if relpath.startswith("Recordings") and relpath.endswith(".m4a") and "/fragments/" not in relpath
     }
     print(f"Found {len(resultant_audio_files)} resultant audio files.")
     return resultant_audio_files
@@ -85,16 +83,12 @@ def _recording_db_path_from_relpath(relpath: str) -> str:
     return Path(relpath).name
 
 
-def _get_title_from_recordings_db(
-    file_id_onto_title: dict[str, str], audio_file_relpath: str
-) -> str:
+def _get_title_from_recordings_db(file_id_onto_title: dict[str, str], audio_file_relpath: str) -> str:
     path = _recording_db_path_from_relpath(audio_file_relpath)
     return file_id_onto_title.get(path) or ""
 
 
-def _manifest_plist_for_file(
-    all_voice_memo_files: dict[str, Path], audio_file_relpath: str
-) -> dict | None:
+def _manifest_plist_for_file(all_voice_memo_files: dict[str, Path], audio_file_relpath: str) -> dict | None:
     audio_file_without_m4a = audio_file_relpath.replace(".m4a", "")
     manifest_plist_relpath = f"{audio_file_without_m4a}.composition/manifest.plist"
     if f := all_voice_memo_files.get(manifest_plist_relpath):
@@ -103,9 +97,7 @@ def _manifest_plist_for_file(
     return None
 
 
-def _derive_friendly_name(
-    title_in_db: str, manifest_plist: dict | None, audio_file_relpath: str
-) -> str:
+def _derive_friendly_name(title_in_db: str, manifest_plist: dict | None, audio_file_relpath: str) -> str:
     original_stem = Path(audio_file_relpath).stem
 
     if title_in_db:

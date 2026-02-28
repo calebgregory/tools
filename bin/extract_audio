@@ -9,4 +9,5 @@ input_file="$1"
 output_file="${2:-${input_file%.*}.aac}"
 
 ffmpeg -hide_banner -i "${input_file}" \
-  -vn -map 0:a:0 -c:a aac "${output_file}"
+  -vn -map 0:a:0 -c:a copy "${output_file}"
+  # note there will be times where -c:a aac is the right thing to do here
