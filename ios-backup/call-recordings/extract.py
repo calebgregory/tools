@@ -110,9 +110,10 @@ def main(backup_root: Path, output_dir: Path) -> None:
 
     notestore_src = _backup_abspath_for_file_id(backup_root, row[0])
     with tempfile.NamedTemporaryFile(suffix=".sqlite", delete=False) as tmp:
-        shutil.copy2(notestore_src, tmp.name)
-        recordings = _find_recordings_in_notestore(Path(tmp.name))
-        Path(tmp.name).unlink()
+        tmp_path = Path(tmp.name)
+        shutil.copy2(notestore_src, tmp_path)
+        recordings = _find_recordings_in_notestore(tmp_path)
+        tmp_path.unlink()
 
     if not recordings:
         print("No call recordings found in NoteStore.")
