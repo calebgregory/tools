@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Merge multiple audio streams in a file into a single mono track.
+# iOS call recordings store each speaker as a separate stream;
+# most tools (e.g. transcription APIs) only read the first one.
+
+if [ -z "$1" ]; then
+  echo "Usage: merge_audio_tracks <input_file> [output_file]" >&2
+  exit 1
+fi
+
+input_file="$1"
+output_file="${2:-${input_file%.*}_merged.m4a}"
+
+ffmpeg -hide_banner -i "${input_file}" \
+  -filter_complex "[0:a:0][0:a:1]amix=inputs=2:duration=longest" \
+  -ac 1 "${output_file}"
