@@ -10,6 +10,18 @@ An iPhone backup stores every file under a content-addressed hash in `Manifest.d
 
 `extract.py` queries `NoteStore.sqlite` (the Notes database inside the backup) to find audio attachments with real duration, resolves them back to files in the backup via `Manifest.db`, and copies them out with friendly names derived from the note title and creation date.
 
+## multi-track audio
+
+The extracted files contain two separate audio streams — one per speaker. Media players mix them for playback, so they sound fine. But tools like transcription APIs typically only read the first stream (your mic), silently dropping the other speaker.
+
+To merge both streams into a single mono track before transcribing:
+
+```bash
+merge-audio-tracks recording.m4a recording_merged.m4a
+```
+
+(see [`merge-audio-tracks`](../../bin/merge-audio-tracks))
+
 ## usage
 
 1. Back up your iPhone to your Mac (Finder > iPhone > "Back up all data").
