@@ -70,13 +70,15 @@ Generate a daily standup update based on daily notes and open tasks.
      - Use the Completed section for specific tasks finished
      - Use Transcripts for additional context if needed
    - Read todo.md for any tasks marked complete that haven't been archived yet
+   - Follow `[see](...)` references in todo.md to project todo files (`projects/**/todo.md`) — include recently completed tasks from those files
    - Git log as background context only (don't enumerate commits):
      `git -C <monorepo> log --oneline --since="<prev-day> 00:00" --until="<prev-day> 23:59" --author="<user>"`
 
 3. **Gather "today" content**:
    - Check if daily note exists for today (`daily/{YYYY}/{YYYY-MM-DD}.md`) — use its outline for planned work
    - Read todo.md for open tasks, especially those with `{due: today}` or no due date
-   - Check for `{status: awaiting ...}` items that need follow-up
+   - Follow `[see](...)` references to project todo files — include open tasks from those files
+   - Check for `{status: awaiting ...}` items that need follow-up (in both main and project todo files)
    - Note any blockers or dependencies
 
 4. **Format the update**:

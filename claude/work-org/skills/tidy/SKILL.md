@@ -9,7 +9,7 @@ Analyze the todo list and suggest reorganization based on urgency and conceptual
 
 ## Steps
 
-1. **Read todo.md** (see Environment in CLAUDE.md)
+1. **Read todo.md** (see Environment in CLAUDE.md) and follow any `[see](...)` references to project todo files (`projects/**/todo.md`)
 2. **Parse task structure**: identify all tasks, subtasks, due dates, statuses
 3. **Assess urgency** for each task (see Urgency Order below)
 4. **Identify grouping opportunities**:
@@ -83,3 +83,4 @@ Apply changes? (yes / no / edit specific items)
 - Maintain proper indentation (tabs for subtasks)
 - If no changes needed, say so and exit
 - Completed `[x]` tasks: leave in place (archiving is separate)
+- **Never remove or modify tasks in project todo files** (`projects/**/todo.md`) — tidy only operates on the main `todo/todo.md`

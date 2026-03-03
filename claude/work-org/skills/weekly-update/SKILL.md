@@ -62,6 +62,7 @@ Generate a project-focused weekly update summarizing progress across workstreams
 | Daily notes | Completed tasks, summaries, context |
 | Git log | Commits grouped by feature/PR |
 | Todo.md | Upcoming work for "next" section |
+| Project todo files | Project-specific tasks — follow `[see](...)` refs from todo.md |
 | current-project.md | Project name, channel |
 
 ## Rules

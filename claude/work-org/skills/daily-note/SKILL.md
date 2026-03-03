@@ -16,7 +16,8 @@ End-of-day workflow: archive completed tasks, transcribe voice memos, and genera
 
 ## Source Files
 
-- `todo/todo.md` — completed tasks to archive
+- `todo/todo.md` — completed tasks to archive; may contain references to project todo files
+- `projects/**/todo.md` — project-specific todo files (follow `[see](...)` links from main todo.md)
 - `todo/today.md` — Obsidian audio embeds: `![[path/to/audio.m4a]]`
 
 ## Destination
@@ -32,11 +33,13 @@ End-of-day workflow: archive completed tasks, transcribe voice memos, and genera
 ### 1. Archive completed tasks
 
 1. Read `todo/todo.md` and find all `[x]` tasks
-2. If any completed tasks exist:
+2. Follow any `[see](...)` references to project todo files and find `[x]` tasks there too
+3. If any completed tasks exist:
    - Gather context (git commits, PR status) — see Context Enrichment below
-   - Append to `## Completed` section in the daily note
-   - Remove archived tasks from todo.md
-3. If no completed tasks, skip to transcription
+   - Append to `## Completed` section in the daily note, grouped by project
+   - Remove archived tasks from `todo/todo.md` only
+   - **Never remove completed tasks from project todo files** — they serve as a persistent record of project scope
+4. If no completed tasks, skip to transcription
 
 ### 2. Transcribe voice memos
 
@@ -113,3 +116,4 @@ When run multiple times:
 - Don't over-enrich completed tasks — add context useful for weekly updates
 - Preserve existing content when updating
 - If no completed tasks AND no audio embeds, report that and exit
+- **Never remove or modify completed tasks in project todo files** (`projects/**/todo.md`)

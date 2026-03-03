@@ -44,8 +44,30 @@ lines.extend(_body_content())
 
 - When returning multiple values from a function, prefer a NamedTuple over an anonymous tuple when the caller will benefit from named access (e.g., `result.confirmed` vs `result[0]`). NamedTuples also support default values, reducing boilerplate at call sites.
 
+- For accumulating a summary or report across a loop, use a `@dataclass` with default field values rather than a plain dict or a NamedTuple constructed at the end. The dataclass makes the schema explicit and fields are directly mutable.
+
 ## Imports
 
 - ALWAYS `import typing as ty`. Use `ty.` prefix for typing constructs (e.g., `ty.NamedTuple`, `ty.Callable`).
 
 - Do not add new imports for names already available through existing aliases.
+
+## Return type annotations
+
+All function definitions must include a return type annotation. For functions that return nothing, annotate with `-> None`.
+
+## Prefer Literal over bare str for constrained values
+
+When a value is limited to a known set of strings, use `ty.Literal` (or a named alias of one) instead of `str`. This makes the constraint enforced by the type system rather than documented by a comment.
+
+```py
+# good:
+DifferenceKind = ty.Literal["source_only", "dest_only", "diverged", "identical"]
+
+class SyncAction(ty.NamedTuple):
+    kind: DifferenceKind
+
+# bad:
+class SyncAction(ty.NamedTuple):
+    kind: str  # "source_only" | "dest_only" | "diverged" | "identical"
+```
