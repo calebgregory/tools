@@ -1,3 +1,19 @@
+"""Two-way interactive sync between a local source-of-truth directory and a
+shared Obsidian vault directory (synced via Relay).
+
+Designed for the case where coworkers can accidentally delete files from the
+shared vault.  You maintain your own copy of the files you care about (source)
+and periodically sync against the shared directory (dest):
+
+- Files missing from dest are offered for restore (source -> dest).
+- Files only in dest are offered for pickup (dest -> source).
+- Diverged text files get git-add-patch-style hunk approval; the merged
+  result is written to both sides so accepted hunks don't resurface.
+- Binary files prompt for a whole-file keep-source / keep-dest choice.
+
+Usage:  sync-vault <source> <dest> [--dry-run]
+"""
+
 import shutil
 import typing as ty
 from dataclasses import dataclass
