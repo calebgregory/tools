@@ -1,15 +1,13 @@
-import difflib
 import re
 import typing as ty
 from pathlib import Path
 
 from thds.termtool.colorize import colorized
 
+from tools import diff
 from tools.env import require_env
 
-_RED = colorized(fg="red")
 _YELLOW = colorized(fg="yellow")
-_GREEN = colorized(fg="green")
 _BLUE = colorized(fg="blue")
 
 
@@ -29,23 +27,6 @@ def _match_conflict_file_with_source(conflict_file: Path) -> Conflict:
     return Conflict(source_file, conflict_file)
 
 
-def _colorize_diff_line(line: str) -> str:
-    for char, color in {"+": _GREEN, "-": _RED}.items():
-        if line.startswith(char):
-            return color(line)
-    return line
-
-
-def _colored_diff(v1: Path, v2: Path) -> str:
-    lines = difflib.unified_diff(
-        v2.read_text().splitlines(keepends=True),
-        v1.read_text().splitlines(keepends=True),
-        fromfile=str(v2),
-        tofile=str(v1),
-    )
-    return "".join(map(_colorize_diff_line, lines))
-
-
 def find_and_prompt_to_delete_conflict_files(vault_root: Path, *, force: bool = False) -> int:
     count = 0
     for src, conflict in map(_match_conflict_file_with_source, _find_conflict_files(vault_root)):
@@ -54,12 +35,12 @@ def find_and_prompt_to_delete_conflict_files(vault_root: Path, *, force: bool = 
             count += 1
             continue
 
-        diff = _colored_diff(src, conflict)
-        if not diff:
+        diff_ = diff.colorize(diff.diff(src, conflict))
+        if not diff_:
             print(f"- {src} ({_YELLOW('no changes')})")
             continue
 
-        print(diff)
+        print(diff_)
         response = input(_BLUE(f"Delete {conflict.name}? [y/N] ")).strip().lower()
         if response == "y":
             conflict.unlink()
