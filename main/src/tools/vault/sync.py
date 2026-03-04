@@ -27,7 +27,7 @@ from tools.diff import apply_hunks, colorize_hunk, diff, hunks
 _RED = colorized(fg="red")
 _GREEN = colorized(fg="green")
 _YELLOW = colorized(fg="yellow")
-_BLUE = colorized(fg="blue")
+_BLUE = colorized(fg="blue", style="bold")
 _DIM = colorized(fg="gray")
 
 
