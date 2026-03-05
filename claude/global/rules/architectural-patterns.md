@@ -46,3 +46,7 @@ When you'll need to resolve IDs to objects in bulk, build the lookup dict upfron
 ## Decouple async actions from data flow
 
 For operations that trigger state changes, consider fire-and-forget with event-based data flow rather than awaiting return values. The action triggers the work; an event delivers the result. This avoids blocking on slow serialization and keeps the action fast.
+
+## Derive scratch directories deterministically at call time
+
+When a function writes to a scratch/temp directory, construct the path inside the function body — not at module level. Derive a deterministic subdirectory name from the function's inputs (e.g., hashing the input sources) so that concurrent invocations with different inputs don't collide on the same filesystem.

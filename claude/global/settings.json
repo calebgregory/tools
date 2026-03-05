@@ -11,6 +11,7 @@
       "Read(~/_/main/*/contact.md)"
     ]
   },
+  "model": "opus",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -53,6 +54,5 @@
     "verbs": [
       "."
     ]
-  },
-  "model": "opus"
+  }
 }
