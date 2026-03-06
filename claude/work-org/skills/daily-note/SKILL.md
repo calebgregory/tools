@@ -97,7 +97,7 @@ End-of-day workflow: archive completed tasks, transcribe voice memos, and genera
 
 ## Context Enrichment (for completed tasks)
 
-**Git commits**: `git -C <monorepo> log --oneline --since="today" --author="<user>"` — match to tasks by keyword/branch
+**Git commits**: `git -C <monorepo> log --oneline --since="YYYY-MM-DD 00:00" --author="<name from ~/.gitconfig>" <branch>` — use branch names from `current-project.md`; bare dates and `"today"` resolve to current time, not midnight
 
 **PR links**: If task has GitHub PR URL, note if merged
 
