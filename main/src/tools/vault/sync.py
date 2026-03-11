@@ -137,7 +137,7 @@ def _write_to_both(text: str, *paths: Path) -> None:
 
 
 def _handle_source_only(action: SyncAction, *, dry_run: bool) -> SyncActionPerformed:
-    print(f"\n{_GREEN('+ ' + str(action.rel))}")
+    print(f"\n{_BLUE('+ ' + str(action.rel))}")
     print("  exists in source, missing from dest")
     if dry_run:
         print(_DIM("  [dry-run] would copy source -> dest"))
@@ -150,7 +150,7 @@ def _handle_source_only(action: SyncAction, *, dry_run: bool) -> SyncActionPerfo
 
 
 def _handle_dest_only(action: SyncAction, *, dry_run: bool) -> SyncActionPerformed:
-    print(f"\n{_YELLOW('? ' + str(action.rel))}")
+    print(f"\n{_BLUE('? ' + str(action.rel))}")
     print("  exists in dest, missing from source")
     if dry_run:
         print(_DIM("  [dry-run] would copy dest -> source"))
@@ -163,7 +163,7 @@ def _handle_dest_only(action: SyncAction, *, dry_run: bool) -> SyncActionPerform
 
 
 def _handle_diverged(action: SyncAction, *, dry_run: bool) -> SyncActionPerformed:
-    print(f"\n{_RED('~ ' + str(action.rel))}")
+    print(f"\n{_BLUE('~ ' + str(action.rel))}")
 
     if _is_binary(action.source) or _is_binary(action.dest):
         return _handle_diverged_binary(action, dry_run=dry_run)
@@ -279,7 +279,6 @@ def sync(source: Path, dest: Path, *, dry_run: bool = False) -> SyncSummary:
 
 def _print_summary(s: SyncSummary) -> None:
     lines = [
-        "",
         "=" * 40,
         f"  Copied to dest:   {s.copied_to_dest}",
         f"  Copied to source: {s.copied_to_source}",

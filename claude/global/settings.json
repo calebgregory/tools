@@ -3,6 +3,7 @@
     "allow": [
       "Bash(obsidian-open *)",
       "Bash(relative-dates:*)",
+      "Bash(transcribe:*)",
       "Glob(~/_/main/**/todo.md)",
       "Read(~/_/main/**/todo.md)",
       "Read(~/_/main/*/todo.md)",
