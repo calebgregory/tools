@@ -24,6 +24,8 @@ from thds.termtool.colorize import colorized
 
 from tools.diff import apply_hunks, colorize_hunk, diff, hunks
 
+from .obsidian import obsidian_open
+
 _RED = colorized(fg="red")
 _GREEN = colorized(fg="green")
 _YELLOW = colorized(fg="yellow")
@@ -124,10 +126,12 @@ def _binary_summary(source: Path, dest: Path) -> str:
 def _copy_file(src: Path, dst: Path) -> None:
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dst)
+    obsidian_open(dst)
 
 
 def _write_to_both(text: str, *paths: Path) -> None:
     for p in paths:
+        obsidian_open(p)
         p.write_text(text)
 
 
