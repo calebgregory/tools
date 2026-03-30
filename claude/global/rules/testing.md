@@ -12,9 +12,29 @@ You should be able to understand what a test is testing by reading the test alon
 
 When the test logic is identical across cases and only input/output differs, use `pytest.mark.parametrize` instead of writing separate test methods.
 
-## Name test classes `Test_<function_name>`
+## No test classes
 
-Match the snake_case of the function under test: `Test_parse_value`, not `TestParseValue`. This makes it immediately clear which function the class exercises.
+Do not use `class Test*` to group tests. Use modules for grouping instead.
+
+## Group tests by module, then by function
+
+Start with a single test file per source module (e.g., `test_foo.py` for `foo.py`). When a function under test needs more than one test, promote the test file into a directory and create a sub-module per function under test:
+
+```
+# before: single file
+tests/test_foo.py
+
+# after: directory named after the source module, with one test module per function
+tests/foo/__init__.py
+tests/foo/test_parse_value.py
+tests/foo/test_validate_input.py
+```
+
+Shared helpers (builders, fixtures, constants) used across multiple test modules in the directory go in a `shared.py` sub-module.
+
+This keeps things flat until there's a real reason to add structure, and the test tree remains a refinement of the source tree.
+
+When converting an existing `test_foo.py` into a directory, `git mv test_foo.py foo/test_foo.py` first to preserve history. Then extract per-function test modules out of it. If the original file ends up empty, delete it.
 
 ## Don't wrap the function under test in a helper
 
