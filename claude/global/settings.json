@@ -55,5 +55,10 @@
       "."
     ]
   },
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "voiceEnabled": true,
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  }
 }
