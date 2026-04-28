@@ -1,7 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(obsidian-open *)",
+      "Bash(obsidian-cli *)",
       "Bash(relative-dates:*)",
       "Bash(transcribe:*)",
       "Glob(~/_/main/**/todo.md)",
@@ -56,9 +56,11 @@
     ]
   },
   "effortLevel": "high",
-  "voiceEnabled": true,
   "voice": {
     "enabled": true,
     "mode": "hold"
-  }
+  },
+  "voiceEnabled": true,
+  "editorMode": "vim",
+  "autoCompactEnabled": false
 }

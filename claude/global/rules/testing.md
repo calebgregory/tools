@@ -8,6 +8,8 @@ Unit tests should not share mutable state or depend on execution order. Each tes
 
 You should be able to understand what a test is testing by reading the test alone, without chasing down fixtures or shared context. Builder functions (that construct a valid object and accept override kwargs for the specifics under test) support this: they encapsulate how to build a valid instance while making the test-relevant values explicit at the call site.
 
+Make builder parameters keyword-only (after `*`) with sensible defaults. This way call sites only specify the values relevant to the test, reducing visual clutter and focusing the reader on what matters.
+
 ## Use `pytest.mark.parametrize` for simple mapping tests
 
 When the test logic is identical across cases and only input/output differs, use `pytest.mark.parametrize` instead of writing separate test methods.
@@ -30,7 +32,7 @@ tests/foo/test_parse_value.py
 tests/foo/test_validate_input.py
 ```
 
-Shared helpers (builders, fixtures, constants) used across multiple test modules in the directory go in a `shared.py` sub-module.
+Pytest fixtures shared across test modules go in `conftest.py`. Plain helpers (builders, constants) shared across multiple test modules go in a `shared.py` sub-module. Only create `shared.py` when a helper is actually used by more than one module — if it's only used by one, keep it in that module.
 
 This keeps things flat until there's a real reason to add structure, and the test tree remains a refinement of the source tree.
 
