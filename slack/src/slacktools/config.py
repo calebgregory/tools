@@ -13,6 +13,7 @@ def _load_config() -> dict[str, ty.Any]:
     return tomllib.loads(_CONFIG_PATH.read_text())
 
 
+@lru_cache
 def load_token() -> str:
     token_path_str = _load_config().get("api_keys", {}).get("slack_bot")
     if not token_path_str:

@@ -70,6 +70,7 @@ slack users sync                     # force-refresh the directory cache
 ```
 
 Resolution paths:
+
 - `U…` / `W…` → `users.info`
 - contains `@` → `users.lookupByEmail`
 - otherwise → case-insensitive substring match against display_name / real_name in a local cache, populated lazily from `users.list`
@@ -112,11 +113,11 @@ src/slacktools/
   users/
     api.py            # users.* endpoints + on-disk directory cache
     cli.py            # `slack users ...`
-  cli/__main__.py     # argh dispatcher → registers feature commands as subgroups
+  cli.py              # argh dispatcher → registers feature commands as subgroups
   mcp/server.py       # FastMCP server → registers feature functions as tools
 ```
 
-Adding a new feature: drop `<feature>/{api,cli}.py`, register the CLI commands in `cli/__main__.py`, expose the API functions as tools in `mcp/server.py`. The two shells stay thin; logic stays in the feature `api.py`.
+Adding a new feature: drop `<feature>/{api,cli}.py`, register the CLI commands in `cli.py`, expose the API functions as tools in `mcp/server.py`. The two shells stay thin; logic stays in the feature `api.py`.
 
 ## Caveats
 

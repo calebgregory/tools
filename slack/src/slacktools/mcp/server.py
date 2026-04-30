@@ -13,13 +13,12 @@ def discover_lists() -> list[dict]:
 
     Returns: list of {id, title} for each list.
     """
-    token = config.load_token()
     return [
         {
             "id": entry.get("id"),
             "title": entry.get("title") or entry.get("name") or "(untitled)",
         }
-        for entry in lists_api.discover_lists(token)
+        for entry in lists_api.discover_lists(config.load_token())
     ]
 
 
@@ -30,8 +29,7 @@ def get_list_schema(list_id: str = "") -> list[dict]:
     Args:
         list_id: List ID (e.g. F0B0MFZ6S9K). Empty -> use default from config.toml.
     """
-    token = config.load_token()
-    return lists_api.get_list_schema(token, config.list_id_or_default(list_id))
+    return lists_api.get_list_schema(config.load_token(), config.list_id_or_default(list_id))
 
 
 @mcp.tool()
@@ -42,8 +40,9 @@ def list_items(list_id: str = "", limit: int = 100) -> dict:
         list_id: List ID. Empty -> use default from config.toml.
         limit:   Max items to return (default 100).
     """
-    token = config.load_token()
-    return lists_api.list_items(token, config.list_id_or_default(list_id), limit=limit)
+    return lists_api.list_items(
+        config.load_token(), config.list_id_or_default(list_id), limit=limit
+    )
 
 
 @mcp.tool()
@@ -65,9 +64,8 @@ def add_list_item(
         list_id: Target list ID. Empty -> use default from config.toml.
         parent_item_id: Optional parent item id (for subtasks).
     """
-    token = config.load_token()
     return lists_api.create_item_from_kv(
-        token,
+        config.load_token(),
         config.list_id_or_default(list_id),
         fields,
         parent_item_id=parent_item_id or None,
@@ -82,8 +80,7 @@ def find_user(identifier: str) -> dict:
         identifier: User_id (U...), email (foo@bar.com), or name ("caleb").
                     Name lookup uses a 7-day on-disk cache; first miss may take ~1s.
     """
-    token = config.load_token()
-    return users_api.find_user(token, identifier)
+    return users_api.find_user(config.load_token(), identifier)
 
 
 def main() -> None:
