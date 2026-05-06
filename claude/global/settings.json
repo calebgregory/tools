@@ -9,7 +9,8 @@
       "Read(~/_/main/*/todo.md)",
       "Glob(~/_/main/**/contact.md)",
       "Read(~/_/main/**/contact.md)",
-      "Read(~/_/main/*/contact.md)"
+      "Read(~/_/main/*/contact.md)",
+      "Read(~/work/ds-monorepo)"
     ]
   },
   "hooks": {
@@ -62,5 +63,6 @@
   },
   "voiceEnabled": true,
   "editorMode": "vim",
-  "autoCompactEnabled": false
+  "autoCompactEnabled": false,
+  "model": "opus"
 }
