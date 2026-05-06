@@ -3,7 +3,6 @@
     { "path": ".", "name": "root" },
     { "path": "./main" },
     { "path": "./claude" },
-    { "path": "./slack" },
     { "path": "./confident-confidant" },
     { "path": "./lemonaid" },
     { "path": "./pr-respond" },
@@ -13,7 +12,6 @@
       "confident-confidant": true,
       "main": true,
       "claude": true,
-      "slack": true,
       "lemonaid": true,
       "pr-respond": true
     },

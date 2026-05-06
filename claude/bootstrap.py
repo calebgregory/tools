@@ -15,6 +15,7 @@ from pathlib import Path
 from tools.env import ClaudeConfig, require_env
 
 _CONFIGS_DIR = Path(__file__).parent
+_CLAUDE_PROJECTS_DIR = Path.home() / ".claude" / "projects"
 
 #
 # .claude project symlinking
@@ -71,6 +72,46 @@ def _link_project_config(src: Path, target: Path) -> None:
 
 
 #
+# auto-memory symlinking
+#
+# Claude Code's auto-memory dir lives at `~/.claude/projects/<key>/memory/`
+# where `<key>` is derived by Claude Code from the project's path (slashes
+# replaced with dashes, leading dash). This is machine-local by default;
+# we symlink it into our version-controlled config so memory survives a
+# fresh checkout on a new machine.
+
+
+def _auto_memory_key(project_path: Path) -> str:
+    """Derive the auto-memory key from an absolute project path.
+
+    Mirrors Claude Code's transform: replace `/` and `.` with `-`.
+    Example: `/foo/bar/.baz` -> `-foo-bar--baz` (the `.` AND the preceding
+    `/` each become a `-`, yielding `--`).
+    """
+    resolved = project_path.resolve()
+    assert resolved.is_absolute(), f"expected absolute path, got {project_path}"
+    return str(resolved).replace("/", "-").replace(".", "-")
+
+
+def _derive_memory_symlink_src_onto_target(claude_config: ClaudeConfig) -> dict[Path, Path]:
+    src_onto_target = {}
+    for dir_name, target_path in claude_config.project_targets.items():
+        src_memory = _CONFIGS_DIR / dir_name / "memory"
+        if not src_memory.is_dir():
+            continue
+        auto_memory_path = claude_config.auto_memory_paths.get(dir_name, target_path)
+        key = _auto_memory_key(auto_memory_path)
+        target_memory = _CLAUDE_PROJECTS_DIR / key / "memory"
+        src_onto_target[src_memory] = target_memory
+    return src_onto_target
+
+
+def _link_memory(src: Path, target: Path) -> None:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    _symlink(src, target)
+
+
+#
 # global ~/.claude config
 #
 
@@ -95,8 +136,13 @@ def _link_global_config(src: Path, target: Path) -> None:
 
 
 def cli() -> None:
-    for src, target in _derive_projects_symlink_src_onto_target(require_env().claude).items():
+    claude_config = require_env().claude
+
+    for src, target in _derive_projects_symlink_src_onto_target(claude_config).items():
         _link_project_config(src, target)
+
+    for src, target in _derive_memory_symlink_src_onto_target(claude_config).items():
+        _link_memory(src, target)
 
     for src, target in _make_global_symlink_src_onto_target(_GLOBAL_CONFIG_FILES).items():
         _link_global_config(src, target)

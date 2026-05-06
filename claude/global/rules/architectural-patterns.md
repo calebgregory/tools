@@ -50,3 +50,30 @@ For operations that trigger state changes, consider fire-and-forget with event-b
 ## Derive scratch directories deterministically at call time
 
 When a function writes to a scratch/temp directory, construct the path inside the function body — not at module level. Derive a deterministic subdirectory name from the function's inputs (e.g., hashing the input sources) so that concurrent invocations with different inputs don't collide on the same filesystem.
+
+## Organize modules feature-first when there are parallel layers
+
+When a package has parallel layers per feature (e.g. an `api` module and a `cli` module per feature, possibly later an `mcp` module too), group by feature, not by layer:
+
+```
+# preferred (feature-first)
+src/pkg/
+  feat_a/
+    api.py
+    cli.py
+  feat_b/
+    api.py
+    cli.py
+  cli/__main__.py    # imports feat_a.cli, feat_b.cli and dispatches
+
+# avoid (layer-first)
+src/pkg/
+  api/
+    feat_a.py
+    feat_b.py
+  cli/
+    feat_a.py
+    feat_b.py
+```
+
+This keeps everything for a feature physically together — adding or removing a feature is a one-directory change. Adding a third surface (e.g. an MCP server alongside the CLI) becomes another thin shell that imports from the feature dirs. The dispatcher (e.g. `cli/__main__.py`, `mcp/server.py`) is the only layer-named module; it imports per-feature submodules and registers them.

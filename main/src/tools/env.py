@@ -14,6 +14,12 @@ _ENV_TEMPLATE = _THIS_REPO_ROOT / ".env.template.toml"
 @dataclass
 class ClaudeConfig:
     project_targets: dict[str, Path] = field(default_factory=dict)
+    auto_memory_paths: dict[str, Path] = field(default_factory=dict)
+    """Per-project override of the path used to derive the auto-memory key
+    (`~/.claude/projects/<key>/memory/`). Defaults to the project target if
+    unset. Required when Claude Code's auto-memory key was derived from an
+    ancestor of the project target (e.g. when target=~/work/notes/personal-work
+    but the auto-memory dir is keyed off ~/work/notes)."""
 
 
 @dataclass
@@ -55,7 +61,12 @@ def load_env() -> EnvTomlConfig | None:
             project_name: target
             for project_name, target_str in claude_data.get("project-targets", {}).items()
             if (target := _expand_user(target_str))
-        }
+        },
+        auto_memory_paths={
+            project_name: path
+            for project_name, path_str in claude_data.get("auto-memory-paths", {}).items()
+            if (path := _expand_user(path_str))
+        },
     )
 
     main_vault_data = data.get("vault", {}).get("main", {})

@@ -57,11 +57,11 @@
     ]
   },
   "effortLevel": "high",
+  "voiceEnabled": true,
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
-  "voiceEnabled": true,
   "editorMode": "vim",
   "autoCompactEnabled": false,
   "model": "opus"
