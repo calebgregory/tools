@@ -13,6 +13,7 @@
       "Read(~/work/ds-monorepo)"
     ]
   },
+  "model": "opus",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -57,12 +58,12 @@
     ]
   },
   "effortLevel": "high",
-  "voiceEnabled": true,
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
   "editorMode": "vim",
   "autoCompactEnabled": false,
-  "model": "opus"
+  "voiceEnabled": true,
+  "skipAutoPermissionPrompt": true
 }

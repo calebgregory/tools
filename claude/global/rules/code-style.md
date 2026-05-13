@@ -34,6 +34,34 @@ lines.extend(_body_content())
 
 - Obviously, there are cases where you cannot avoid imperatively extending a complex data instance, for example, when you are conditionally building a data-instance in a for-loop.  Follow python idioms here, but prefer the in-line style.
 
+- For multi-line text that's mostly prose, prefer a triple-quoted string with `textwrap.dedent` over a list of strings joined with `\n`.  Scalar interpolation is fine — use an f-string with `{var}` placeholders inline; the dedented form still reads as plain prose.  The list form is only justified when you need to splice a *multi-line dynamic chunk* (e.g. `*_header_content()`) into the surrounding text — that's the case the inline-list rule above is talking about.  Example:
+
+```py
+# good:
+print(textwrap.dedent(
+    f"""
+    How to read this table — each row is one demographic field;
+    each column counts patients whose two sources disagree on that field
+    (out of {n_patients} total patients in the {sample_name} sample):
+
+      only_in_a  patients where source A has values source B doesn't
+      only_in_b  patients where source B has values source A doesn't
+    """
+))
+
+# bad:
+print("\n".join([
+    "",
+    "How to read this table — each row is one demographic field;",
+    "each column counts patients whose two sources disagree on that field",
+    f"(out of {n_patients} total patients in the {sample_name} sample):",
+    "",
+    "  only_in_a  patients where source A has values source B doesn't",
+    "  only_in_b  patients where source B has values source A doesn't",
+    "",
+]))
+```
+
 ## Make encapsulation clear
 
 - Any function, type or constant that is not used outside of the module that defines it should be prefixed with a `_`.  This communicates to the reader that the function is not intended to be an externally-consumable API, which drastically affects how the reader will interpret the function's significance:  "is it _an externally-consumable API_, and therefore has a signature I am bound to in some way?  Or is it simply an internal implementation detail that can easily change?"
