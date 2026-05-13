@@ -7,6 +7,7 @@ so skills can use them directly without mapping tables.
 """
 
 import typing as ty
+from argparse import ArgumentParser
 from dataclasses import dataclass, field, fields
 from datetime import date, timedelta
 
@@ -54,13 +55,14 @@ class RelativeDates:
     next_monday: date = _meta("Monday of next week (always 7+ days from week_start)")
 
 
-def _derive_relative_dates(today: date) -> RelativeDates:
-    wd = today.weekday()
-    week_start = today - timedelta(days=wd)
+def _derive_relative_dates(relative_to: date) -> RelativeDates:
+    fixed = relative_to
+    wd = fixed.weekday()
+    week_start = fixed - timedelta(days=wd)
 
     def _upcoming(target_wd: int) -> date:
         days_ahead = (target_wd - wd) % 7
-        return today + timedelta(days=days_ahead)
+        return fixed + timedelta(days=days_ahead)
 
     monday = _upcoming(0)
     tuesday = _upcoming(1)
@@ -76,17 +78,17 @@ def _derive_relative_dates(today: date) -> RelativeDates:
 
     # prev_workday: skip Fri-Sun backwards
     if wd == 0:  # Monday → previous Thursday
-        prev_workday = today - timedelta(days=4)
+        prev_workday = fixed - timedelta(days=4)
     elif wd <= 3:  # Tue-Thu → previous day
-        prev_workday = today - timedelta(days=1)
+        prev_workday = fixed - timedelta(days=1)
     else:  # Fri-Sun → Thursday
         prev_workday = week_start + timedelta(days=3)
 
     # next_workday: skip Fri-Sun forwards
     if wd < 3:  # Mon-Wed → next day
-        next_workday = today + timedelta(days=1)
+        next_workday = fixed + timedelta(days=1)
     elif wd == 3:  # Thursday → next Monday
-        next_workday = today + timedelta(days=4)
+        next_workday = fixed + timedelta(days=4)
     else:  # Fri-Sun → next Monday
         next_workday = week_start + timedelta(days=7)
 
@@ -100,9 +102,9 @@ def _derive_relative_dates(today: date) -> RelativeDates:
     end_of_week = sunday
 
     return RelativeDates(
-        today=today,
+        today=fixed,
         weekday=wd,
-        tomorrow=today + timedelta(days=1),
+        tomorrow=fixed + timedelta(days=1),
         week_start=week_start,
         prev_workday=prev_workday,
         next_workday=next_workday,
@@ -117,13 +119,28 @@ def _derive_relative_dates(today: date) -> RelativeDates:
         this_weekend=this_weekend,
         next_weekend=next_weekend,
         end_of_week=end_of_week,
-        end_of_month=(today.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1),
+        end_of_month=(fixed.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1),
         next_monday=week_start + timedelta(days=7),
     )
 
 
+def _parse_date(s: str | date) -> date:
+    if isinstance(s, date):
+        return s
+    return date.fromisoformat(s)
+
+
 def cli() -> None:
-    dates = _derive_relative_dates(date.today())
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--of",
+        help="Print dates relative to this date. e.g., '2026-05-13'. Defaults to today.",
+        default="",
+    )
+    args = parser.parse_args()
+
+    relative_to = _parse_date(args.of or date.today())
+    dates = _derive_relative_dates(relative_to)
     for f in fields(dates):
         desc = f.metadata.get("desc", "")
         val = getattr(dates, f.name)

@@ -45,11 +45,12 @@ End-of-day workflow: archive completed tasks, transcribe voice memos, and genera
 
 1. Parse `todo/today.md` for `![[...m4a]]` or `![[...mp3]]` links
 2. For each audio file:
-   - Get file mtime (use `stat -f %m` on macOS)
+   - Get file mtime (use `stat -f %m` on macOS) and derive its date (YYYY-MM-DD)
    - Check if transcript exists in `.out/{date}/{mtime}_{basename}.txt`
    - If not, transcribe: `transcribe <audio-path> -o <temp-transcript-path>`
-3. Concatenate transcripts (sorted by mtime) with `## HH:MM` headers
-4. Append to `# Transcripts` section (avoid duplicating existing transcripts)
+3. For each unique mtime-date across the memos, run `relative-dates --of {mtime-date}` and keep that index nearby. Relative phrases inside a transcript ("tomorrow", "Friday", "this weekend") resolve from the memo's recording date, not from today.
+4. Concatenate transcripts (sorted by mtime) with `## HH:MM` headers
+5. Append to `# Transcripts` section (avoid duplicating existing transcripts)
 
 ### 3. Generate summary
 
@@ -70,12 +71,15 @@ End-of-day workflow: archive completed tasks, transcribe voice memos, and genera
 ## Outline
 
 **Work completed:**
+
 - bullet points
 
 **Follow-ups:**
+
 - [ ] task
 
 **Notes:**
+
 - insights
 
 ## Completed
@@ -106,6 +110,7 @@ End-of-day workflow: archive completed tasks, transcribe voice memos, and genera
 ## Incremental Behavior
 
 When run multiple times:
+
 - Only archive newly-completed tasks (check what's already in Completed section)
 - Only transcribe new audio files (check by mtime)
 - Re-generate summary incorporating all content
