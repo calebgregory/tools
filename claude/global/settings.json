@@ -10,7 +10,9 @@
       "Glob(~/_/main/**/contact.md)",
       "Read(~/_/main/**/contact.md)",
       "Read(~/_/main/*/contact.md)",
-      "Read(~/work/ds-monorepo)"
+      "Read(~/work/ds-monorepo)",
+      "Read(~/work/ds-monorepo-wt/*)",
+      "Read(~/tools/claude/work-org/memory/*)"
     ]
   },
   "model": "opus",
@@ -64,6 +66,5 @@
   },
   "editorMode": "vim",
   "autoCompactEnabled": false,
-  "voiceEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "voiceEnabled": true
 }
