@@ -2,6 +2,7 @@
   "folders": [
     { "path": ".", "name": "root" },
     { "path": "./main" },
+    { "path": "./dotfiles" },
     { "path": "./claude" },
     { "path": "./confident-confidant" },
     { "path": "./lemonaid" },
@@ -11,6 +12,7 @@
     "files.exclude": {
       "confident-confidant": true,
       "main": true,
+      "dotfiles": true,
       "claude": true,
       "lemonaid": true,
       "pr-respond": true

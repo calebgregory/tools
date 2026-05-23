@@ -1,0 +1,11 @@
+#!/bin/bash
+
+rsync_backup_volume=/Volumes/seagate1tb
+
+# -a : archive mode (permissions, times, symlinks, etc.)
+# -E : preserve macOS extended attributes and resource forks
+# -H : preserve hard links
+rsync -aEH --no-specials --delete --info=progress2 \
+  --exclude=".Trash/" \
+  --exclude="Library/Caches/" \
+  ~ "${rsync_backup_volume}/backup-current/"
