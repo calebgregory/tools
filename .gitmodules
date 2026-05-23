@@ -4,3 +4,6 @@
 [submodule "lemonaid"]
 	path = lemonaid
 	url = git@github.com:calebgregory/lemonaid.git
+[submodule "dotfiles/.emacs.d"]
+	path = dotfiles/.emacs.d
+	url = git@github.com:calebgregory/config.emacs.d.git
