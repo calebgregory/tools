@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 """'Installs' apps"""
 
-from os import path
 import json
 import subprocess
+from os import path
 
 JSON_FILE = path.abspath(path.join(path.dirname(__file__), "apps.json"))
 
 
-def main():
+def main() -> None:
     """Basically, open the URLs in apps.json"""
     with open(JSON_FILE, "r", encoding="utf-8") as f:
         apps = json.load(f)

@@ -1,45 +1,5 @@
 #!/bin/bash
 
-docker-compose-restart() { docker-compose stop "$1"; docker-compose start "$1"; }
-
-ee() { /Applications/Emacs.app/Contents/MacOS/Emacs "$@"; }
-
-todo() {
-  item="$1"
-
-  if [ -z "$item" ]; then
-    read item
-  fi
-
-  echo "$item" >> ~/todo/staging
-}
-
-todos() {
-  vi ~/todo/todo.md
-}
-
-norelease() {
-  cat <<'EOM' | pbcopy
-```
-<!--@releases--><!--@norelease--><!--/@releases-->
-```
-EOM
-}
-
-wo() {
-  open ~/_/main/working_out/physical_therapy/2024.07.24.pdf
-  vi ~/_/main/working_out/physical_therapy/2024.07.24.notes.md
-}
-
-function z() {
-  # https://yazi-rs.github.io/docs/quick-start#file-operations
-  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-  command yazi "$@" --cwd-file="$tmp"
-  IFS= read -r -d '' cwd < "$tmp"
-  [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd" || exit
-  rm -f -- "$tmp"
-}
-
 #
 # thanks to Matt Hawthorne for these brilliant utilities
 #
@@ -106,4 +66,3 @@ good-morning() {
         "\(.title)  #\(.number)  \(.state)  @\(.author.login) (\(.author.name)):\n\n\($review_summaries | join("\n\n"))\n\n"
     '
 }
-

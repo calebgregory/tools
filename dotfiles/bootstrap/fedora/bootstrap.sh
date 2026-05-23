@@ -1,4 +1,4 @@
-#!/usr/bin bash
+#!/usr/bin/bash
 
 OS=linux
 ARCH=amd64
@@ -123,9 +123,9 @@ sudo dnf install -y xclip # command line clipboard grabber
 git clone https://github.com/calebgregory/tools ~/tools
 
 cd ~/tools/dotfiles || exit
-bash ./bootstrap-util/symlink-dotfiles.sh
+bash ./bootstrap/symlink-dotfiles.sh
 
-bash ./bootstrap-util/install-vim-plugins.sh
+bash ./bootstrap/install-vim-plugins.sh
 
 ### GUI
 

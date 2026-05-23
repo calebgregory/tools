@@ -60,7 +60,7 @@ git clone git@github.com:calebgregory/tools.git ~/tools
 
 cd ~/tools/dotfiles || exit 1
 touch .extra .secrets
-bash ./bootstrap-util/symlink-dotfiles.sh
+bash ./bootstrap/symlink-dotfiles.sh
 
 # clean up
 

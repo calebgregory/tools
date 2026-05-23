@@ -1,0 +1,4 @@
+#!/bin/zsh
+
+# wt - Git worktree utilities
+[ -f ~/.gent/init.sh ] && source ~/.gent/init.sh

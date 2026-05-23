@@ -7,19 +7,13 @@ cd "$HOME" || exit 1
 rm ~/.zshrc # has to be removed for symlink
 
 files_to_symlink=(
-  .aliases
   .default-python-packages
   .emacs.d
-  .exports
-  .extra
-  .functions
   .git-credentials
   .gitconfig
   .gitignore_global
   .gitmux.conf
   .gvimrc.after
-  .path
-  .secrets
   .tmux.conf
   .vimrc.after
   .zshrc
@@ -30,6 +24,10 @@ for file in "${files_to_symlink[@]}"; do
 done
 
 ln -s ~/tools/dotfiles/mise.toml ~/.config/mise/config.toml
+
+mkdir -p ~/.config/lemonaid/
+ln -s ~/tools/dotfiles/lemonaid.toml ~/.config/lemonaid/config.toml
+
 mkdir -p ~/.config/yazi/
 ln -s ~/tools/dotfiles/yazi.toml ~/.config/yazi/yazi.toml
 

@@ -1,6 +1,6 @@
-.extra
-.secrets
 .git-credentials
 
-.mypy_cache
+rc/extra
+rc/secrets
 
+.mypy_cache

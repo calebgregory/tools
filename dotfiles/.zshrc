@@ -60,19 +60,6 @@ plugins=(git wd docker zsh-syntax-highlighting zsh-autosuggestions mise uv timer
 export TIMER_FORMAT='[%d]'
 export TIMER_THRESHOLD=5
 
-
-# Load the shell dotfiles
-# ~/.path is for extending path
-# ~/.extra is for extra configuration outside of source control
-for file in ~/.{exports,secrets,path,aliases,functions,extra}; do
-  [ -r "$file" ] && [ -f "$file" ] && source "$file";
-done
-
-# This loads nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
 source $ZSH/oh-my-zsh.sh
 # source /sw/bin/init.sh
 
@@ -97,26 +84,6 @@ source $ZSH/oh-my-zsh.sh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
 
-eval "$(mise activate zsh)"
-
-# https://github.com/astral-sh/uv/issues/8432#issuecomment-2453494736
-_uv_run_mod() {
-    if [[ "$words[2]" == "run" && "$words[CURRENT]" != -* ]]; then
-        _arguments '*:filename:_files'
-    else
-        _uv "$@"
-    fi
-}
-compdef _uv_run_mod uv
-
-
-# pnpm
-export PNPM_HOME="$HOME/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-
-# wt - Git worktree utilities
-[ -f ~/.gent/init.sh ] && source ~/.gent/init.sh
+for file in ~/tools/dotfiles/rc/{exports,aliases,github,secrets,extras,managers,libs}; do
+  [ -r "$file" ] && [ -f "$file" ] && source "$file";
+done
