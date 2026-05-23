@@ -1,0 +1,24 @@
+1Password.app
+Arc.app
+Be Focused.app
+Emacs.app
+Flux.app
+Hammerspoon.app
+Karabiner-Elements.app
+Karabiner-EventViewer.app
+Menu Bar UTC.app
+Obsidian.app
+Raspberry Pi Imager.app
+RecordIt.app
+SanDisk Security Uninstaller.app
+SanDisk Security.app
+Send to Kindle
+Signal.app
+Spectacle.app
+Telegram.app
+Toggl Track.app
+Wacom Inkspace App.app
+Wacom Tablet.localized
+Wally.app
+WezTerm.app
+iTerm.app

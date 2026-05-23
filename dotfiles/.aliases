@@ -1,0 +1,56 @@
+#!/bin/bash
+
+alias docs="cd ~/Documents"
+alias demos="cd ~/Music/Demos"
+
+# https://github.com/calebgregory/tools
+alias tools="code ~/tools/tools.code-workspace"
+alias main="code ~/_/main"
+
+alias go-cover="go test -coverprofile=coverage.out && go tool cover -html=coverage.out && rm coverage.out"
+# alias scheme=/Applications/MIT-Scheme.app/Contents/Resources/mit-scheme
+
+alias chr="/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary"
+
+alias cx="open https://calendar.google.com/calendar/b/3/r"
+alias ca="open https://calendar.google.com/calendar/b/0/r"
+alias hours="~/code/calendar/cli"
+
+function notify() {
+  # useful for getting a notification when a long-running process is done
+  osascript -e 'display notification "Done doing that ✅" with title "Done!" sound name "Bonk"'
+}
+
+alias v="mvim ."
+alias edd='emacs --daemon'  # start emacs server in background
+alias e='emacsclient -t'  # open emacs in terminal
+alias ecc='emacsclient -c' # open GUI-emacs
+alias ew='emacs -nw -q'   # opens vanilla emacs in the terminal
+alias t=tmux
+
+alias gbclean="git branch --merged | grep -v \* | xargs git branch -d"
+alias gbc="git branch --show-current"
+alias gu="gbc | xargs git pull origin"
+alias gpc="gbc | xargs git push origin"
+alias jt="gbc | cut -d '/' -f2 | cut -d '-' -f1,2"
+function ggco() {
+  branch_name="$1"
+  git fetch origin "$branch_name"
+  git checkout "$branch_name"
+}
+alias gbcp="gbc | tr -d '\n' | pbcopy"
+
+alias docker-start="sudo systemctl start docker"
+alias docker-test="sudo docker run hello-world"
+
+alias now="node -e 'process.stdout.write(new Date().toISOString())'"
+
+# if you download binaries from the internet, osx's default behavior is to prohibit you from executing
+# it. you have to delete the quarantine flag.
+alias allow="xattr -d com.apple.quarantine"
+
+# wezterm
+
+alias wezlogs="ls -t ~/.local/share/wezterm | head -n 1 | xargs tail"
+
+alias vv="uv run"

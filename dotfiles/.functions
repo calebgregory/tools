@@ -1,0 +1,109 @@
+#!/bin/bash
+
+docker-compose-restart() { docker-compose stop "$1"; docker-compose start "$1"; }
+
+ee() { /Applications/Emacs.app/Contents/MacOS/Emacs "$@"; }
+
+todo() {
+  item="$1"
+
+  if [ -z "$item" ]; then
+    read item
+  fi
+
+  echo "$item" >> ~/todo/staging
+}
+
+todos() {
+  vi ~/todo/todo.md
+}
+
+norelease() {
+  cat <<'EOM' | pbcopy
+```
+<!--@releases--><!--@norelease--><!--/@releases-->
+```
+EOM
+}
+
+wo() {
+  open ~/_/main/working_out/physical_therapy/2024.07.24.pdf
+  vi ~/_/main/working_out/physical_therapy/2024.07.24.notes.md
+}
+
+function z() {
+  # https://yazi-rs.github.io/docs/quick-start#file-operations
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  command yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd < "$tmp"
+  [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd" || exit
+  rm -f -- "$tmp"
+}
+
+#
+# thanks to Matt Hawthorne for these brilliant utilities
+#
+
+authors ()
+{
+  git ls-tree --name-only -r HEAD "$@" \
+    | xargs -n1 git blame --line-porcelain \
+    | grep '^author ' \
+    | cut -f 2- -d ' ' \
+    | sort \
+    | uniq -c \
+    | sort -nr
+}
+
+gh-login() {
+  gh api user -q .login
+}
+
+gh-recent-prs() {
+  # Usage: gh-recent-prs [n_days] [json-field ...]
+  local n_days=1 fields=(number state author updatedAt title) query=""
+  while [ "$#" -gt 0 ]; do
+      local arg="$1"; shift;
+      case "$arg" in
+          -h|--help)
+              echo "Usage: gh-recent-prs [-d|--days n_days] [-f|--fields json-field ...] [-q|--query query]"
+              return
+              ;;
+          -d|--days) n_days="$1"; shift ;;
+          -f|--fields)
+              while [ "$#" -gt 0 ] && [ "${1#-}" == "${1}" ]; do
+                  local field="$1"; shift
+                  fields+=("$field")
+              done
+              ;;
+          -q|--query) query="$1"; shift ;;
+          *) echo "Unknown option: $arg" >&2; return 1 ;;
+      esac
+  done
+  local prev_date=$(gdate -d "-${n_days} days" --iso-8601)
+  local base_query="sort_by(.updatedAt)[] | select(.updatedAt >= \"$prev_date\")"
+  if [ ${#query} -gt 0 ]; then
+      query="$base_query | $query"
+  else
+      query="$base_query"
+  fi
+  local json_fields=()
+  for field in "${fields[@]}"; do
+      json_fields+=("--json" "$field")
+  done
+  gh pr list "${json_fields[@]}" -q "$query"
+}
+
+good-morning() {
+  local me="$(gh-login)"
+  local n_days="${1-1}"
+  local prev_date=$(gdate -d "-${n_days} days" --iso-8601)
+  gh-recent-prs -d "${n_days}" -f reviews \
+    | jq -r '
+        (.reviews = ([.reviews[] | select(.author.login == "'"$me"'" and .submittedAt >= "'"$prev_date"'")] | sort_by(.submittedAt)))
+        | select(.reviews | length > 0)
+        | ([.reviews[] | select(.body != "") | "    \(.state): \(.body)"] | (if length == 0 then ["    ..."] else . end)) as $review_summaries |
+        "\(.title)  #\(.number)  \(.state)  @\(.author.login) (\(.author.name)):\n\n\($review_summaries | join("\n\n"))\n\n"
+    '
+}
+

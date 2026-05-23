@@ -1,0 +1,12 @@
+# Lemonaid configuration
+
+# Switch-handlers are auto-selected based on the notification's switch-source.
+# No configuration needed for tmux/wezterm - they just work.
+
+[wezterm]
+# How to resolve pane from notification metadata
+# Options: "tty" (match TTY to pane), "metadata" (use workspace/pane_id from metadata)
+resolve_pane = "tty"
+
+[tui.keybindings]
+up_down = "kj"

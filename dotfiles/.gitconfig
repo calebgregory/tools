@@ -1,0 +1,17 @@
+[core]
+	editor = /usr/bin/vim
+	excludesfile = ~/.gitignore_global
+	symlinks = true
+[user]
+	email = calebgregory@gmail.com
+	name = Caleb Gregory
+[credential]
+	helper = store --file ~/.git-credentials
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[push]
+	default = current
+	autoSetupRemote = true

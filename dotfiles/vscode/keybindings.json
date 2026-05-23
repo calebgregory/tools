@@ -1,0 +1,147 @@
+// Place your key bindings in this file to override the defaults
+[
+  // ── Window/Panel focus (ctrl+w prefix, vim-style) ───────────────────
+  { "key": "ctrl+w h",       "command": "workbench.action.focusLeftGroup" },
+  { "key": "ctrl+w j",       "command": "workbench.action.focusBelowGroup" },
+  { "key": "ctrl+w k",       "command": "workbench.action.focusAboveGroup" },
+  { "key": "ctrl+w l",       "command": "workbench.action.focusRightGroup" },
+  { "key": "ctrl+w .",       "command": "workbench.action.focusActiveEditorGroup" },
+  { "key": "ctrl+w f",       "command": "workbench.action.focusPanel" },
+  { "key": "ctrl+w t",       "command": "terminal.focus" },
+
+  // ── Window/Panel position (ctrl+w shift, vim-style) ─────────────────
+  { "key": "ctrl+w shift+h", "command": "workbench.action.positionPanelLeft" },
+  { "key": "ctrl+w shift+j", "command": "workbench.action.positionPanelBottom" },
+  { "key": "ctrl+w shift+k", "command": "workbench.action.positionPanelTop" },
+  { "key": "ctrl+w shift+l", "command": "workbench.action.positionPanelRight" },
+  { "key": "ctrl+w shift+t", "command": "workbench.action.terminal.moveToTerminalPanel" },
+
+  // ── Remove default focus bindings (replaced by ctrl+w above) ────────
+  { "key": "cmd+k cmd+up",    "command": "-workbench.action.focusAboveGroup" },
+  { "key": "cmd+k cmd+down",  "command": "-workbench.action.focusBelowGroup" },
+  { "key": "cmd+k cmd+left",  "command": "-workbench.action.focusLeftGroup" },
+  { "key": "cmd+k cmd+right", "command": "-workbench.action.focusRightGroup" },
+
+  // ── Sidebar ─────────────────────────────────────────────────────────
+  { "key": "cmd+y",     "command": "workbench.action.toggleSidebarVisibility" },
+  { "key": "cmd+b",     "command": "-workbench.action.toggleSidebarVisibility" },
+  { "key": "cmd+e cmd+m", "command": "workbench.files.action.collapseExplorerFolders" },
+
+  // ── Copilot ─────────────────────────────────────────────────────────
+  {
+    "key": "ctrl+shift+0",
+    "command": "github.copilot.generate",
+    "when": "editorTextFocus && github.copilot.activated"
+  },
+  {
+    "key": "ctrl+enter",
+    "command": "-github.copilot.generate",
+    "when": "editorTextFocus && github.copilot.activated"
+  },
+  {
+    "key": "ctrl+\\",
+    "command": "editor.action.inlineSuggest.trigger",
+    "when": "config.github.copilot.inlineSuggest.enable && editorTextFocus && !editorHasSelection && !inlineSuggestionsVisible"
+  },
+  {
+    "key": "alt+\\",
+    "command": "-editor.action.inlineSuggest.trigger",
+    "when": "config.github.copilot.inlineSuggest.enable && editorTextFocus && !editorHasSelection && !inlineSuggestionsVisible"
+  },
+  { "key": "alt+\\ alt+\\", "command": "github.copilot.toggleCopilot" },
+
+  // ── GitHub / Git ────────────────────────────────────────────────────
+  { "key": "cmd+g cmd+c", "command": "issue.copyGithubPermalink" },
+  { "key": "cmd+g cmd+h", "command": "issues:github.focus" },
+
+  // ── Copy file path (cmd+k ;) ────────────────────────────────────────
+  { "key": "cmd+k ;",                "command": "copyRelativeFilePath", "when": "!editorFocus" },
+  { "key": "cmd+k ;",                "command": "copyRelativeFilePath", "when": "editorFocus" },
+  { "key": "shift+alt+cmd+c",        "command": "-copyRelativeFilePath", "when": "!editorFocus" },
+  { "key": "cmd+k shift+alt+cmd+c",  "command": "-copyRelativeFilePath", "when": "editorFocus" },
+  { "key": "alt+cmd+c",              "command": "-copyFilePath", "when": "!editorFocus" },
+  { "key": "cmd+k alt+cmd+c",        "command": "-copyFilePath", "when": "editorFocus" },
+  { "key": "alt+cmd+c",              "command": "-search.action.copyPath", "when": "fileMatchOrFolderMatchWithResourceFocus" },
+
+  // ── SQLite ──────────────────────────────────────────────────────────
+  { "key": "cmd+r cmd+q", "command": "sqlite.runDocumentQuery", "when": "editorLangId =~ /(sql|sqlite)/" },
+  { "key": "shift+cmd+q", "command": "-sqlite.runDocumentQuery", "when": "editorLangId =~ /(sql|sqlite)/" },
+  { "key": "cmd+r cmd+w", "command": "sqlite.runSelectedQuery" },
+
+  // ── Todo ────────────────────────────────────────────────────────────
+  { "key": "cmd+t cmd+t", "command": "workbench.view.extension.todomd" },
+
+  // ── Markdown ────────────────────────────────────────────────────────
+  {
+    "key": "f12",
+    "command": "editor.action.openLink",
+    "when": "editorTextFocus && editorLangId == 'markdown'"
+  },
+
+  // ── Terminal ────────────────────────────────────────────────────────
+  {
+    "key": "shift+enter",
+    "command": "workbench.action.terminal.sendSequence",
+    "args": { "text": "\u001b\r" },
+    "when": "terminalFocus"
+  },
+  {
+    "key": "shift+cmd+c",
+    "command": "-workbench.action.terminal.openNativeConsole",
+    "when": "!terminalFocus"
+  },
+  {
+    "key": "cmd+k cmd+k",
+    "command": "-editor.action.defineKeybinding",
+    "when": "resource == 'vscode-userdata:/Users/caleb.gregory/Library/Application%20Support/Code/User/keybindings.json'"
+  },
+  {
+    "key": "cmd+k cmd+k",
+    "command": "-editor.action.selectFromAnchorToCursor",
+    "when": "editorTextFocus && selectionAnchorSet"
+  },
+  {
+    "key": "cmd+k cmd+k",
+    "command": "claude-vscode.blur",
+    "when": "!config.claudeCode.useTerminal && !editorTextFocus"
+  },
+  {
+    "key": "cmd+escape",
+    "command": "-claude-vscode.blur",
+    "when": "!config.claudeCode.useTerminal && !editorTextFocus"
+  },
+  {
+    "key": "cmd+k cmd+k",
+    "command": "claude-vscode.focus",
+    "when": "editorTextFocus && !config.claudeCode.useTerminal"
+  },
+  {
+    "key": "cmd+escape",
+    "command": "-claude-vscode.focus",
+    "when": "editorTextFocus && !config.claudeCode.useTerminal"
+  },
+  {
+    "key": "cmd+k cmd+k",
+    "command": "claude-vscode.terminal.open.keyboard",
+    "when": "config.claudeCode.useTerminal"
+  },
+  {
+    "key": "cmd+escape",
+    "command": "-claude-vscode.terminal.open.keyboard",
+    "when": "config.claudeCode.useTerminal"
+  },
+  {
+    "key": "shift+cmd+k shift+cmd+k",
+    "command": "claude-vscode.editor.open",
+    "when": "!config.claudeCode.useTerminal"
+  },
+  {
+    "key": "shift+cmd+escape",
+    "command": "-claude-vscode.editor.open",
+    "when": "!config.claudeCode.useTerminal"
+  },
+  {
+    "key": "cmd+g cmd+b",
+    "command": "git.blame.toggleEditorDecoration"
+  }
+]

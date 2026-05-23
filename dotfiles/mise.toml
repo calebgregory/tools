@@ -1,0 +1,27 @@
+[settings]
+trusted_config_paths = ["~/work/ds-monorepo", "~/work/ds-monorepo-wt"]
+
+[tools]
+node = "24"
+python = ["3.13", "3.12", "3.10"]
+gh = ["2"]
+uv = "0.10"
+usage = "2"
+
+# postgres = "17"
+# https://github.com/mise-plugins/mise-postgres
+# requires:
+#   brew install gcc readline zlib curl ossp-uuid icu4c pkg-config
+#   export PKG_CONFIG_PATH="/opt/homebrew/bin/pkg-config:$(brew --prefix icu4c)/lib/pkgconfig:$(brew --prefix curl)/lib/pkgconfig:$(brew --prefix zlib)/lib/pkgconfig"
+
+k9s = "0"
+patat = "0"
+pnpm = "10"
+'aqua:duckdb/duckdb' = "1.5"
+'pipx:xonsh[full]' = "0"
+aws-cli = "latest"
+fd = "10"
+fzf = "0"
+hyperfine = "1"
+ripgrep = "15"
+yazi = "26"

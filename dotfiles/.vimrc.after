@@ -1,0 +1,79 @@
+set showcmd
+set clipboard=unnamed
+
+highlight SpecialKey ctermfg=red
+set list
+set listchars=tab:T>
+
+" from vim-clojure-static
+syntax on
+filetype plugin indent on
+
+" Enable jsx highlighting for files with .js extension
+let g:jsx_ext_required = 0
+
+function Flow()
+  so /Users/caleb/.janus/vim-javascript/extras/flow.vim
+endfunction
+
+" for https://github.com/dense-analysis/ale
+let g:ale_linters = {
+  \'javascript': ['eslint', 'flow', 'flow-language-server']
+\}
+
+" Keybindings
+
+" to command mode
+inoremap jj <Esc>
+" new line in insert mode
+inoremap <C-c> <CR><Esc>O
+" upper-case current word in normal mode
+nnoremap <C-u> viwUw
+
+" color options
+let g:solarized_termcolors=256
+syntax enable
+set background=dark
+colorscheme birds-of-paradise
+
+" relative line numbers
+set rnu
+
+" let g:airline_powerline_fonts = 1
+
+" open file under cursor in vertically split pane
+autocmd User Node
+  \ if &filetype == "javascript" |
+  \   nmap <buffer> <C-w>f <Plug>NodeVSplitGotoFile |
+  \   nmap <buffer> <C-w><C-f> <Plug>NodeVSplitGotoFile |
+  \ endif
+
+" rainbow parens
+
+au! cursormoved * call PoppyInit()
+
+" let g:rainbow_active = 1
+"
+" let g:rbpt_colorpairs = [
+"     \ ['brown',       'RoyalBlue3'],
+"     \ ['Darkblue',    'SeaGreen3'],
+"     \ ['darkgray',    'DarkOrchid3'],
+"     \ ['darkgreen',   'firebrick3'],
+"     \ ['darkcyan',    'RoyalBlue3'],
+"     \ ['darkred',     'SeaGreen3'],
+"     \ ['darkmagenta', 'DarkOrchid3'],
+"     \ ['brown',       'firebrick3'],
+"     \ ['gray',        'RoyalBlue3'],
+"     \ ['black',       'SeaGreen3'],
+"     \ ['darkmagenta', 'DarkOrchid3'],
+"     \ ['Darkblue',    'firebrick3'],
+"     \ ['darkgreen',   'RoyalBlue3'],
+"     \ ['darkcyan',    'SeaGreen3'],
+"     \ ['darkred',     'DarkOrchid3'],
+"     \ ['red',         'firebrick3'],
+"     \ ]
+"
+" au VimEnter * RainbowParenthesesToggle
+" au Syntax * RainbowParenthesesLoadRound
+" au Syntax * RainbowParenthesesLoadSquare
+" au Syntax * RainbowParenthesesLoadBraces

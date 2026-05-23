@@ -1,0 +1,13 @@
+#!/bin/bash
+
+export GOPATH="$HOME/code/go"
+export NVM_DIR="$HOME/.nvm"
+export MAGICK_HOME="$HOME/ImageMagick-7.0.8"
+export DYLD_LIBRARY_PATH="$MAGICK_HOME/lib/"
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home"
+export TOOLS_HOME="$HOME/tools"
+
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+

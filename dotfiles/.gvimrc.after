@@ -1,0 +1,16 @@
+set background=dark
+color birds-of-paradise
+
+"set background=light
+"color solarized
+
+" let g:airline_theme='one'
+
+" set background=light        " for the light version
+" let g:one_allow_italics = 1 " I love italic for comments
+" color one
+
+set macmeta
+"set guifont=Hack:h12
+set macligatures
+set guifont=Fira\ Code:h12

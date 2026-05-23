@@ -1,0 +1,16 @@
+[
+  {"name": "Recordit", "url": "https://recordit.co/latest-osx"},
+  {"name": "Spectacle", "url": "https://s3.amazonaws.com/spectacle/downloads/Spectacle+1.2.zip"},
+  {"name": "Docker for Mac", "url": "https://download.docker.com/mac/stable/Docker.dmg"},
+  {"name": "Tunnelblick", "url": "https://tunnelblick.net/release/Tunnelblick_3.8.2_build_5480.dmg"},
+  {"name": "Be Focused", "url": "https://store.setapp.com/app/173/installers/1587540077-5e9ff06d7b3e0/Be%20Focused%20on%20Setapp.zip"},
+  {"name": "Flux", "url": "https://justgetflux.com/dlmac.html"},
+  {"name": "Insomnia", "url": "https://updates.insomnia.rest/downloads/mac/latest?app=com.insomnia.app"},
+  {"name": "LICEcap", "url": "https://www.cockos.com/licecap/licecap130.dmg"},
+  {"name": "Notion", "url": "https://desktop-release.notion-static.com/Notion-2.0.7.dmg"},
+  {"name": "Slack", "url": "https://slack.com/ssb/download-osx"},
+  {"name": "Spotify", "url": "https://www.spotify.com/download/mac/"},
+  {"name": "Xcode", "url": "https://apps.apple.com/us/app/xcode/id497799835?mt=12"},
+  {"name": "iTerm2", "url": "https://iterm2.com/downloads/stable/iTerm2-3_3_9.zip"},
+  {"name": "balenaEtcher.app", "url": "https://github.com/balena-io/etcher/releases/download/v1.19.25/balenaEtcher-1.19.25-arm64.dmg"},
+]
