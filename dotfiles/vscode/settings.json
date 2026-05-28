@@ -202,6 +202,14 @@
   },
   "javascript.updateImportsOnFileMove.enabled": "always",
   "typescript.updateImportsOnFileMove.enabled": "always",
+  "json.schemas": [
+    {
+      "fileMatch": ["*.json", "*.jsonc"],
+      "schema": {
+        "allowTrailingCommas": true
+      }
+    }
+  ],
 
   // Formatters & Linters
   "prettier.useEditorConfig": false,
