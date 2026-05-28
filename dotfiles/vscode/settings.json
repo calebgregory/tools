@@ -1,6 +1,6 @@
 {
-  // ── Editor: Appearance ──────────────────────────────────────────────
-  "workbench.colorTheme": "Rubber",
+  // Editor:  Appearance
+  "workbench.colorTheme": "Minimal",
   "editor.fontFamily": "'Fira Code', Menlo, Monaco, 'Courier New', monospace",
   "editor.fontLigatures": true,
   "editor.fontVariations": false,
@@ -98,7 +98,7 @@
     // "diffEditorOverview.removedForeground": "#d10a50" // "#450017",
   },
 
-  // ── Editor: Behavior ────────────────────────────────────────────────
+  // Editor:  Behavior
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
   "editor.formatOnSave": true,
@@ -108,7 +108,7 @@
     "source.fixAll": "explicit",
   },
 
-  // ── Workbench: Layout ───────────────────────────────────────────────
+  // Workbench:  Layout
   "workbench.panel.defaultLocation": "right",
   "workbench.editor.openSideBySideDirection": "right",
   "workbench.editor.enablePreview": false,
@@ -117,17 +117,17 @@
   },
   "explorer.confirmDragAndDrop": false,
 
-  // ── Files ───────────────────────────────────────────────────────────
+  // Files
   "files.trimTrailingWhitespace": true,
   "files.associations": {
     "myLambda.sql": "rsql",
   },
 
-  // ── Terminal ────────────────────────────────────────────────────────
+  // Terminal
   "terminal.external.osxExec": "iTerm2.app",
   "terminal.integrated.macOptionIsMeta": true,
 
-  // ── Vim ─────────────────────────────────────────────────────────────
+  // Vim
   "vim.useSystemClipboard": true,
   "vim.textwidth": 105,
   "vim.easymotion": true,
@@ -163,7 +163,7 @@
   ],
   "vim.visualModeKeyBindingsNonRecursive": [],
 
-  // ── Language-specific overrides ─────────────────────────────────────
+  // Language-specific overrides
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
@@ -203,18 +203,18 @@
   "javascript.updateImportsOnFileMove.enabled": "always",
   "typescript.updateImportsOnFileMove.enabled": "always",
 
-  // ── Formatters & Linters ────────────────────────────────────────────
+  // Formatters & Linters
   "prettier.useEditorConfig": false,
   "eslint.format.enable": true,
   "beautify.config": "",
   // "ruff.configurationPreference": "filesystemFirst",
 
-  // ── Git & GitHub ────────────────────────────────────────────────────
+  // Git & GitHub
   "git.autofetch": true,
   "githubPullRequests.pullBranch": "never",
   "liveshare.authenticationProvider": "GitHub",
 
-  // ── Extensions ──────────────────────────────────────────────────────
+  // Extensions
   "github.copilot.enable": {
     "*": true,
     "plaintext": false,
@@ -266,15 +266,15 @@
   "claudeCode.useTerminal": true,
   "claudeCode.useCtrlEnterToSend": true,
 
-  // ── Python ──────────────────────────────────────────────────────────
+  // Python
   "python.analysis.importFormat": "relative",
   "python.analysis.nodeExecutable": "~/.local/share/mise/installs/node/24/bin/node",
 
-  // ── Version control ─────────────────────────────────────────────────
+  // Version control
   "extensions.autoUpdate": false,
   "update.mode": "manual",
 
-  // ── Misc ────────────────────────────────────────────────────────────
+  // Misc
   "php.validate.executablePath": "",
   "http.proxyStrictSSL": false,
   "gitlens.ai.model": "gitkraken",

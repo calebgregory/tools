@@ -1,0 +1,21 @@
+{
+	"name": "minimal-color-theme",
+	"displayName": "Minimal Color Theme",
+	"version": "0.1.0",
+	"publisher": "calebgregory",
+	"engines": {
+		"vscode": "^1.24.0"
+	},
+	"categories": [
+		"Themes"
+	],
+	"contributes": {
+		"themes": [
+			{
+				"label": "Minimal",
+				"uiTheme": "vs-dark",
+				"path": "./themes/minimal-color-theme.json"
+			}
+		]
+	}
+}
