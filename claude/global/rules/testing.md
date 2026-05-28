@@ -42,6 +42,35 @@ When converting an existing `test_foo.py` into a directory, `git mv test_foo.py 
 
 The call to the function being tested should be visible in the test body, not hidden behind a helper. Helpers are fine for constructing test data (builders, fixture factories), but the act of calling the thing under test is part of what the reader needs to see to understand the test.
 
+## Separate a test's three sections with whitespace
+
+A unit test reads as three sections: (1) setup, (2) `result = func_under_test(inputs)`, (3) assertions. Use blank lines to segregate them.
+
+- **Always** put a blank line between the call to the function under test (2) and the assertions (3). This is the non-negotiable one — the reader should be able to see at a glance where the act ends and verification begins.
+- Put a blank line between setup (1) and the call (2) **when setup is its own statement**. If the inputs can be constructed succinctly inline in the call, setup and the call don't need separating — but the call still gets separated from the assertions.
+
+```py
+# good — three sections, each separated
+def test_membership():
+    small = key.Cohort(zip3="372", state="TN", year_of_birth=1985, gender="M")
+    not_small = key.Cohort(zip3="376", state="TN", year_of_birth=1990, gender="F")
+
+    parquet = _small_cohorts_parquet(dir_, [small])
+
+    assert is_in_small_cohort(parquet, small) is True
+    assert is_in_small_cohort(parquet, not_small) is False
+
+# good — inputs constructed inline, so setup and act aren't separated; act still separated from assertions
+def test_from_patient_summary():
+    summary = builder(PatientSummary)(zip3="376", state="TN", gender="F", year_of_birth=1990)
+
+    assert derive.from_patient_summary(summary) == key.Cohort(
+        zip3="376", state="TN", year_of_birth=1990, gender="F"
+    )
+```
+
+When a test inlines an input expression into the call _and_ into the assertion such that the three sections are illegible, prefer pulling the input into a named setup variable (e.g. `not_small`) so the sections read cleanly.
+
 ## Assert whole object equivalence
 
 When the expected object is easily constructible, assert equality against a complete instance rather than checking fields one by one. This catches missing or unexpected fields and reads as a specification.
