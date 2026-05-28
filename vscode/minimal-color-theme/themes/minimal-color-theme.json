@@ -10,7 +10,7 @@
 				"punctuation.definition.comment"
 			],
 			"settings": {
-				"foreground": "#cc241d"
+				"foreground": "#fb4934"
 			}
 		},
 		{
@@ -47,7 +47,7 @@
 			"name": "Global definitions",
 			"scope": "entity.name",
 			"settings": {
-				"foreground": "#83a598"
+				"foreground": "#fabd2f", // "#83a598",
 			}
 		},
 		{
@@ -173,9 +173,15 @@
 		"tab.inactiveBackground": "#1d2021",
 		"tab.inactiveForeground": "#7c6f64",
 
+		"peekView.border": "#458588",
+		"editorCommentsWidget.unresolvedBorder": "#83a598",
+		"editorCommentsWidget.resolvedBorder": "#458588",
+
+    // https://code.visualstudio.com/api/references/theme-color#git-colors
 		"gitDecoration.untrackedResourceForeground": "#8ec07c",
-		"gitDecoration.addedResourceForeground": "#689d6a",
-		"gitDecoration.modifiedResourceForeground": "#8ec07c",
+		"gitDecoration.addedResourceForeground": "#8ec07c",
+		"gitDecoration.modifiedResourceForeground": "#689d6a",
+    "gitDecoration.renamedResourceForeground": "#689d6a",
 		"gitDecoration.deletedResourceForeground": "#fb4934",
 		"gitDecoration.conflictingResourceForeground": "#fe8019",
 		"gitDecoration.ignoredResourceForeground": "#7c6f64",
