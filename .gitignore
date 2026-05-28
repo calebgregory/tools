@@ -8,5 +8,6 @@ __pycache__
 node_modules
 
 .mops
-.DS_Store
+.out
 
+.DS_Store

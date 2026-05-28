@@ -6,7 +6,6 @@ from pathlib import Path
 from tools import git
 
 _THIS_REPO_ROOT = git.repo_root(Path(__file__))
-print(_THIS_REPO_ROOT)
 _ENV_TOML = _THIS_REPO_ROOT / ".env.toml"
 _ENV_TEMPLATE = _THIS_REPO_ROOT / ".env.template.toml"
 
@@ -20,6 +19,12 @@ class ClaudeConfig:
     unset. Required when Claude Code's auto-memory key was derived from an
     ancestor of the project target (e.g. when target=~/work/notes/personal-work
     but the auto-memory dir is keyed off ~/work/notes)."""
+
+
+@dataclass
+class ImmichConfig:
+    server_url: str = ""
+    api_key: str = ""
 
 
 @dataclass
@@ -39,6 +44,7 @@ class VaultConfig:
 class EnvTomlConfig:
     computer_name: str = ""
     claude: ClaudeConfig = field(default_factory=ClaudeConfig)
+    immich: ImmichConfig = field(default_factory=ImmichConfig)
     vault: VaultConfig = field(default_factory=VaultConfig)
 
 
@@ -67,6 +73,12 @@ def load_env() -> EnvTomlConfig | None:
             for project_name, path_str in claude_data.get("auto-memory-paths", {}).items()
             if (path := _expand_user(path_str))
         },
+    )
+
+    immich_data = data.get("immich", {})
+    config.immich = ImmichConfig(
+        server_url=immich_data.get("server_url", ""),
+        api_key=immich_data.get("api_key", ""),
     )
 
     main_vault_data = data.get("vault", {}).get("main", {})

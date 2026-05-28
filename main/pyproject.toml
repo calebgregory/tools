@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["thds.termtool"]
+dependencies = ["thds.termtool", "thds.core", "thds.mops"]
 
 [build-system]
 requires = ["uv_build>=0.9.26,<0.10.0"]

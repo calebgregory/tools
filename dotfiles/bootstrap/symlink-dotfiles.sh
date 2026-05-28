@@ -14,6 +14,7 @@ files_to_symlink=(
   .gitignore_global
   .gitmux.conf
   .gvimrc.after
+  .hammerspoon
   .tmux.conf
   .vimrc.after
   .zshrc
