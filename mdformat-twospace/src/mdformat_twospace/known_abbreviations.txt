@@ -1,0 +1,23 @@
+# Tokens that end in '.' without ending a sentence. This is the part that
+# completes over time; everything else is structural and correct from day one.
+
+mr
+mrs
+ms
+dr
+prof
+st
+jr
+sr
+vs
+etc
+e.g
+i.e
+cf
+al
+no
+inc
+a.m
+p.m
+u.s
+ph.d

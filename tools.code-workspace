@@ -4,6 +4,7 @@
     { "path": "./main" },
     { "path": "./dotfiles" },
     { "path": "./claude" },
+    { "path": "./mdformat-twospace" },
     { "path": "./confident-confidant" },
     { "path": "./lemonaid" },
     { "path": "./pr-respond" },
@@ -14,6 +15,7 @@
       "main": true,
       "dotfiles": true,
       "claude": true,
+      "mdformat-twospace": true,
       "lemonaid": true,
       "pr-respond": true
     },

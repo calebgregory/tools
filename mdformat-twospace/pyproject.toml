@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mdformat-twospace"
+version = "0.1.0"
+description = "mdformat plugin: two spaces after sentence-ending punctuation"
+requires-python = ">=3.10"
+dependencies = ["mdformat>=1.0"]
+
+[project.entry-points."mdformat.parser_extension"]
+twospace = "mdformat_twospace"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mdformat_twospace"]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
