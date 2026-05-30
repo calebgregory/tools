@@ -12,6 +12,9 @@ dependencies = ["mdformat>=1.0"]
 [project.entry-points."mdformat.parser_extension"]
 twospace = "mdformat_twospace"
 
+[project.scripts]
+2s = "mdformat_twospace.cli:cli"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/mdformat_twospace"]
 
