@@ -51,6 +51,13 @@
 			}
 		},
 		{
+			"name": "Keywords: control flow",
+			"scope": "keyword.control.flow",
+			"settings": {
+				"foreground": "#fabd2f"
+			}
+		},
+		{
 			"name": "Punctuation",
 			"scope": "punctuation",
 			"settings": {
