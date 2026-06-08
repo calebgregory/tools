@@ -84,6 +84,6 @@ source $ZSH/oh-my-zsh.sh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
 
-for file in ~/tools/dotfiles/rc/{exports,aliases,github,secrets,extras,managers,libs}; do
+for file in ~/tools/dotfiles/rc/{exports,aliases,github,secrets,extra,managers,libs}; do
   [ -r "$file" ] && [ -f "$file" ] && source "$file";
 done
