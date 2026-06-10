@@ -7,8 +7,12 @@ and periodically sync against the shared directory (dest):
 
 - Files missing from dest are offered for restore (source -> dest).
 - Files only in dest are offered for pickup (dest -> source).
-- Diverged text files get git-add-patch-style hunk approval; the merged
-  result is written to both sides so accepted hunks don't resurface.
+- Diverged text files get git-add-patch-style per-hunk resolution with a
+  three-way choice: take source's version (source -> dest), sync dest's
+  version to source (dest -> source), or skip (leave that region diverged).
+  Each side is rewritten independently, so a dest-only addition can be
+  pushed to source even when source would otherwise overwrite it with
+  nothing.
 - Binary files prompt for a whole-file keep-source / keep-dest choice.
 
 Usage:  sync-vault <source> <dest> [--dry-run]
@@ -22,7 +26,7 @@ from pathlib import Path
 
 from thds.termtool.colorize import colorized
 
-from tools.diff import apply_hunks, colorize_hunk, diff, hunks
+from tools.diff import HunkChoice, apply_hunks, colorize_hunk, diff, hunks
 
 from .obsidian import obsidian_open
 
@@ -129,10 +133,9 @@ def _copy_file(src: Path, dst: Path) -> None:
     obsidian_open(dst)
 
 
-def _write_to_both(text: str, *paths: Path) -> None:
-    for p in paths:
-        obsidian_open(p)
-        p.write_text(text)
+def _write_path(text: str, path: Path) -> None:
+    obsidian_open(path)
+    path.write_text(text)
 
 
 # ---------------------------------------------------------------------------
@@ -205,36 +208,46 @@ def _handle_diverged_text(action: SyncAction, *, dry_run: bool) -> SyncActionPer
 
     dest_lines = action.dest.read_text().splitlines(keepends=True)
     source_lines = action.source.read_text().splitlines(keepends=True)
-    approved: list[bool] = []
+    choices: list[HunkChoice] = []
     accept_all = False
 
     for i, h in enumerate(hunk_list):
         print(colorize_hunk(h))
 
         if accept_all:
-            approved.append(True)
+            choices.append("source")
             continue
 
-        prompt = _BLUE(f"  hunk {i + 1}/{len(hunk_list)} — [y]es / [n]o / [a]ll / [q]uit? ")
+        prompt = _BLUE(
+            f"  hunk {i + 1}/{len(hunk_list)} — "
+            "[y]es source→dest / [s]ync dest→source / [n]o skip / [a]ll / [q]uit? "
+        )
         response = input(prompt).strip().lower()
         if response in ("", "y"):
-            approved.append(True)
+            choices.append("source")
+        elif response == "s":
+            choices.append("dest")
         elif response == "a":
-            approved.append(True)
+            choices.append("source")
             accept_all = True
         elif response == "q":
-            approved.append(False)
-            approved.extend(False for _ in range(len(hunk_list) - i - 1))
+            choices.append("skip")
+            choices.extend("skip" for _ in range(len(hunk_list) - i - 1))
             break
         else:
-            approved.append(False)
+            choices.append("skip")
 
-    if not any(approved):
+    merged = apply_hunks(dest_lines, source_lines, choices)
+
+    source_changed = merged.source != source_lines
+    dest_changed = merged.dest != dest_lines
+    if not source_changed and not dest_changed:
         return "skipped"
 
-    merged = apply_hunks(dest_lines, source_lines, approved)
-    merged_text = "".join(merged)
-    _write_to_both(merged_text, action.source, action.dest)
+    if source_changed:
+        _write_path("".join(merged.source), action.source)
+    if dest_changed:
+        _write_path("".join(merged.dest), action.dest)
     return "merged"
 
 

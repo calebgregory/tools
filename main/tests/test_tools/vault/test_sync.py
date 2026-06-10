@@ -251,7 +251,7 @@ class TestSyncInteractive:
         assert (dst / "f.md").read_text() == expected
         assert summary.merged == 1
 
-    def test_diverged_text_reject_all_hunks_skips(self, tmp_path: Path) -> None:
+    def test_diverged_text_skip_all_hunks_leaves_both_unchanged(self, tmp_path: Path) -> None:
         src = tmp_path / "src"
         dst = tmp_path / "dst"
         src.mkdir()
@@ -262,12 +262,29 @@ class TestSyncInteractive:
         with patch("builtins.input", return_value="n"):
             summary = sync(src, dst)
 
-        # neither file should change
+        # skip leaves each side as-is — the file stays diverged
         assert (src / "f.md").read_text() == "line1\nsource\nline3\n"
         assert (dst / "f.md").read_text() == "line1\ndest\nline3\n"
         assert summary.skipped == 1
 
-    def test_diverged_text_partial_hunks(self, tmp_path: Path) -> None:
+    def test_diverged_text_sync_dest_only_addition_to_source(self, tmp_path: Path) -> None:
+        src = tmp_path / "src"
+        dst = tmp_path / "dst"
+        src.mkdir()
+        dst.mkdir()
+        # dest has an extra line source lacks; the only diff is this addition
+        _populate(src, {"f.md": "line1\nline2\n"})
+        _populate(dst, {"f.md": "line1\nDEST_EXTRA\nline2\n"})
+
+        with patch("builtins.input", return_value="s"):
+            summary = sync(src, dst)
+
+        # the dest-only addition is pushed to source; both converge on dest
+        assert (src / "f.md").read_text() == "line1\nDEST_EXTRA\nline2\n"
+        assert (dst / "f.md").read_text() == "line1\nDEST_EXTRA\nline2\n"
+        assert summary.merged == 1
+
+    def test_diverged_text_partial_hunks_can_stay_diverged(self, tmp_path: Path) -> None:
         src = tmp_path / "src"
         dst = tmp_path / "dst"
         src.mkdir()
@@ -280,16 +297,20 @@ class TestSyncInteractive:
         _populate(src, {"f.md": src_text})
         _populate(dst, {"f.md": dst_text})
 
-        # approve first hunk, reject second
+        # accept source for first hunk, skip the second
         responses = iter(["y", "n"])
         with patch("builtins.input", side_effect=responses):
             summary = sync(src, dst)
 
-        result = (src / "f.md").read_text()
-        assert "SOURCE_A" in result
-        assert "DEST_B" in result
-        # both files should be identical after merge
-        assert (dst / "f.md").read_text() == result
+        src_result = (src / "f.md").read_text()
+        dst_result = (dst / "f.md").read_text()
+
+        # first hunk converged on source
+        assert "SOURCE_A" in src_result and "SOURCE_A" in dst_result
+        assert "DEST_A" not in dst_result
+        # second hunk skipped → each side kept its own
+        assert "SOURCE_B" in src_result and "DEST_B" not in src_result
+        assert "DEST_B" in dst_result and "SOURCE_B" not in dst_result
         assert summary.merged == 1
 
     def test_diverged_binary_keep_source(self, tmp_path: Path) -> None:

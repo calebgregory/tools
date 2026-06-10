@@ -72,41 +72,70 @@ def colorize_hunk(hunk: Hunk) -> str:
     return header + body
 
 
+HunkChoice = ty.Literal["source", "dest", "skip"]
+
+
+class MergedSides(ty.NamedTuple):
+    """Independent post-merge contents for each side.
+
+    `source` and `dest` differ only in regions whose hunk was skipped; for
+    every resolved hunk both sides carry the chosen version, so they converge
+    there.
+    """
+
+    source: list[str]
+    dest: list[str]
+
+
 def apply_hunks(
     dest_lines: list[str],
     source_lines: list[str],
-    approved: list[bool],
-) -> list[str]:
-    """Build merged output by applying only approved hunks.
+    choices: list[HunkChoice],
+) -> MergedSides:
+    """Build per-side merged output from a three-way choice per hunk.
 
     Uses SequenceMatcher.get_grouped_opcodes to produce hunk-aligned groups
-    that correspond 1:1 with unified diff hunks.  For each group, selects
-    source lines (if approved) or dest lines (if not) for non-equal ops.
+    that correspond 1:1 with unified diff hunks.  For each group's non-equal
+    ops the choice decides what both sides receive:
+
+      "source"  both sides take source's version (source -> dest)
+      "dest"    both sides take dest's version   (dest -> source)
+      "skip"    each side keeps its own version  (region stays diverged)
     """
     sm = difflib.SequenceMatcher(None, dest_lines, source_lines)
     groups = list(sm.get_grouped_opcodes())
 
-    if len(groups) != len(approved):
-        raise ValueError(f"expected {len(groups)} approval flags, got {len(approved)}")
+    if len(groups) != len(choices):
+        raise ValueError(f"expected {len(groups)} choice(s), got {len(choices)}")
 
-    out: list[str] = []
+    new_dest: list[str] = []
+    new_source: list[str] = []
     last_dest_pos = 0
+    last_source_pos = 0
 
-    for group, use_source in zip(groups, approved):
+    for group, choice in zip(groups, choices):
         # fill gap of equal lines between previous group and this one
-        group_start = group[0][1]
-        out.extend(dest_lines[last_dest_pos:group_start])
+        new_dest.extend(dest_lines[last_dest_pos : group[0][1]])
+        new_source.extend(source_lines[last_source_pos : group[0][3]])
 
         for tag, i1, i2, j1, j2 in group:
             if tag == "equal":
-                out.extend(dest_lines[i1:i2])
-            elif use_source:
-                out.extend(source_lines[j1:j2])
-            else:
-                out.extend(dest_lines[i1:i2])
+                new_dest.extend(dest_lines[i1:i2])
+                new_source.extend(source_lines[j1:j2])
+            elif choice == "source":
+                new_dest.extend(source_lines[j1:j2])
+                new_source.extend(source_lines[j1:j2])
+            elif choice == "dest":
+                new_dest.extend(dest_lines[i1:i2])
+                new_source.extend(dest_lines[i1:i2])
+            else:  # skip: each side keeps its own
+                new_dest.extend(dest_lines[i1:i2])
+                new_source.extend(source_lines[j1:j2])
 
         last_dest_pos = group[-1][2]
+        last_source_pos = group[-1][4]
 
     # trailing equal lines after last group
-    out.extend(dest_lines[last_dest_pos:])
-    return out
+    new_dest.extend(dest_lines[last_dest_pos:])
+    new_source.extend(source_lines[last_source_pos:])
+    return MergedSides(source=new_source, dest=new_dest)

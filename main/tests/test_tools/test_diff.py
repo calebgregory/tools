@@ -49,19 +49,44 @@ class TestHunks:
 
 
 class TestApplyHunks:
-    def test_approve_all_matches_source(self) -> None:
+    def test_source_choice_converges_both_to_source(self) -> None:
         dest = ["a\n", "DEST\n", "c\n"]
         source = ["a\n", "SOURCE\n", "c\n"]
-        result = apply_hunks(dest, source, [True])
-        assert result == source
 
-    def test_reject_all_matches_dest(self) -> None:
+        result = apply_hunks(dest, source, ["source"])
+
+        assert result.source == source
+        assert result.dest == source
+
+    def test_dest_choice_converges_both_to_dest(self) -> None:
         dest = ["a\n", "DEST\n", "c\n"]
         source = ["a\n", "SOURCE\n", "c\n"]
-        result = apply_hunks(dest, source, [False])
-        assert result == dest
 
-    def test_partial_approval_two_hunks(self) -> None:
+        result = apply_hunks(dest, source, ["dest"])
+
+        assert result.source == dest
+        assert result.dest == dest
+
+    def test_skip_leaves_each_side_unchanged(self) -> None:
+        dest = ["a\n", "DEST\n", "c\n"]
+        source = ["a\n", "SOURCE\n", "c\n"]
+
+        result = apply_hunks(dest, source, ["skip"])
+
+        assert result.source == source
+        assert result.dest == dest
+
+    def test_dest_only_addition_synced_to_source(self) -> None:
+        # dest added a line source lacks; "dest" choice pushes it to source
+        dest = ["a\n", "b\n", "EXTRA\n", "c\n"]
+        source = ["a\n", "b\n", "c\n"]
+
+        result = apply_hunks(dest, source, ["dest"])
+
+        assert result.source == dest
+        assert result.dest == dest
+
+    def test_mixed_choices_two_hunks(self) -> None:
         shared = [f"line{i}\n" for i in range(20)]
         dest = shared.copy()
         source = shared.copy()
@@ -70,49 +95,45 @@ class TestApplyHunks:
         dest[17] = "DEST_B\n"
         source[17] = "SOURCE_B\n"
 
-        # approve first hunk only
-        result = apply_hunks(dest, source, [True, False])
-        assert "SOURCE_A\n" in result
-        assert "DEST_B\n" in result
-        assert "DEST_A\n" not in result
-        assert "SOURCE_B\n" not in result
+        # first hunk: source wins; second hunk: skip (stays diverged)
+        result = apply_hunks(dest, source, ["source", "skip"])
 
-    def test_partial_approval_reverse(self) -> None:
-        shared = [f"line{i}\n" for i in range(20)]
-        dest = shared.copy()
-        source = shared.copy()
-        dest[2] = "DEST_A\n"
-        source[2] = "SOURCE_A\n"
-        dest[17] = "DEST_B\n"
-        source[17] = "SOURCE_B\n"
+        assert "SOURCE_A\n" in result.dest and "SOURCE_A\n" in result.source
+        assert "DEST_A\n" not in result.dest and "DEST_A\n" not in result.source
+        # second hunk skipped → each side keeps its own
+        assert "DEST_B\n" in result.dest and "SOURCE_B\n" not in result.dest
+        assert "SOURCE_B\n" in result.source and "DEST_B\n" not in result.source
 
-        # approve second hunk only
-        result = apply_hunks(dest, source, [False, True])
-        assert "DEST_A\n" in result
-        assert "SOURCE_B\n" in result
-
-    def test_mismatched_approval_length_raises(self) -> None:
+    def test_mismatched_choice_length_raises(self) -> None:
         import pytest
 
         dest = ["a\n", "DEST\n", "c\n"]
         source = ["a\n", "SOURCE\n", "c\n"]
-        with pytest.raises(ValueError, match="expected 1 approval flags, got 3"):
-            apply_hunks(dest, source, [True, False, True])
+        with pytest.raises(ValueError, match="expected 1 choice\\(s\\), got 3"):
+            apply_hunks(dest, source, ["source", "skip", "source"])
 
     def test_insertion_hunk(self) -> None:
         dest = ["a\n", "c\n"]
         source = ["a\n", "b\n", "c\n"]
-        result = apply_hunks(dest, source, [True])
-        assert result == source
+
+        result = apply_hunks(dest, source, ["source"])
+
+        assert result.dest == source
+        assert result.source == source
 
     def test_deletion_hunk(self) -> None:
         dest = ["a\n", "b\n", "c\n"]
         source = ["a\n", "c\n"]
-        result = apply_hunks(dest, source, [True])
-        assert result == source
+
+        result = apply_hunks(dest, source, ["source"])
+
+        assert result.dest == source
+        assert result.source == source
 
     def test_identical_is_no_op(self) -> None:
         lines = ["a\n", "b\n", "c\n"]
-        # no hunks → empty approved list
+
         result = apply_hunks(lines, lines, [])
-        assert result == lines
+
+        assert result.source == lines
+        assert result.dest == lines
