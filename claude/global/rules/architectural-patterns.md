@@ -6,6 +6,12 @@ When documenting anything — code, configuration, processes, systems — link t
 
 Duplication creates a sync burden: now two things must be kept in agreement. Instead, tell the reader *where* to look, not *what* they'll see. Trust that the source material is readable.
 
+## Document a module by itself; push context upward
+
+A module's docstrings describe *that module* — what it is and the non-obvious constraints on using it — not its consumers. References to who calls a module, which test exercises it, or how it fits a larger workflow drift silently: the consumer changes and no one thinks to edit the docstring. Keep module and function docstrings sparse — state what the thing is and any constraints, and trust the code (and a descriptive signature) to show what it does.
+
+Cross-module and architectural context — how the pieces integrate, why a package is structured the way it is, shared invariants — belongs in a README higher in the hierarchy, stated once. Define each top-level submodule *conceptually* there; don't recreate the directory tree (that duplicates the filesystem and carries the same sync burden — see "Prefer reference over restatement").
+
 ## Separate computation from side effects (functional core, imperative shell)
 
 - Functions that compute or transform data should return results, not perform I/O (printing, file writes, network calls) directly.  Centralize side effects in a thin imperative shell that calls pure functions and acts on their return values.  A pure function's output depends only on its inputs and it produces no observable side effects — this makes it easier to test, compose, and reason about.
