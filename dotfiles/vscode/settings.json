@@ -219,6 +219,7 @@
 
   // Git & GitHub
   "git.autofetch": true,
+  "git.blame.editorDecoration.enabled": false,
   "githubPullRequests.pullBranch": "never",
   "liveshare.authenticationProvider": "GitHub",
 
@@ -232,6 +233,8 @@
     "python": false,
   },
   "github.copilot.editor.enableAutoCompletions": true,
+  "gitlens.ai.model": "gitkraken",
+  "gitlens.ai.gitkraken.model": "gemini:gemini-2.5-flash",
   // "github.copilot.inlineSuggest.enable": false,
   "gitlens.views.branches.branches.layout": "list",
   "plantuml.render": "PlantUMLServer",
@@ -285,8 +288,13 @@
   // Misc
   "php.validate.executablePath": "",
   "http.proxyStrictSSL": false,
-  "gitlens.ai.model": "gitkraken",
-  "gitlens.ai.gitkraken.model": "gemini:gemini-2.5-flash",
   "chat.disableAIFeatures": true,
-  "git.blame.editorDecoration.enabled": false
+  "yaml.disableSchemaDetection": [
+    "**/.github/workflows/*.yml",
+    "**/.github/workflows/*.yaml",
+    "**/.gitea/workflows/*.yml",
+    "**/.gitea/workflows/*.yaml",
+    "**/.forgejo/workflows/*.yml",
+    "**/.forgejo/workflows/*.yaml"
+  ]
 }
