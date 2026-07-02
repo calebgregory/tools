@@ -1,5 +1,9 @@
 # Changes
 
+## 0.2.1
+
+- Adds `est.` to known-abbreviations
+
 ## 0.2.0
 
 - Move the core into `double_space.py` and handle sentence boundaries that span
