@@ -143,5 +143,15 @@
   {
     "key": "cmd+g cmd+b",
     "command": "git.blame.toggleEditorDecoration"
+  },
+  {
+    "key": "shift+cmd+g",
+    "command": "workbench.view.scm",
+    "when": "workbench.scm.active"
+  },
+  {
+    "key": "ctrl+shift+g",
+    "command": "-workbench.view.scm",
+    "when": "workbench.scm.active"
   }
 ]
