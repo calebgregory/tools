@@ -220,6 +220,8 @@ def _print_out(lines_out: list[_Line]) -> _Output:
             out.log_file.append(fmtd)
             out.console.append(fmtd)
         elif isinstance(line, _Week):
+            if line.total == 0:
+                continue
             fmtd = _fmt_week(line)
             out.log_file.append(fmtd)
             out.console.append(fmtd)

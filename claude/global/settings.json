@@ -16,7 +16,7 @@
       "Read(~/tools/claude/work-org/memory/*)"
     ]
   },
-  "model": "opus",
+  "model": "opus[1m]",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -54,10 +54,13 @@
     "type": "command",
     "command": "lemonaid-claude-statusline"
   },
+  "enabledPlugins": {
+    "swift-lsp@claude-plugins-official": true
+  },
   "spinnerVerbs": {
     "mode": "replace",
     "verbs": [
-      "."
+      "…"
     ]
   },
   "effortLevel": "high",
