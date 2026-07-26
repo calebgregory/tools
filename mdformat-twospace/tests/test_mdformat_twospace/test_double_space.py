@@ -43,9 +43,17 @@ def test_double_space_into_following_span() -> None:
     assert "fun.  The" in result
 
 
-def test_double_space_out_of_preceding_span() -> None:
+@pytest.mark.parametrize(
+    "text",
+    [
+        "**Done.** Next sentence follows.\n",
+        '**"Done."** Next sentence follows.\n',
+        "**'Done.'** Next sentence follows.\n",
+    ],
+)
+def test_double_space_out_of_preceding_span(text: str) -> None:
     # case B: the sentence ends inside the bold span and continues after it.
-    result = mdformat.text("**Done.** Next sentence follows.\n", extensions=["twospace"])
+    result = mdformat.text(text, extensions=["twospace"])
 
     assert "  Next" in result
 

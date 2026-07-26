@@ -16,7 +16,7 @@
       "Read(~/tools/claude/work-org/memory/*)"
     ]
   },
-  "model": "claude-opus-4-8",
+  "model": "opus",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -61,12 +61,12 @@
     ]
   },
   "effortLevel": "high",
+  "tui": "fullscreen",
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
   "editorMode": "vim",
   "autoCompactEnabled": false,
-  "voiceEnabled": true,
-  "tui": "fullscreen"
+  "voiceEnabled": true
 }

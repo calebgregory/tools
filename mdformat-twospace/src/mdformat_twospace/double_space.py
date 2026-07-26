@@ -25,6 +25,8 @@ def _load_abbreviations() -> ty.Iterable[str]:
 
 _ABBREVIATIONS = frozenset(_load_abbreviations())
 
+# Closing quote/paren characters that may trail sentence-final punctuation.
+_CLOSE_CHARS = "\"')]"
 # Sentence-final punctuation + optional closing quote/paren.
 _PUNCT = r"(?P<punct>[.:?!])(?P<close>[\"')\]]?)"
 # A break fully contained in one text node: punct + one space + a non-space.
@@ -90,7 +92,9 @@ def _bump_leading(text: str, node: RenderTreeNode | None) -> str:
     tail = _last_text(prev)
     if tail is None:
         return text
-    stripped = tail.rstrip()
+    # Strip a trailing closing quote/paren so "**\"Done.\"**" is read as ending
+    # on the '.', mirroring the optional `close` group in _PUNCT.
+    stripped = tail.rstrip().rstrip(_CLOSE_CHARS)
     if not stripped or stripped[-1] not in ".:?!":
         return text
     if stripped[-1] == "." and _is_false_period(stripped, len(stripped) - 1):

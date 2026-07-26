@@ -1,5 +1,9 @@
 # Changes
 
+## 0.2.2
+
+- Bugfix:  add double-space after quotation.
+
 ## 0.2.1
 
 - Adds `est.` to known-abbreviations
