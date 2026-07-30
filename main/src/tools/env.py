@@ -34,10 +34,23 @@ class MainVaultConfig:
 
 
 @dataclass
+class WorkVaultCurrentProjectConfig:
+    personal: Path | None = None  # src
+    shared: Path | None = None  # target
+
+
+@dataclass
+class WorkVaultConfig:
+    root: Path | None = None
+    current_project: WorkVaultCurrentProjectConfig = field(default_factory=WorkVaultCurrentProjectConfig)
+
+
+@dataclass
 class VaultConfig:
     """as in, Obsidian vault"""
 
     main: MainVaultConfig = field(default_factory=MainVaultConfig)
+    work: WorkVaultConfig = field(default_factory=WorkVaultConfig)
 
 
 @dataclass
@@ -81,13 +94,21 @@ def load_env() -> EnvTomlConfig | None:
         api_key=immich_data.get("api_key", ""),
     )
 
-    main_vault_data = data.get("vault", {}).get("main", {})
+    vault_data = data.get("vault", {})
+    main_vault_data = vault_data.get("main", {})
     config.vault = VaultConfig(
         main=MainVaultConfig(
             root=_expand_user(main_vault_data.get("root")),
             walked_file=_expand_user(main_vault_data.get("walked-file")),
         )
     )
+
+    if work_vault_data := vault_data.get("work", {}):
+        config.vault.work = WorkVaultConfig(root=work_vault_data.get("root"))
+        if current_project_data := work_vault_data.get("current-project", {}):
+            personal, shared = (_expand_user(current_project_data.get(k)) for k in ("personal", "shared"))
+            assert personal and shared
+            config.vault.work.current_project = WorkVaultCurrentProjectConfig(personal, shared)
 
     return config
 

@@ -14,8 +14,6 @@ and periodically sync against the shared directory (dest):
   pushed to source even when source would otherwise overwrite it with
   nothing.
 - Binary files prompt for a whole-file keep-source / keep-dest choice.
-
-Usage:  sync-vault <source> <dest> [--dry-run]
 """
 
 import shutil
@@ -27,6 +25,7 @@ from pathlib import Path
 from thds.termtool.colorize import colorized
 
 from tools.diff import HunkChoice, apply_hunks, colorize_hunk, diff, hunks
+from tools.env import require_env
 
 from .obsidian import obsidian_open
 
@@ -129,8 +128,9 @@ def _binary_summary(source: Path, dest: Path) -> str:
 
 def _copy_file(src: Path, dst: Path) -> None:
     dst.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(src, dst)
+    dst.touch()
     obsidian_open(dst)
+    shutil.copy2(src, dst)
 
 
 def _write_path(text: str, path: Path) -> None:
@@ -313,13 +313,17 @@ def _print_summary(s: SyncSummary) -> None:
 def cli() -> None:
     import argparse
 
+    env = require_env()
+
     parser = argparse.ArgumentParser(
         description="Two-way sync between a source-of-truth directory and a shared directory."
     )
-    parser.add_argument("source", type=Path)
-    parser.add_argument("dest", type=Path)
+    parser.add_argument("--source", "-s", type=Path, default=env.vault.work.current_project.personal)
+    parser.add_argument("--dest", "-d", type=Path, default=env.vault.work.current_project.shared)
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
+
+    assert args.source and args.dest, "Either pass a value or configure it in .env.toml"
 
     for label, path in [("source", args.source), ("dest", args.dest)]:
         if not path.is_dir():
