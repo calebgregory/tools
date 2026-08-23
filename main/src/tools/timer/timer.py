@@ -24,7 +24,7 @@ def _watch_keys(keys: queue.Queue[str]) -> None:
 class _TimerState:
     accumulated: float = 0.0  # seconds banked before the current running segment
     segment_start: float = 0.0  # monotonic time the current running segment began
-    paused: bool = False
+    paused: bool = True  # i find i always want timers to start paused
 
 
 def _elapsed(state: _TimerState) -> float:
@@ -70,7 +70,7 @@ def _run_timer(keys: queue.Queue[str]) -> None:
         min, sec = divmod(int(_elapsed(state)), 60)
         marker = "☽" if state.paused else " "
 
-        sys.stdout.write(f"\r{min:02d}:{sec:02d} {marker}")
+        sys.stdout.write(f"\r{min:02d}:{sec:02d} {marker} ")
         sys.stdout.flush()
 
 
