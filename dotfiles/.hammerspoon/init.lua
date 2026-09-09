@@ -3,6 +3,7 @@ hs.loadSpoon("ReloadConfiguration")
 spoon.ReloadConfiguration:start()
 
 dofile('./app-shortcuts.lua')
+dofile('./appearance-toggle.lua')
 dofile('./caffeine.lua')
 dofile('./f-key-mode-toggle.lua')
 dofile('./kid-lock.lua')
