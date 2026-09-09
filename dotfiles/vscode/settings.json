@@ -1,6 +1,8 @@
 {
-  // Editor:  Appearance
-  "workbench.colorTheme": "Minimal",
+  "window.autoDetectColorScheme": true,
+  "workbench.preferredLightColorTheme": "Alabaster",
+  "workbench.preferredDarkColorTheme": "Minimal",
+
   "editor.fontFamily": "'Fira Code', Menlo, Monaco, 'Courier New', monospace",
   "editor.fontLigatures": true,
   "editor.fontVariations": false,
