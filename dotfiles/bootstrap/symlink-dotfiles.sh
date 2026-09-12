@@ -32,6 +32,10 @@ ln -s ~/tools/dotfiles/lemonaid.toml ~/.config/lemonaid/config.toml
 mkdir -p ~/.config/yazi/
 ln -s ~/tools/dotfiles/yazi.toml ~/.config/yazi/yazi.toml
 
+# -n so that re-running replaces the link rather than nesting a second one
+# inside the directory the first one points at
+ln -sfn ~/tools/dotfiles/nvim ~/.config/nvim
+
 for file in keybindings.json settings.json; do
   ln -s ~/tools/dotfiles/vscode/"$file" ~/"Library/Application Support/Code/User/$file"
 done
