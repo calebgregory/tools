@@ -22,12 +22,27 @@
           {
             "type": "command",
             "command": "lemonaid-claude-statusline write-last-message-time"
+          },
+          {
+            "type": "command",
+            "command": "lemonaid claude submit"
           }
         ]
       }
     ],
     "Stop": [
       {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "lemonaid claude notify"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "AskUserQuestion",
         "hooks": [
           {
             "type": "command",
@@ -46,6 +61,16 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "lemonaid claude session-start"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
@@ -58,9 +83,7 @@
   },
   "spinnerVerbs": {
     "mode": "replace",
-    "verbs": [
-      "…"
-    ]
+    "verbs": ["\u2026"]
   },
   "effortLevel": "high",
   "tui": "fullscreen",

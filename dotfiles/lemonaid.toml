@@ -1,12 +1,50 @@
-# Lemonaid configuration
-
-# Switch-handlers are auto-selected based on the notification's switch-source.
-# No configuration needed for tmux/wezterm - they just work.
+# Lemonaid configuration. Reference: ~/tools/lemonaid/docs/config.md
+# Symlinked to ~/.config/lemonaid/config.toml by bootstrap/symlink-dotfiles.sh
 
 [wezterm]
 # How to resolve pane from notification metadata
 # Options: "tty" (match TTY to pane), "metadata" (use workspace/pane_id from metadata)
 resolve_pane = "tty"
 
+[tmux-session]
+# The inbox pane follows you across windows and sessions on every new tmux server.
+# Turn it off for one server with `lemonaid tmux scratch --unfollow`.
+follow_scratch = true
+# Left edge renders sessions as cards; `prefix+L` (or `f` in lma) flips it to a top strip.
+scratch_position = "left"
+scratch_width = "45"
+scratch_height = "10"
+# `lemonaid tmux new` / `lemonaid place open` build sessions from this window list.
+# Window 0 is the one `T` in history replaces with the resume command (resume_window).
+resume_window = 0
+
+[tmux-session.templates]
+default = ["claude", ""]
+shell = [""]
+
+[tui]
+
 [tui.keybindings]
 up_down = "kj"
+
+# Places: directories and their tmux sessions. lemonaid delegates worktree
+# operations to `wt` (thds.gent). Reference: ~/tools/lemonaid/docs/places.md
+[places]
+protected_sessions = ["main", "tools"]
+
+[[places.roots]]
+path = "~/work/ds-monorepo-wt"
+list = "git -C .bare worktree list --porcelain | grep '^worktree ' | sed 's/^worktree //' | grep -v '/\\.bare$'"
+path_of = "wt path {key}"
+create = "wt co {key}"
+destroy = "wt rm -f {key}"
+inspect = "wt status {dir}"
+
+[[places.roots]]
+path = "~/work/ds-monorepo"
+
+[[places.roots]]
+path = "~/work/notes"
+
+[[places.roots]]
+path = "~/tools"

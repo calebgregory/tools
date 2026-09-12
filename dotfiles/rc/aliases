@@ -38,6 +38,10 @@ alias ew='emacs -nw -q'   # opens vanilla emacs in the terminal
 ee() { /Applications/Emacs.app/Contents/MacOS/Emacs "$@"; }
 alias t=tmux
 
+# lemonaid (https://github.com/petergaultney/lemonaid) - see ~/tools/lemonaid/docs
+alias lp="lemonaid place"          # lp open <branch>, lp list, lp toss
+alias ltn="lemonaid tmux new"      # new tmux session from the template, named after the cwd
+
 alias gbclean="git branch --merged | grep -v \* | xargs git branch -d"
 alias gbc="git branch --show-current"
 alias gu="gbc | xargs git pull origin"
