@@ -20,6 +20,18 @@ Lead with what the reader needs. Conclusions first, then supporting detail. Do n
 
 When writing a summary at the end of a work session (for a daily note, handoff, or status update), introduce every reference from scratch. Name items and describe their function in full sentences before drawing conclusions. The reader lacks the context of the intermediate work.
 
+### Voice
+
+Write in the active voice with the agent named. Describe transforms, redactions, migrations, and any other decided behavior as something we do: "We drop the whole `Occurrence` row", not "the row drops"; "We apply the same value set on all three sources", not "the same value set applies". Reflexive and passive phrasing — "the code nulls", "the null applies", "X is dropped" — hides who decided, and reads as though the system behaves that way of its own accord. Someone chose this, and a reader reviewing the choice needs to see that. Reserve the passive for the rare case where the actor genuinely doesn't matter or isn't known.
+
+Name the actor for other parties too, not just us: "the spec marks the field No Change", "the vendor delivers the value zero-padded", "their 7/24 answer confirms the per-type dispatch".
+
+This applies to headings and bold labels as well as sentences. "We null implausible values instead of transforming them", not "Implausible values null instead of transforming".
+
+### Pointing at code
+
+Link to the code, don't spell the path out in prose. A trailing `— [code](./rules/exclude_disallowed.py)` on an entry is better than the same path in backticks: the reader can click it, and the link checker catches it when the file moves. When an entry has more than one site, give each link a name that says what it is (`— [user authn](...), [authz middleware](...)`) rather than repeating "code". When the path falls mid-sentence, link it in place.
+
 ### Anti-patterns
 
 These are common in Claude output and must be avoided:

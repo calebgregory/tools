@@ -6,6 +6,11 @@ When documenting anything — code, configuration, processes, systems — link t
 
 Duplication creates a sync burden: now two things must be kept in agreement. Instead, tell the reader *where* to look, not *what* they'll see. Trust that the source material is readable.
 
+Call-site comments are the common offender: a comment beside `apply(value, flag)` should say what is
+true *here* (where the argument comes from, why this site passes it) and point at the callee for how it
+is used. Restating the callee's internal logic at every caller duplicates it as many times as it has
+callers, and each copy goes stale on its own schedule.
+
 ## Document a module by itself; push context upward
 
 A module's docstrings describe *that module* — what it is and the non-obvious constraints on using it — not its consumers. References to who calls a module, which test exercises it, or how it fits a larger workflow drift silently: the consumer changes and no one thinks to edit the docstring. Keep module and function docstrings sparse — state what the thing is and any constraints, and trust the code (and a descriptive signature) to show what it does.

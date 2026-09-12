@@ -99,3 +99,23 @@ class SyncAction(ty.NamedTuple):
 class SyncAction(ty.NamedTuple):
     kind: str  # "source_only" | "dest_only" | "diverged" | "identical"
 ```
+
+## Write fields by name, never through attribute-name strings
+
+Do not drive reads or writes of an object's fields from a list of attribute names (`getattr`/`setattr`
+loops over a tuple of strings, tables mapping a type to field names). Spell out each access, even when
+that means many similar lines. A name in a string is invisible to the type checker, to
+rename-refactors, and to anyone grepping for who touches the field; an explicit assignment is not.
+
+```py
+# good:
+record.start = shift(record.start)
+record.end = shift(record.end)
+
+# bad:
+for name in ("start", "end"):
+    setattr(record, name, shift(getattr(record, name)))
+```
+
+Bind the repeated transform once (e.g. a `partial`) so the lines stay short; the field names are the part
+that must stay literal.
