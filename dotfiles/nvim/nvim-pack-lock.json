@@ -1,8 +1,20 @@
 {
   "plugins": {
+    "codediff.nvim": {
+      "rev": "4b3ad7eb99dd0f02e64bbaf562ca1e87e8c07cc9",
+      "src": "https://github.com/esmuellert/codediff.nvim"
+    },
     "fzf-lua": {
       "rev": "05e44d38de0a79c11fba5f7bf8138791b1dbdd1e",
       "src": "https://github.com/ibhagwan/fzf-lua"
+    },
+    "gitsigns.nvim": {
+      "rev": "f2421c550618d257048afa650413d9e542ddbe67",
+      "src": "https://github.com/lewis6991/gitsigns.nvim"
+    },
+    "nvim-tree.lua": {
+      "rev": "882c54f2815bf6d02663d482c2cf9dbadf4e9b07",
+      "src": "https://github.com/nvim-tree/nvim-tree.lua"
     },
     "nvim-treesitter": {
       "rev": "9a168f6357ed21c3a636e1727bc7d382abc451b8",

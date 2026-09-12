@@ -48,6 +48,47 @@ word under cursor, run from the git root.
 | `<leader>fs` | Symbols in this file |
 | `<leader>?` | Search keybindings |
 
+### Source control
+
+`<leader>gs` opens [codediff.nvim](https://github.com/esmuellert/codediff.nvim),
+which is the VS Code Source Control view: a file panel listing changed files
+with status (`M` / `A` / `D` / `??`) and a `Staged Changes` section, a
+side-by-side diff whose **right pane is the editable working tree**, and staging
+from the panel. It uses VS Code's own diff algorithm, compiled to a native
+library — on first run it downloads that library from the plugin's GitHub
+releases.
+
+| Key | Does |
+|---|---|
+| `<leader>gs` | Source control view |
+| `<leader>gh` | History for the current file |
+| `-` | Stage / unstage the file under the cursor (in the panel) |
+| `S` / `U` | Stage all / unstage all (in the panel) |
+| `]c` / `[c` | Next / previous change (in a diff) |
+
+Inline in a normal buffer, [gitsigns](https://github.com/lewis6991/gitsigns.nvim)
+handles the same at hunk granularity:
+
+| Key | Does |
+|---|---|
+| `]h` / `[h` | Next / previous hunk |
+| `<leader>hs` | Stage hunk |
+| `<leader>hr` | Reset hunk |
+| `<leader>hp` | Preview hunk |
+| `<leader>hb` | Blame line |
+
+### File tree
+
+[nvim-tree](https://github.com/nvim-tree/nvim-tree.lua), the direct NERDTree
+successor. It shows git status per file and follows the buffer you are editing.
+`.venv`, `.git` and `__pycache__` are filtered out — in this monorepo an
+unfiltered tree is unusable.
+
+| Key | Does |
+|---|---|
+| `Ctrl+n` | Toggle the tree |
+| `<leader>n` | Reveal the current file in the tree |
+
 ### Editing
 
 Carried over from `.vimrc.after` and the VS Code vim settings.

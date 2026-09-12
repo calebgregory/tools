@@ -4,6 +4,9 @@
 vim.pack.add({
   { src = "https://github.com/ibhagwan/fzf-lua" },
   { src = "https://github.com/nvim-treesitter/nvim-treesitter", version = "main" },
+  { src = "https://github.com/esmuellert/codediff.nvim" },
+  { src = "https://github.com/lewis6991/gitsigns.nvim" },
+  { src = "https://github.com/nvim-tree/nvim-tree.lua" },
 })
 
 vim.g.mapleader = " "
@@ -104,6 +107,45 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_user_command("TSInstallAll", function()
   require("nvim-treesitter").install(PARSERS)
 end, { desc = "Install the parsers this config expects" })
+
+-- ── Source control ───────────────────────────────────────────────────
+-- :CodeDiff is the VS Code source-control view: a file panel of changed files
+-- with status, a side-by-side diff whose right pane is the editable working
+-- tree, and staging from the panel (- toggles a file, S / U stage or unstage
+-- everything).
+require("gitsigns").setup({
+  signs = {
+    add = { text = "+" }, change = { text = "~" },
+    delete = { text = "_" }, topdelete = { text = "‾" }, changedelete = { text = "~" },
+  },
+  on_attach = function(buf)
+    local gs = require("gitsigns")
+    local function m(lhs, rhs, desc)
+      map("n", lhs, rhs, { buffer = buf, desc = desc })
+    end
+    m("]h", function() gs.nav_hunk("next") end, "Next hunk")
+    m("[h", function() gs.nav_hunk("prev") end, "Previous hunk")
+    m("<leader>hs", gs.stage_hunk,        "Stage hunk")
+    m("<leader>hr", gs.reset_hunk,        "Reset hunk")
+    m("<leader>hp", gs.preview_hunk,      "Preview hunk")
+    m("<leader>hb", gs.blame_line,        "Blame line")
+    m("<leader>hd", gs.diffthis,          "Diff this file")
+  end,
+})
+
+map("n", "<leader>gs", "<cmd>CodeDiff<CR>",        { desc = "Source control (changed files)" })
+map("n", "<leader>gh", "<cmd>CodeDiffHistory<CR>", { desc = "File history" })
+
+-- ── File tree ────────────────────────────────────────────────────────
+require("nvim-tree").setup({
+  view = { width = 36 },
+  renderer = { group_empty = true, indent_markers = { enable = true } },
+  filters = { dotfiles = false, custom = { "^\\.git$", "^\\.venv$", "__pycache__" } },
+  git = { enable = true, ignore = false },
+  update_focused_file = { enable = true },  -- follow the buffer you are in
+})
+map("n", "<C-n>",     "<cmd>NvimTreeToggle<CR>",     { desc = "Toggle file tree" })
+map("n", "<leader>n", "<cmd>NvimTreeFindFile<CR>",   { desc = "Reveal current file in tree" })
 
 -- ── Color identifiers ─────────────────────────────────────────────────
 require("color_identifiers").setup({ filetypes = { "python", "lua" } })
