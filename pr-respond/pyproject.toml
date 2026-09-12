@@ -1,0 +1,29 @@
+[build-system]
+requires = ["uv_build>=0.9.26,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "pr_respond"
+module-root = ""
+
+[project]
+name = "pr-respond"
+version = "0.1.0"
+description = "Respond to GitHub PR comments via markdown"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pygithub>=2.8.1",
+]
+
+[project.scripts]
+pr-respond = "pr_respond.__main__:main"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "ruff>=0.14.14",
+]
+
+[tool.ruff]
+line-length = 108
