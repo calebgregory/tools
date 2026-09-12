@@ -1,3 +1,6 @@
+import json
+import pathlib
+
 import pytest
 
 from tools.tmux import window_status
@@ -11,8 +14,9 @@ def _home(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("HOME", _HOME)
 
 
-def _dir(name: str) -> str:
-    return f"#[fg={window_status._dir_color(name)}]{name}#[fg=default]"
+def _dir(name: str, text: str | None = None) -> str:
+    """A rendered segment: colored by the full `name`, showing `text` when it is shortened."""
+    return f"#[fg={window_status._dir_color(name)}]{name if text is None else text}#[fg=default]"
 
 
 def _program(name: str) -> str:
@@ -20,21 +24,58 @@ def _program(name: str) -> str:
 
 
 @pytest.mark.parametrize(
-    ("path", "segments"),
+    ("path", "expected"),
     [
-        (f"{_HOME}/tools/lemonaid", ["tools", "lemonaid"]),
-        (f"{_HOME}/tools", ["~", "tools"]),
-        (_HOME, ["~"]),
-        (f"{_HOME}sfx/tools", ["someonesfx", "tools"]),
-        (f"file://host.local{_HOME}/work/apps/foo", ["apps", "foo"]),
-        ("/opt/homebrew/bin", ["homebrew", "bin"]),
-        ("/tmp", ["/tmp"]),
-        ("/", ["/"]),
-        ("", ["/"]),
+        (f"{_HOME}/tools/lemonaid", _dir("tools", "too") + "/" + _dir("lemonaid")),
+        (f"{_HOME}/tools", _dir("~") + "/" + _dir("tools")),
+        (_HOME, _dir("~")),
+        (f"{_HOME}sfx/tools", _dir("someonesfx", "som") + "/" + _dir("tools")),
+        (f"file://host.local{_HOME}/work/apps/foo", _dir("apps", "app") + "/" + _dir("foo")),
+        ("/opt/homebrew/bin", _dir("homebrew", "hom") + "/" + _dir("bin")),
+        ("/tmp", _dir("tmp", "/tmp")),
+        ("/", _dir("/")),
+        ("", _dir("/")),
     ],
 )
-def test_format_path_shows_parent_and_child(path: str, segments: list[str]) -> None:
-    assert format_path(path) == "/".join(_dir(seg) for seg in segments)
+def test_format_path_shortens_parent_to_three_characters(path: str, expected: str) -> None:
+    assert format_path(path) == expected
+
+
+def test_parent_color_survives_shortening() -> None:
+    """`tools` and `too` hash differently, so the color must come from the full name."""
+    result = format_path(f"{_HOME}/tools/lemonaid")
+
+    assert result.startswith(f"#[fg={window_status._dir_color('tools')}]too#[fg=default]")
+    assert window_status._dir_color("too") != window_status._dir_color("tools")
+
+
+@pytest.fixture
+def _aliases(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        window_status, "_DIR_ALIASES", {"~/work/notes/personal-work": "w", "~/work/wt": "mt"}
+    )
+
+
+@pytest.mark.parametrize(
+    ("path", "expected_texts"),
+    [
+        (f"{_HOME}/work/notes/personal-work", ["w"]),
+        (f"{_HOME}/work/wt", ["mt"]),
+        (f"{_HOME}/work/wt/main", ["mt", "main"]),
+        (f"{_HOME}/work/wt/main/src", ["mai", "src"]),
+        (f"{_HOME}/work/notes/personal", ["not", "personal"]),
+    ],
+)
+def test_alias_replaces_a_directory_name(
+    _aliases: None, path: str, expected_texts: list[str]
+) -> None:
+    assert [seg.text for seg in window_status._display_segments(path)] == expected_texts
+
+
+def test_aliased_directory_keeps_the_color_of_its_real_name(_aliases: None) -> None:
+    result = format_path(f"{_HOME}/work/wt/main")
+
+    assert result.startswith(f"#[fg={window_status._dir_color('wt')}]mt#[fg=default]")
 
 
 def test_parent_color_differs_while_child_color_is_shared() -> None:
@@ -44,6 +85,13 @@ def test_parent_color_differs_while_child_color_is_shared() -> None:
     assert in_tools != in_play
     assert in_tools.endswith(_dir("lemonaid"))
     assert in_play.endswith(_dir("lemonaid"))
+
+
+def test_colors_match_the_shared_palette_file() -> None:
+    shared = json.loads((pathlib.Path(window_status.__file__).parent / "colors.json").read_text())
+
+    assert window_status._PALETTE == [entry["hex"] for entry in shared["palette"]]
+    assert window_status._dir_color("apps") == shared["dir_colors"]["apps"]
 
 
 @pytest.mark.parametrize("shell", ["zsh", "bash", "fish", "xonsh", "mise", "starship", None, ""])

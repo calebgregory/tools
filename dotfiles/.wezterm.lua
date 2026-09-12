@@ -25,6 +25,16 @@ function shellexpand(path)
     return fullpath
 end
 
+local function read_json_file(file_path)
+    local file = io.open(file_path, "r")
+    if not file then
+        return nil
+    end
+    local contents = file:read("a")
+    file:close()
+    return wezterm.json_parse(contents)
+end
+
 local function read_paths_from_file(file_path)
     local paths = {}
     local file = io.open(file_path, "r")
@@ -127,23 +137,19 @@ local function hash_string(str)
     return hash
 end
 
-local high_contrast_colors = {
-    "#FF5555", -- Bright Red
-    "#50FA7B", -- Bright Green
-    "#F1FA8C", -- Bright Yellow
-    "#BD93F9", -- Bright Purple
-    "#FF79C6", -- Bright Pink
-    "#8BE9FD", -- Bright Cyan
-    "#FFB86C", -- Bright Orange
-    "#FF92DF", -- Light Pink
-    "#9AEDFE", -- Light Blue
-    "#5AF78E", -- Light Green
-    "#F4F99D", -- Light Yellow
-    "#CAA9FA", -- Light Purple
-    "#FF6E67", -- Light Red
-    "#ADEDC8", -- Soft Green
-    "#FEA44D"  -- Soft Orange
-}
+-- Palette and overrides are shared with the tmux window titles, so the same
+-- directory is the same color in both; see main/src/tools/tmux/window_status.py.
+local shared_colors_path = shellexpand("~/tools/main/src/tools/tmux/colors.json")
+wezterm.add_to_config_reload_watch_list(shared_colors_path)
+local shared_colors = read_json_file(shared_colors_path)
+
+local high_contrast_colors = {}
+for _, entry in ipairs(shared_colors.palette) do
+    table.insert(high_contrast_colors, entry.hex)
+end
+
+local dir_name_colors = shared_colors.dir_colors
+local process_colors = shared_colors.process_colors
 
 -- Get a deterministic color for a string
 local function get_deterministic_color(str)
@@ -151,20 +157,6 @@ local function get_deterministic_color(str)
     local index = (hash % #high_contrast_colors) + 1
     return high_contrast_colors[index]
 end
-
--- Process color mapping (declarative approach)
-local process_colors = {
-    emacs = "orange",
-    emacsclient = "orange",
-    git = "#bb55ff" -- pretty purple
-}
-
--- Directory prefix color mapping (declarative approach)
-local dir_name_colors = {
-    ["apps"] = "cyan",
-    ["libs"] = "yellow",
-    ["mops"] = 'green',
-}
 
 -- Format directory with colored prefixes if applicable
 local function format_colored_directory(dir_path)

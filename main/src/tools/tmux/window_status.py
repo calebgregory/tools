@@ -1,9 +1,15 @@
 """Colored tmux window titles.
 
-A shell window reads `$parent/child`, each segment colored by a hash of its own name
-so sibling directories share a prefix color. A window running a program reads
-`program: parent/child`, or just `program` for editors and agents whose launch
+A shell window reads `$par/child`, where the parent is shortened to its first three
+characters, or to an alias from `_DIR_ALIASES` for the directories you live in. Each
+segment takes its color from a hash of its full name, so sibling directories share a
+prefix color and shortening a name does not recolor it. A window running a program
+reads `program: par/child`, or just `program` for editors and agents whose launch
 directory is not what you need to see.
+
+Colors come from `colors.json` beside this module, which `dotfiles/.wezterm.lua`
+also reads so wezterm tab titles color the same names the same way. Only the djb2
+hash itself is written twice, once per language.
 
 Argv contract (positional, in this order): pane_path, pane_current_path,
 pane_current_command, pane_title. `pane_path` comes from OSC 7 and wins when set;
@@ -11,55 +17,19 @@ pane_current_command, pane_title. `pane_path` comes from OSC 7 and wins when set
 using `#[fg=...]` directives, so it must be spliced in via `#(...)`.
 """
 
+import json
 import os
 import re
 import sys
 import typing as ty
+from pathlib import Path
 
-_PALETTE = [
-    "#FF5555",  # bright red
-    "#50FA7B",  # bright green
-    "#F1FA8C",  # bright yellow
-    "#A66BE0",  # bright purple
-    "#FF79C6",  # bright pink
-    "#8BE9FD",  # bright cyan
-    "#FFB86C",  # bright orange
-    "#9AEDFE",  # light blue
-    "#5AF78E",  # light green
-    "#F4F99D",  # light yellow
-    "#CAA9FA",  # light purple
-    "#FF6E67",  # light red
-    "#ADEDC8",  # soft green
-    "#FEA44D",  # soft orange
-    "#F07178",  # coral
-    "#00B1B3",  # teal
-    "#E6DB74",  # muted yellow
-    "#7DCFFF",  # sky blue
-    "#D8A0DF",  # lavender
-    "#36C2C2",  # aqua
-    "#FF9E64",  # peach
-    "#85DACC",  # mint
-    "#E3CF65",  # gold
-]
+from tools.env import require_env
 
-_DIR_COLORS = {
-    "apps": "#00FFFF",
-    "libs": "#F1FA8C",
-    "mops": "#50FA7B",
-}
-
-_PROCESS_COLORS = {
-    "claude": "#50FA7B",
-    "codex": "#26A34A",
-    "opencode": "#7DCFFF",
-    "emacs": "#FFB86C",
-    "emacsclient": "#E0922D",
-    "git": "#BB55FF",
-    "python": "#F1FA8C",
-    "python3": "#F1FA8C",
-    "node": "#50FA7B",
-    "npm": "#50FA7B",
-}
+_COLORS = json.loads(Path(__file__).with_name("colors.json").read_text())
+_PALETTE: list[str] = [entry["hex"] for entry in _COLORS["palette"]]
+_DIR_COLORS: dict[str, str] = _COLORS["dir_colors"]
+_PROCESS_COLORS: dict[str, str] = _COLORS["process_colors"]
 
 # Shown as `$dir`: the shell itself is not news.
 _SHELLS = {"xonsh", "bash", "zsh", "fish", "sh", "starship", "mise"}
@@ -86,6 +56,17 @@ _INTERPRETER_RE = re.compile(r"^(?:python|node|ruby|perl)\d*(?:\.\d+)?$")
 _PYTHON_RE = re.compile(r"^python\d*(?:\.\d+)?$")
 _TITLE_SHELL_NAMES = {"bash", "zsh", "fish", "xonsh", "-bash", "-zsh", "sh"}
 
+# Enough of a parent directory to recognize it; the cwd carries the detail.
+_PARENT_CHARS = 3
+
+
+
+class _Segment(ty.NamedTuple):
+    """One path component of a window title, ready to render."""
+
+    text: str
+    color: str
+
 
 def _djb2(s: str) -> int:
     h = 5381
@@ -106,29 +87,61 @@ def _colored(text: str, color: str) -> str:
     return f"#[fg={color}]{text}#[fg=default]"
 
 
+def _fold_home(path: str) -> str:
+    home = os.environ.get("HOME", "")
+    if home and (path == home or path.startswith(home + "/")):
+        return "~" + path[len(home) :]
+    return path
+
+
 def _normalize_path(path: str) -> str:
     """Strip an OSC 7 `file://host` prefix and fold $HOME to `~`."""
     if path.startswith("file://"):
         without_scheme = path[len("file://") :]
         slash = without_scheme.find("/")
         path = without_scheme[slash:] if slash != -1 else ""
-    home = os.environ.get("HOME", "")
-    if home and (path == home or path.startswith(home + "/")):
-        path = "~" + path[len(home) :]
-    return path
+    return _fold_home(path)
 
 
-def _display_segments(path: str) -> list[str]:
+# Directories you visit often enough to recognize by a letter or two. An alias stands in
+# for the directory's name wherever it would otherwise appear. Aliases are a tmux-only
+# shortening, like `_PARENT_CHARS`: wezterm still spells these directories out, and both
+# still color them by their real name.
+_DIR_ALIASES = {
+    _fold_home(path): alias for path, alias in require_env().tmux.dir_aliases.items()
+}
+
+
+def _segment(name: str, text: str | None = None) -> _Segment:
+    """Color comes from the full `name`; pass `text` when we render less than that."""
+    return _Segment(name if text is None else text, _dir_color(name))
+
+
+def _parent_path(path: str, parts: ty.Sequence[str]) -> str:
+    """`path` minus its last component, spelled the way `_DIR_ALIASES` keys are."""
+    joined = "/".join(parts[:-1])
+    return "/" + joined if path.startswith("/") else joined
+
+
+def _display_segments(path: str) -> list[_Segment]:
     path = _normalize_path(path)
     parts = [p for p in path.split("/") if p]
     if not parts:
-        return ["/"]
-    is_root_level = len(parts) == 1 and path.startswith("/")
-    return ["/" + parts[0]] if is_root_level else parts[-2:]
+        return [_segment("/")]
+    cwd = parts[-1]
+    alias = _DIR_ALIASES.get(path)
+    if alias is not None:
+        # An alias is already the short name for this place; a parent would only crowd it.
+        return [_segment(cwd, alias)]
+    if len(parts) == 1:
+        return [_segment(cwd, "/" + cwd if path.startswith("/") else cwd)]
+    parent = parts[-2]
+    parent_text = _DIR_ALIASES.get(_parent_path(path, parts), parent[:_PARENT_CHARS])
+    return [_segment(parent, parent_text), _segment(cwd)]
 
 
 def format_path(path: str) -> str:
-    return "/".join(_colored(seg, _dir_color(seg)) for seg in _display_segments(path))
+    return "/".join(_colored(seg.text, seg.color) for seg in _display_segments(path))
 
 
 def _app_from_title(title: str | None, path: str) -> str | None:

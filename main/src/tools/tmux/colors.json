@@ -1,0 +1,45 @@
+{
+  "about": "Shared by tmux window titles (tools/tmux/window_status.py) and wezterm tab titles (dotfiles/.wezterm.lua). A name with no override takes palette[djb2(name) % len(palette)], so the order of `palette` is load-bearing: reordering or inserting an entry recolors every directory and process that falls through to it. Append to the end instead.",
+  "palette": [
+    { "name": "bright red", "hex": "#FF5555" },
+    { "name": "bright green", "hex": "#50FA7B" },
+    { "name": "bright yellow", "hex": "#F1FA8C" },
+    { "name": "bright purple", "hex": "#A66BE0" },
+    { "name": "bright pink", "hex": "#FF79C6" },
+    { "name": "bright cyan", "hex": "#8BE9FD" },
+    { "name": "bright orange", "hex": "#FFB86C" },
+    { "name": "light blue", "hex": "#9AEDFE" },
+    { "name": "light green", "hex": "#5AF78E" },
+    { "name": "light yellow", "hex": "#F4F99D" },
+    { "name": "light purple", "hex": "#CAA9FA" },
+    { "name": "light red", "hex": "#FF6E67" },
+    { "name": "soft green", "hex": "#ADEDC8" },
+    { "name": "soft orange", "hex": "#FEA44D" },
+    { "name": "coral", "hex": "#F07178" },
+    { "name": "teal", "hex": "#00B1B3" },
+    { "name": "muted yellow", "hex": "#E6DB74" },
+    { "name": "sky blue", "hex": "#7DCFFF" },
+    { "name": "lavender", "hex": "#D8A0DF" },
+    { "name": "aqua", "hex": "#36C2C2" },
+    { "name": "peach", "hex": "#FF9E64" },
+    { "name": "mint", "hex": "#85DACC" },
+    { "name": "gold", "hex": "#E3CF65" }
+  ],
+  "dir_colors": {
+    "apps": "#00FFFF",
+    "libs": "#F1FA8C",
+    "mops": "#50FA7B"
+  },
+  "process_colors": {
+    "claude": "#50FA7B",
+    "codex": "#26A34A",
+    "opencode": "#7DCFFF",
+    "emacs": "#FFB86C",
+    "emacsclient": "#E0922D",
+    "git": "#BB55FF",
+    "python": "#F1FA8C",
+    "python3": "#F1FA8C",
+    "node": "#50FA7B",
+    "npm": "#50FA7B"
+  }
+}

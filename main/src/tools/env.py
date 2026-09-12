@@ -3,9 +3,24 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from tools import git
+# `.env.toml` does not exist until `require_env` copies the template, so the committed
+# template and `.git` have to stand in for it when we look for the root.
+_ROOT_MARKERS = (".env.toml", ".env.template.toml", ".git")
 
-_THIS_REPO_ROOT = git.repo_root(Path(__file__))
+
+def _repo_root(start: Path) -> Path:
+    """Nearest directory at or above `start` holding one of `_ROOT_MARKERS`.
+
+    A filesystem walk rather than `git rev-parse`, so importing this module costs no
+    subprocess; it is cheap enough for a shell prompt or a status line to pay per call.
+    """
+    for directory in (start, *start.parents):
+        if any((directory / marker).exists() for marker in _ROOT_MARKERS):
+            return directory
+    raise EnvironmentError(f"found none of {_ROOT_MARKERS} at or above {start}")
+
+
+_THIS_REPO_ROOT = _repo_root(Path(__file__).parent)
 _ENV_TOML = _THIS_REPO_ROOT / ".env.toml"
 _ENV_TEMPLATE = _THIS_REPO_ROOT / ".env.template.toml"
 
@@ -54,10 +69,18 @@ class VaultConfig:
 
 
 @dataclass
+class TmuxConfig:
+    dir_aliases: dict[str, str] = field(default_factory=dict)
+    """Directories that tmux window titles name with an alias instead of the first few
+    characters of the directory name, keyed by path. Paths may be written with `~`."""
+
+
+@dataclass
 class EnvTomlConfig:
     computer_name: str = ""
     claude: ClaudeConfig = field(default_factory=ClaudeConfig)
     immich: ImmichConfig = field(default_factory=ImmichConfig)
+    tmux: TmuxConfig = field(default_factory=TmuxConfig)
     vault: VaultConfig = field(default_factory=VaultConfig)
 
 
@@ -93,6 +116,8 @@ def load_env() -> EnvTomlConfig | None:
         server_url=immich_data.get("server_url", ""),
         api_key=immich_data.get("api_key", ""),
     )
+
+    config.tmux = TmuxConfig(dir_aliases=data.get("tmux", {}).get("dir-aliases", {}))
 
     vault_data = data.get("vault", {})
     main_vault_data = vault_data.get("main", {})
