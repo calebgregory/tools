@@ -1,0 +1,26 @@
+# Global uv tools.  Install them all with ./install-uv-tools.sh
+#
+# One spec per line, passed verbatim to `uv tool install`.  Blank lines and
+# `#` comments are ignored; a leading `~` in a path is expanded by the script.
+#
+# `-e` points the install at the working tree, so edits to the source take
+# effect without a reinstall.
+
+# ── Local CLIs (~/tools) ──────────────────────────────────────────────
+-e ~/tools/main                   # conflict-files, k8s-*, timer, ttl, slackmd, ...
+-e ~/tools/lemonaid               # lemonaid, lma, tmux/claude statuslines
+# md-chat  - source is gone from ~/tools/md-chat and was never committed;
+#            the installed tool is broken.  Restore from a backup to revive.
+-e ~/tools/pr-respond
+-e ~/tools/confident-confidant    # coco, coco-summarize, transcribe*
+
+# ── Work-repo CLIs ────────────────────────────────────────────────────
+-e ~/work/ds-monorepo/tools/slack           # slack, slack-mcp
+-e ~/work/ds-monorepo-wt/main/libs/gent     # wt, wt-completion
+
+# ── From PyPI ─────────────────────────────────────────────────────────
+# Only what mise can't serve.  mise has no basedpyright in its registry (a
+# `basedpyright` entry in mise.toml warns and installs nothing), and it is a
+# Python package, so uv owns it.  neovim, ruff and ty do have aqua-backed
+# registry entries, so those stay pinned in mise.toml.
+basedpyright
