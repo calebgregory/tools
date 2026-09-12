@@ -253,7 +253,7 @@ end
 -- Hook into the right status update event
 wezterm.on("update-status", update_status)
 
-config.leader = { key = 'b', mods = 'CTRL', timeout_milliseconds = 1000 }
+config.leader = { key = 'z', mods = 'CTRL', timeout_milliseconds = 1000 }
 
 -- Define keyboard shortcuts that use the leader
 config.keys = {

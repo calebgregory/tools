@@ -30,7 +30,8 @@ function notify() {
   osascript -e 'display notification "Done doing that ✅" with title "Done!" sound name "Bonk"'
 }
 
-alias v="mvim ."
+alias vi="nvim"
+alias v="nvim ."
 alias edd='emacs --daemon'  # start emacs server in background
 alias e='emacsclient -t'  # open emacs in terminal
 alias ecc='emacsclient -c' # open GUI-emacs
