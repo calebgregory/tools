@@ -133,8 +133,12 @@ require("gitsigns").setup({
   end,
 })
 
-map("n", "<leader>gs", "<cmd>CodeDiff<CR>",        { desc = "Source control (changed files)" })
-map("n", "<leader>gh", "<cmd>CodeDiffHistory<CR>", { desc = "File history" })
+-- one command with subcommands; `:CodeDiff <Tab>` also completes git revs and
+-- ranges, so `:CodeDiff main...` reviews just this branch's work
+map("n", "<leader>gs", "<cmd>CodeDiff<CR>",         { desc = "Source control (changed files)" })
+map("n", "<leader>gh", "<cmd>CodeDiff history<CR>", { desc = "File history" })
+map("n", "<leader>gm", "<cmd>CodeDiff main...<CR>", { desc = "Review this branch against main" })
+map("n", "<leader>gp", "<cmd>CodeDiff pr<CR>",      { desc = "Review a pull request" })
 
 -- ── File tree ────────────────────────────────────────────────────────
 require("nvim-tree").setup({

@@ -51,23 +51,44 @@ word under cursor, run from the git root.
 ### Source control
 
 `<leader>gs` opens [codediff.nvim](https://github.com/esmuellert/codediff.nvim),
-which is the VS Code Source Control view: a file panel listing changed files
-with status (`M` / `A` / `D` / `??`) and a `Staged Changes` section, a
-side-by-side diff whose **right pane is the editable working tree**, and staging
-from the panel. It uses VS Code's own diff algorithm, compiled to a native
-library — on first run it downloads that library from the plugin's GitHub
-releases.
+the VS Code Source Control view: a file panel listing changed files with status
+(`M` / `A` / `D` / `??`) and a `Staged Changes` section, a side-by-side diff
+whose **right pane is the editable working tree**, and staging from the panel.
+It reuses VS Code's own diff algorithm, compiled to a native library — on first
+run it downloads that library from the plugin's GitHub releases.
 
 | Key | Does |
 |---|---|
-| `<leader>gs` | Source control view |
+| `<leader>gs` | Open the source control view |
 | `<leader>gh` | History for the current file |
-| `-` | Stage / unstage the file under the cursor (in the panel) |
-| `S` / `U` | Stage all / unstage all (in the panel) |
-| `]c` / `[c` | Next / previous change (in a diff) |
+| `<leader>gm` | Review this branch against `main` |
+| `<leader>gp` | Review a pull request |
 
-Inline in a normal buffer, [gitsigns](https://github.com/lewis6991/gitsigns.nvim)
-handles the same at hunk granularity:
+It is one command with subcommands, and `:CodeDiff <Tab>` completes git revs and
+ranges as well — `:CodeDiff HEAD~3`, `:CodeDiff origin/main...`, `:CodeDiff merge`
+for conflicts, `:CodeDiff dir` for a directory.
+
+Inside the view, these are buffer-local:
+
+| Key | Does |
+|---|---|
+| `<CR>` | Open the file under the cursor in the diff |
+| `-` | Stage / unstage that file |
+| `S` / `U` | Stage all / unstage all |
+| `X` | **Discard** that file's changes — no undo |
+| `]f` / `[f` | Next / previous file |
+| `]c` / `[c` | Next / previous change within the diff |
+| `do` / `dp` | Pull a change from / push one to the other pane |
+| `K` | Show the full path |
+| `R` | Refresh |
+| `<leader>b` | Hide or show the panel |
+| `<leader>e` | Jump back to the panel (shadows "show diagnostic" here) |
+
+### Git in a normal buffer
+
+[gitsigns](https://github.com/lewis6991/gitsigns.nvim) covers the same
+operations at hunk granularity while you are editing, without opening the review
+view. These attach only in a tracked file.
 
 | Key | Does |
 |---|---|
@@ -76,13 +97,15 @@ handles the same at hunk granularity:
 | `<leader>hr` | Reset hunk |
 | `<leader>hp` | Preview hunk |
 | `<leader>hb` | Blame line |
+| `<leader>hd` | Diff this file |
 
 ### File tree
 
 [nvim-tree](https://github.com/nvim-tree/nvim-tree.lua), the direct NERDTree
 successor. It shows git status per file and follows the buffer you are editing.
-`.venv`, `.git` and `__pycache__` are filtered out — in this monorepo an
-unfiltered tree is unusable.
+`.venv`, `.git` and `__pycache__` are filtered out — unfiltered, a tree rooted at
+ds-monorepo lists the 83,499 files under the venvs instead of the 9,584 that are
+checked in.
 
 | Key | Does |
 |---|---|
@@ -100,6 +123,22 @@ Carried over from `.vimrc.after` and the VS Code vim settings.
 | `Ctrl+u` | normal | Upcase word under cursor |
 | `Ctrl+j` / `Ctrl+k` | normal, visual | Move line or selection down / up |
 | `Ctrl+w` `h/j/k/l` | normal | Focus window left/down/up/right (native) |
+
+### Built in, worth knowing
+
+Neovim 0.12 ships these; nothing here configures them.
+
+| Key | Does |
+|---|---|
+| `]q` / `[q` | Next / previous quickfix entry |
+| `]Q` / `[Q` | Last / first quickfix entry |
+| `]b` / `[b` | Next / previous buffer |
+| `]l` / `[l` | Next / previous location-list entry |
+| `]a` / `[a` | Next / previous file in the arglist |
+| `]D` / `[D` | Last / first diagnostic in the buffer |
+| `]` / `[` | Add an empty line below / above |
+| `]n` / `[n` | Next / previous treesitter node (visual mode) |
+| `Ctrl+w` `d` | Show diagnostics under the cursor |
 
 ## Commands
 
