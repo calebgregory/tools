@@ -152,6 +152,27 @@ Carried over from `.vimrc.after` and the VS Code vim settings.
 | `Ctrl+j` / `Ctrl+k` | normal, visual | Move line or selection down / up |
 | `Ctrl+w` `h/j/k/l` | normal | Focus window left/down/up/right (native) |
 
+### Surrounds
+
+[nvim-surround](https://github.com/kylechui/nvim-surround). The character you
+type picks the pair: `"` `'` `` ` ``, `(` `[` `{` `<`, a tag with `t`, or any
+other single character surrounds with itself. An opening bracket adds inner
+spaces and a closing one does not, so `ysiw(` gives `( word )` and `ysiw)`
+gives `(word)`.
+
+| Key | Mode | Does |
+|---|---|---|
+| `ys<motion><char>` | normal | Surround the motion — `ysiw"` quotes a word |
+| `yss<char>` | normal | Surround the whole line |
+| `ds<char>` | normal | Delete the surrounding pair |
+| `cs<old><new>` | normal | Change one pair into another |
+| `S<char>` | visual | Surround the selection |
+| `yS` / `ySS` / `gS` | normal, visual | Same, with the pair on its own lines |
+| `Ctrl+g` `s` | insert | Surround the cursor position |
+
+`S` in visual mode used to be the built-in linewise change. `c` does that, so
+`Vc` is the replacement for `VS`.
+
 ### Built in, worth knowing
 
 Neovim 0.12 ships these; nothing here configures them.
@@ -228,8 +249,10 @@ compiling parsers). See [mise.toml](../mise.toml).
 [uv-tools.txt](../bootstrap/uv-tools.txt).
 
 Plugins come from `vim.pack`, built into nvim 0.12, pinned in
-[nvim-pack-lock.json](./nvim-pack-lock.json). There are two: `fzf-lua` for
-finding things and `nvim-treesitter` for parsers.
+[nvim-pack-lock.json](./nvim-pack-lock.json). There are six: `fzf-lua` for
+finding things, `nvim-treesitter` for parsers, `codediff.nvim` and
+`gitsigns.nvim` for source control, `nvim-tree.lua` for the file tree, and
+`nvim-surround` for quotes and brackets.
 
 ## Color identifiers
 
