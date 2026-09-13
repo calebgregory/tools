@@ -15,6 +15,34 @@ Three ways, no cheatsheet needed:
 
 Leader is `<Space>`.
 
+## How the config is laid out
+
+[init.lua](./init.lua) does nothing but set the leader key and require the
+modules under [lua/config](./lua/config), each of which runs for its side
+effects and returns nothing. Two steps in that order break the config if you
+move them, and the entry point says why: `config.pack` runs first because
+`vim.pack.add` is what
+puts the plugins on the runtimepath, and the leader is set before
+`config.keymaps` because a `<leader>` mapping resolves the leader when it is
+defined, not when it is pressed.
+
+The modules divide by what they are responsible for:
+
+- [pack](./lua/config/pack.lua) — the plugin list
+- [options](./lua/config/options.lua) — editor options and the colorscheme
+- [keymaps](./lua/config/keymaps.lua) — editing and LSP mappings
+- [find](./lua/config/find.lua) — the fzf-lua pickers, project and repo wide
+- [treesitter](./lua/config/treesitter.lua) — parsers, installed on demand
+- [git](./lua/config/git.lua) — gitsigns and the `:CodeDiff` source-control view
+- [filetree](./lua/config/filetree.lua) — nvim-tree
+- [lsp](./lua/config/lsp.lua) — basedpyright and ruff, one server per project root
+- [mypy](./lua/config/mypy.lua) — type diagnostics, run on save
+- [format](./lua/config/format.lua) — what happens when you write a file
+
+[lua/color_identifiers.lua](./lua/color_identifiers.lua) sits outside that
+directory on purpose. It is a plugin we happen to keep in this repo, with a
+`setup()` you call, rather than configuration that runs on load.
+
 ## Keybindings
 
 ### Code navigation
