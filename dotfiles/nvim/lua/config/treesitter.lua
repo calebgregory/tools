@@ -42,7 +42,10 @@ local function install_then_start(buf, lang)
   end))
 end
 
+-- an augroup so that re-sourcing the config replaces this autocmd rather than
+-- adding a second copy of it
 vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("treesitter", { clear = true }),
   callback = function(args)
     local lang = vim.treesitter.language.get_lang(args.match)
     if not lang then return end

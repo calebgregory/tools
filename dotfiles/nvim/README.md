@@ -177,6 +177,7 @@ Neovim 0.12 ships these; nothing here configures them.
 | `:lua vim.pack.update()` | Update plugins |
 | `:ColorIdentifiersToggle` | Turn per-name identifier colors on or off |
 | `:Mypy` | Re-run mypy on this buffer, without waiting for a save |
+| `:MypyToggle` | Turn mypy diagnostics on or off |
 
 ## On save
 
@@ -205,6 +206,10 @@ project's own `.venv/bin/mypy` rather than one on `PATH` — each root installs
 its own, and the versions differ between them, so a single global binary would
 report against the wrong config and the wrong dependencies. A project whose
 venv has no mypy gets one warning and no mypy diagnostics.
+
+It runs when you open a Python file and again every time you save one, so a
+file tells you what mypy makes of it without your having to write it first.
+`:MypyToggle` turns it off when it is in the way.
 
 Two things to know about it. mypy's incremental cache is what makes this
 usable: the first run in a project takes a few seconds, and later ones are

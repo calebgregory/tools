@@ -53,8 +53,14 @@ local mypy_missing = {}
 -- the most recent run per buffer, so that a save landing while mypy is still
 -- thinking about the previous one does not get overwritten by the older answer
 local mypy_run = {}
+-- the process still in flight per buffer, so a superseded one can be stopped
+local mypy_job = {}
+
+local enabled = true
 
 local function run_mypy(buf)
+  if not enabled then return end
+
   local path = vim.fs.normalize(vim.api.nvim_buf_get_name(buf))
   local root = vim.fs.root(buf, "pyproject.toml")
   if not root then return end
@@ -71,13 +77,21 @@ local function run_mypy(buf)
     return
   end
 
+  -- save again while mypy is still working and its answer is already stale.
+  -- Stopping it frees the CPU instead of leaving mypy to finish a reply we
+  -- would only throw away; the token still guards the callback, because a
+  -- killed process calls back too.
+  local in_flight = mypy_job[buf]
+  if in_flight then in_flight:kill("sigterm") end
+
   local token = (mypy_run[buf] or 0) + 1
   mypy_run[buf] = token
 
-  vim.system({ mypy, "--output=json", "--no-error-summary", path },
+  mypy_job[buf] = vim.system({ mypy, "--output=json", "--no-error-summary", path },
     { cwd = root, text = true },
     vim.schedule_wrap(function(res)
       if mypy_run[buf] ~= token or not vim.api.nvim_buf_is_valid(buf) then return end
+      mypy_job[buf] = nil
       -- 0 is clean and 1 is "found errors"; anything above that is mypy itself
       -- failing, and clearing the buffer would read as the file having become
       -- clean when nobody checked it
@@ -89,12 +103,30 @@ local function run_mypy(buf)
     end))
 end
 
--- BufWritePost, not Pre: mypy reads the file off disk, so it has to be there
-vim.api.nvim_create_autocmd("BufWritePost", {
-  pattern = "*.py",
+-- An augroup so that re-sourcing the config replaces these autocmds rather
+-- than adding a second copy of each.
+--
+-- BufWritePost, not Pre: mypy reads the file off disk, so it has to be there.
+-- BufReadPost as well, so that opening a file tells you what mypy makes of it
+-- without your having to save first.
+vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost" }, {
+  group = vim.api.nvim_create_augroup("mypy", { clear = true }),
+  pattern = { "*.py", "*.pyi" },
   callback = function(args) run_mypy(args.buf) end,
 })
 
 vim.api.nvim_create_user_command("Mypy", function()
   run_mypy(vim.api.nvim_get_current_buf())
 end, { desc = "Re-run mypy on this buffer, without waiting for a save" })
+
+vim.api.nvim_create_user_command("MypyToggle", function()
+  enabled = not enabled
+  if enabled then
+    run_mypy(vim.api.nvim_get_current_buf())
+  else
+    -- every buffer, not just this one: the switch is global, and leaving old
+    -- errors sitting in the buffers you are not looking at would be a lie
+    vim.diagnostic.reset(mypy_ns)
+  end
+  vim.notify(("mypy diagnostics %s"):format(enabled and "on" or "off"))
+end, { desc = "Turn mypy diagnostics on or off" })

@@ -53,7 +53,12 @@ local function trim_final_blank_lines(buf)
   end
 end
 
+-- one group for both hooks, created once: a second create_augroup with
+-- clear = true would wipe the hook registered just above it
+local group = vim.api.nvim_create_augroup("format", { clear = true })
+
 vim.api.nvim_create_autocmd("BufWritePre", {
+  group = group,
   pattern = "*.py",
   callback = function(args)
     for _, kind in ipairs(RUFF_ON_SAVE) do
@@ -70,6 +75,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
 -- files.trimTrailingWhitespace, for everything ruff does not own
 vim.api.nvim_create_autocmd("BufWritePre", {
+  group = group,
   callback = function()
     if vim.bo.filetype == "python" then return end
     local pos = vim.api.nvim_win_get_cursor(0)
