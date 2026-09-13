@@ -148,12 +148,42 @@ Neovim 0.12 ships these; nothing here configures them.
 | `:TSInstallAll` | Install the treesitter parsers this config expects |
 | `:lua vim.pack.update()` | Update plugins |
 | `:ColorIdentifiersToggle` | Turn per-name identifier colors on or off |
+| `:Mypy` | Re-run mypy on this buffer, without waiting for a save |
 
 ## On save
 
-Python goes through `ruff format` plus its fix-all code action, which is what
-`editor.formatOnSave` and `source.fixAll` did in VS Code. Every other filetype
-gets trailing whitespace trimmed.
+Python goes through ruff's organize-imports and fix-all code actions and then
+`ruff format`, in that order. The formatter runs last because the two code
+actions rewrite code and the formatter is what tidies up after them. This is
+`editor.formatOnSave` and `source.fixAll` from VS Code, plus import sorting,
+which `ruff format` does not do on its own — sorting is isort's job, and ruff
+exposes it as a code action instead.
+
+Every other filetype gets trailing whitespace trimmed. Every file ends in a
+newline, which is nvim's own default ('fixeol') rather than anything this
+config arranges.
+
+## Type checking
+
+mypy reports the type errors, basedpyright does the navigation. basedpyright
+runs with `typeCheckingMode` set to `off`, so it still answers hover,
+go-to-definition, references and rename but stays quiet about types. mypy is
+what CI enforces, and two checkers disagreeing in the sign column about the
+same line, in different words, costs more than the second opinion is worth.
+
+mypy is not a language server, so it does not arrive through `vim.lsp`. We run
+it on save and push what it says into `vim.diagnostic`. It has to be the
+project's own `.venv/bin/mypy` rather than one on `PATH` — each root installs
+its own, and the versions differ between them, so a single global binary would
+report against the wrong config and the wrong dependencies. A project whose
+venv has no mypy gets one warning and no mypy diagnostics.
+
+Two things to know about it. mypy's incremental cache is what makes this
+usable: the first run in a project takes a few seconds, and later ones are
+about a third of a second. And a buffer's mypy diagnostics are only ever what
+mypy said about *that file* — if your change breaks a file that imports this
+one, you see it when you save that file, not this one. CI is what catches the
+rest.
 
 ## What's installed, and by whom
 
