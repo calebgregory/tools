@@ -14,8 +14,12 @@ o.updatetime = 250
 o.mouse = "a"
 o.termguicolors = true
 
--- 2 spaces by default, 4 in python - matches editor.tabSize plus the
--- "[python]" override in the VS Code settings
+-- 2 spaces, matching editor.tabSize in the VS Code settings.  This is only the
+-- global default: nvim ships ftplugins that set their own width per filetype,
+-- and those run after this file, so the width a buffer actually gets is
+-- whichever ftplugin spoke last.  That is where python's 4 comes from - the
+-- "[python]" override in the VS Code settings needs nothing here.  To keep a
+-- filetype on 2, override it back in after/ftplugin/<ft>.lua, as markdown does.
 o.expandtab = true
 o.shiftwidth, o.tabstop, o.softtabstop = 2, 2, 2
 

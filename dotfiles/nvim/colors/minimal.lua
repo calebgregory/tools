@@ -20,7 +20,7 @@ local c = {
   fg        = "#a89984",  -- editor.foreground: the base code color
   fg_bright = "#ebdbb2",  -- markdown prose, cursor, statusline
   red       = "#fb4934",  -- comments, invalid
-  green     = "#b8bb26",  -- strings
+  green     = "#b8bb26",  -- strings, checked markdown checkboxes
   yellow    = "#fabd2f",  -- definitions, control flow
   pink      = "#d3869b",  -- numbers, constants
   gray      = "#928374",  -- punctuation, escapes
@@ -123,6 +123,11 @@ hl("@markup",             { fg = c.fg_bright })   -- prose reads brighter than c
 hl("@markup.strong",      { bold = true })
 hl("@markup.italic",      { italic = true })
 hl("@markup.list",        { fg = c.orange })
+-- a checked box is the one thing here that reports a state rather than marking
+-- up text, so it gets the green.  Without this it inherits @markup.list and
+-- reads as just another list marker; the unchecked box still does, which is
+-- what we want - the color is carrying "done", not "this is a checkbox".
+hl("@markup.list.checked", { fg = c.green })
 hl("@markup.raw",         { fg = c.tan })
 hl("@markup.raw.block",   { fg = c.tan })
 hl("@markup.heading",     { fg = c.fg_bright, bold = true })
