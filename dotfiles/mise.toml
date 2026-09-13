@@ -6,6 +6,7 @@ node = "24"
 python = ["3.13", "3.12", "3.10"]
 gh = ["2"]
 uv = "0.10"
+tmux = "3"
 usage = "2"
 neovim = "0"
 ruff = "0"

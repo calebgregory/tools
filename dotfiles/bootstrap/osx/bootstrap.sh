@@ -13,7 +13,7 @@ utils=(
   # ack
   # ctags
   # gvim
-  vim
+  # vim
   # rbenv
 
   mise  # use mise as much as possible
@@ -22,7 +22,7 @@ utils=(
   coreutils
   wget
   jq
-  tmux
+  tpack  # tmux package manager
   the_silver_searcher # [](https://github.com/ggreer/the_silver_searcher)
   tree
   rsync
