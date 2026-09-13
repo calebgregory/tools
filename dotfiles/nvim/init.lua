@@ -82,11 +82,11 @@ local fzf = function(fn, opts)
   return function() require("fzf-lua")[fn](opts and opts() or {}) end
 end
 
-map("n", "<C-p>",      fzf("files"),                                  { desc = "Files (project)" })
-map("n", "<leader>ff", fzf("files"),                                  { desc = "Files (project)" })
-map("n", "<leader>fF", fzf("files", function() return { cwd = git_root() } end),     { desc = "Files (repo)" })
-map("n", "<leader>fg", fzf("live_grep"),                              { desc = "Grep (project)" })
-map("n", "<leader>fG", fzf("live_grep", function() return { cwd = git_root() } end), { desc = "Grep (repo)" })
+map("n", "<C-p>",      fzf("files"),                                  { desc = "fzf Files (project)" })
+map("n", "<leader>ff", fzf("files"),                                  { desc = "fzf Files (project)" })
+map("n", "<leader>fF", fzf("files", function() return { cwd = git_root() } end),     { desc = "fzf Files (repo)" })
+map("n", "<leader>fg", fzf("live_grep"),                              { desc = "fzf Grep (project)" })
+map("n", "<leader>fG", fzf("live_grep", function() return { cwd = git_root() } end), { desc = "fzf Grep (repo)" })
 map("n", "<leader>fb", fzf("buffers"),                                { desc = "Buffers" })
 map("n", "<leader>fs", fzf("lsp_document_symbols"),                   { desc = "Symbols (file)" })
 map("n", "<leader>?",  fzf("keymaps"),                                { desc = "Search my keybindings" })
