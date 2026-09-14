@@ -25,6 +25,7 @@ local c = {
   pink      = "#d3869b",  -- numbers, constants
   gray      = "#928374",  -- punctuation, escapes
   orange    = "#d65d0e",  -- markdown list markers
+  orange_hi = "#fe8019",  -- flash jump labels, the one thing louder than the code
   tan       = "#bdae93",  -- markdown inline code
   diff_meta = "#d5c4a1",
   line_nr   = "#7c6f64",
@@ -150,6 +151,16 @@ hl("DiagnosticWarn",  { fg = c.yellow })
 hl("DiagnosticInfo",  { fg = c.blue })
 hl("DiagnosticHint",  { fg = c.aqua })
 hl("DiagnosticUnnecessary", { fg = c.line_nr })
+
+-- ── Flash ─────────────────────────────────────────────────────────────
+-- A jump label has one job: be the brightest thing on screen for the half
+-- second it exists.  Dark text on solid orange, which no other group here
+-- uses, so a label can never be mistaken for code.
+hl("FlashLabel", { fg = c.orange_hi, bg = c.bg, bold = true })
+-- The backdrop dims every character that is not a match, and flash links it to
+-- Comment by default - which in this theme is red, so the whole buffer turns
+-- red while you pick a label.  Gray is what "dimmed" is supposed to look like.
+hl("FlashBackdrop", { fg = c.line_nr })
 
 -- ── Terminal ──────────────────────────────────────────────────────────
 vim.g.terminal_color_0,  vim.g.terminal_color_8  = c.bg,      c.gray

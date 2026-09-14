@@ -35,6 +35,8 @@ The modules divide by what they are responsible for:
 - [treesitter](./lua/config/treesitter.lua) — parsers, installed on demand
 - [git](./lua/config/git.lua) — gitsigns and the `:CodeDiff` source-control view
 - [filetree](./lua/config/filetree.lua) — nvim-tree
+- [surround](./lua/config/surround.lua) — nvim-surround
+- [jump](./lua/config/jump.lua) — flash.nvim, the jump labels
 - [lsp](./lua/config/lsp.lua) — basedpyright and ruff, one server per project root
 - [mypy](./lua/config/mypy.lua) — type diagnostics, run on save
 - [format](./lua/config/format.lua) — what happens when you write a file
@@ -152,6 +154,46 @@ Carried over from `.vimrc.after` and the VS Code vim settings.
 | `Ctrl+j` / `Ctrl+k` | normal, visual | Move line or selection down / up |
 | `Ctrl+w` `h/j/k/l` | normal | Focus window left/down/up/right (native) |
 
+### Jumping
+
+[flash.nvim](https://github.com/folke/flash.nvim) labels the places you can
+jump to and you press a label to go there. It replaces easymotion, which draws
+its labels by writing them into the buffer and undoing the edit afterwards —
+linters and diagnostics see those edits. flash draws labels as extmarks, so
+the buffer text never changes.
+
+| Key | Mode | Does |
+|---|---|---|
+| `s` | normal, visual, operator | Type any characters, then press a label to jump |
+| `S` | normal, operator | Select the treesitter node at a label |
+| `r` | operator | Operate on a textobject elsewhere, cursor comes back — `dr<label>` |
+| `R` | operator, visual | Treesitter search |
+| `/` `?` | normal | Labels on every search match |
+| `Ctrl+s` | search prompt | Turn the search labels off for this one search |
+| `f` `t` `F` `T` | normal, visual, operator | Labels on the other targets, so you skip counting and `;` |
+
+At a `/` prompt you press the label itself rather than Enter first, and flash
+only hands out characters that cannot continue your pattern, so typing more of
+the pattern and picking a label never conflict. Enter jumps to the first match
+the way a normal search does.
+
+`s` and `S` used to be the built-in substitute. `cl` and `cc` are the same two
+commands. `S` stays out of visual mode, where nvim-surround wants it.
+
+After an `f` or `t`, the labels stay up for a moment, so a key that is a label
+would shadow whatever it normally does. The keys held back from the label pool
+are `hjkliardc`, which flash chooses, plus `p` and `P`, so that `fx` then `p`
+still pastes. The pool is case-sensitive: `I`, `A`, `R`, `D` and `C` are still
+labels, and if one of them gets in the way, add it to `label.exclude` in
+[jump](./lua/config/jump.lua).
+
+The labels are dark text on bright orange, set in
+[the theme](./colors/minimal.lua) rather than in the flash config, because
+flash registers its highlight groups with `default = true` and leaves alone any
+group the colorscheme already defines. The backdrop that dims everything else
+is set there too: flash links it to `Comment` by default, and `Comment` in this
+theme is red, so the whole buffer turned red while you picked a label.
+
 ### Surrounds
 
 [nvim-surround](https://github.com/kylechui/nvim-surround). The character you
@@ -249,10 +291,10 @@ compiling parsers). See [mise.toml](../mise.toml).
 [uv-tools.txt](../bootstrap/uv-tools.txt).
 
 Plugins come from `vim.pack`, built into nvim 0.12, pinned in
-[nvim-pack-lock.json](./nvim-pack-lock.json). There are six: `fzf-lua` for
+[nvim-pack-lock.json](./nvim-pack-lock.json). There are seven: `fzf-lua` for
 finding things, `nvim-treesitter` for parsers, `codediff.nvim` and
-`gitsigns.nvim` for source control, `nvim-tree.lua` for the file tree, and
-`nvim-surround` for quotes and brackets.
+`gitsigns.nvim` for source control, `nvim-tree.lua` for the file tree,
+`nvim-surround` for quotes and brackets, and `flash.nvim` for jumping.
 
 ## Color identifiers
 
