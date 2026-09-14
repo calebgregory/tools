@@ -14,6 +14,7 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 require("config.options")
+require("config.appearance")
 require("config.keymaps")
 require("config.find")
 require("config.treesitter")

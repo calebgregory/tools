@@ -31,4 +31,3 @@ o.listchars = { tab = "T>", trail = "·", nbsp = "␣" }
 -- so that a file saved here ends in a newline whatever a future plugin decides.
 o.fixeol = true
 
-vim.cmd.colorscheme("minimal")

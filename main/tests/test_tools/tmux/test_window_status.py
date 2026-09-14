@@ -14,13 +14,17 @@ def _home(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("HOME", _HOME)
 
 
-def _dir(name: str, text: str | None = None) -> str:
+_DARK = window_status._PALETTES["dark"]
+
+
+def _dir(name: str, text: str | None = None, palette: window_status._Palette = _DARK) -> str:
     """A rendered segment: colored by the full `name`, showing `text` when it is shortened."""
-    return f"#[fg={window_status._dir_color(name)}]{name if text is None else text}#[fg=default]"
+    color = window_status._dir_color(name, palette)
+    return f"#[fg={color}]{name if text is None else text}#[fg=default]"
 
 
-def _program(name: str) -> str:
-    return f"#[fg={window_status._process_color(name)}]{name}#[fg=default]"
+def _program(name: str, palette: window_status._Palette = _DARK) -> str:
+    return f"#[fg={window_status._process_color(name, palette)}]{name}#[fg=default]"
 
 
 @pytest.mark.parametrize(
@@ -45,8 +49,8 @@ def test_parent_color_survives_shortening() -> None:
     """`tools` and `too` hash differently, so the color must come from the full name."""
     result = format_path(f"{_HOME}/tools/lemonaid")
 
-    assert result.startswith(f"#[fg={window_status._dir_color('tools')}]too#[fg=default]")
-    assert window_status._dir_color("too") != window_status._dir_color("tools")
+    assert result.startswith(f"#[fg={window_status._dir_color('tools', _DARK)}]too#[fg=default]")
+    assert window_status._dir_color("too", _DARK) != window_status._dir_color("tools", _DARK)
 
 
 @pytest.fixture
@@ -69,13 +73,13 @@ def _aliases(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_alias_replaces_a_directory_name(
     _aliases: None, path: str, expected_texts: list[str]
 ) -> None:
-    assert [seg.text for seg in window_status._display_segments(path)] == expected_texts
+    assert [seg.text for seg in window_status._display_segments(path, _DARK)] == expected_texts
 
 
 def test_aliased_directory_keeps_the_color_of_its_real_name(_aliases: None) -> None:
     result = format_path(f"{_HOME}/work/wt/main")
 
-    assert result.startswith(f"#[fg={window_status._dir_color('wt')}]mt#[fg=default]")
+    assert result.startswith(f"#[fg={window_status._dir_color('wt', _DARK)}]mt#[fg=default]")
 
 
 def test_parent_color_differs_while_child_color_is_shared() -> None:
@@ -87,11 +91,31 @@ def test_parent_color_differs_while_child_color_is_shared() -> None:
     assert in_play.endswith(_dir("lemonaid"))
 
 
-def test_colors_match_the_shared_palette_file() -> None:
+@pytest.mark.parametrize("appearance", ["dark", "light"])
+def test_colors_match_the_shared_palette_file(appearance: window_status.Appearance) -> None:
     shared = json.loads((pathlib.Path(window_status.__file__).parent / "colors.json").read_text())
+    palette = window_status._PALETTES[appearance]
 
-    assert window_status._PALETTE == [entry["hex"] for entry in shared["palette"]]
-    assert window_status._dir_color("apps") == shared["dir_colors"]["apps"]
+    assert palette.ordered == [entry[appearance] for entry in shared["palette"]]
+    assert window_status._dir_color("apps", palette) == shared["dir_colors"]["apps"][appearance]
+
+
+def test_light_and_dark_give_a_name_different_colors() -> None:
+    assert format_path(f"{_HOME}/tools", "light") != format_path(f"{_HOME}/tools", "dark")
+
+
+@pytest.mark.parametrize(
+    ("argv_value", "expected"),
+    [("light", "light"), ("dark", "dark"), ("", "dark"), (None, "dark"), ("Dark", "dark")],
+)
+def test_appearance_falls_back_to_dark(argv_value: str | None, expected: str) -> None:
+    assert window_status._appearance(argv_value) == expected
+
+
+def test_main_passes_appearance_through(capsys: pytest.CaptureFixture[str]) -> None:
+    window_status.main([f"{_HOME}/a/b", "", "zsh", "", "light"])
+
+    assert capsys.readouterr().out.strip() == "$" + format_path(f"{_HOME}/a/b", "light")
 
 
 @pytest.mark.parametrize("shell", ["zsh", "bash", "fish", "xonsh", "mise", "starship", None, ""])

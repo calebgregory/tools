@@ -139,17 +139,38 @@ end
 
 -- Palette and overrides are shared with the tmux window titles, so the same
 -- directory is the same color in both; see main/src/tools/tmux/window_status.py.
+-- Every entry there carries a dark and a light value, and the two sets are not
+-- translations of each other -- a light bar compresses everything into a narrow
+-- dark band, so the light values are their own set, chosen to stay apart. We
+-- pick a set once here; wezterm re-runs this file when the appearance changes,
+-- which is also what re-evaluates config.color_scheme above.
 local shared_colors_path = shellexpand("~/tools/main/src/tools/tmux/colors.json")
 wezterm.add_to_config_reload_watch_list(shared_colors_path)
 local shared_colors = read_json_file(shared_colors_path)
 
+local variant = get_appearance():find 'Dark' and 'dark' or 'light'
+
 local high_contrast_colors = {}
 for _, entry in ipairs(shared_colors.palette) do
-    table.insert(high_contrast_colors, entry.hex)
+    table.insert(high_contrast_colors, entry[variant])
 end
 
-local dir_name_colors = shared_colors.dir_colors
-local process_colors = shared_colors.process_colors
+local function pick_variant(by_name)
+    local picked = {}
+    for name, pair in pairs(by_name) do
+        picked[name] = pair[variant]
+    end
+    return picked
+end
+
+local dir_name_colors = pick_variant(shared_colors.dir_colors)
+local process_colors = pick_variant(shared_colors.process_colors)
+
+-- The tab bar takes the same three colors as the tmux status bar, out of the
+-- same file, so the two bars are one surface rather than two grays that nearly
+-- match. window_frame covers the fancy tab bar (the default) and colors.tab_bar
+-- the retro one, so this holds whichever use_fancy_tab_bar ends up as.
+local chrome = pick_variant(shared_colors.chrome)
 
 -- Get a deterministic color for a string
 local function get_deterministic_color(str)
@@ -340,6 +361,19 @@ config.status_update_interval = 2500
 config.window_frame = {
     font = wezterm.font('FiraCode'),
     font_size = 12,
+    active_titlebar_bg = chrome.bar_bg,
+    inactive_titlebar_bg = chrome.bar_bg,
+}
+
+config.colors = {
+    tab_bar = {
+        background = chrome.bar_bg,
+        active_tab = { bg_color = chrome.current_bg, fg_color = chrome.bar_fg },
+        inactive_tab = { bg_color = chrome.bar_bg, fg_color = chrome.bar_fg },
+        inactive_tab_hover = { bg_color = chrome.current_bg, fg_color = chrome.bar_fg },
+        new_tab = { bg_color = chrome.bar_bg, fg_color = chrome.bar_fg },
+        new_tab_hover = { bg_color = chrome.current_bg, fg_color = chrome.bar_fg },
+    },
 }
 
 -- why does a bell sound when you hit tab to see file-suggestions?

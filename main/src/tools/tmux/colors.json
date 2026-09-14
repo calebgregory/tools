@@ -1,45 +1,190 @@
 {
-  "about": "Shared by tmux window titles (tools/tmux/window_status.py) and wezterm tab titles (dotfiles/.wezterm.lua). A name with no override takes palette[djb2(name) % len(palette)], so the order of `palette` is load-bearing: reordering or inserting an entry recolors every directory and process that falls through to it. Append to the end instead.",
+  "about": "Shared by tmux window titles (tools/tmux/window_status.py), the tmux status bar (dotfiles/tmux/appearance.sh) and wezterm tab titles (dotfiles/.wezterm.lua). Every color has a dark and a light value, picked by the macOS system appearance; each consumer reads the appearance its own way and looks up the same key here. The two palettes are NOT translations of each other. A light bar compresses everything into a narrow dark band, so the pairs the dark palette separates by lightness (the two reds, the two yellows, bright cyan and light blue) would collapse into each other. The light values are instead their own set, chosen to stay apart from one another and to clear 4.5:1 on the bar; a name is a slot, and the light value in a slot need not look like the dark one. A name with no override takes palette[djb2(name) % len(palette)], so the ORDER of `palette` is load-bearing in both modes: reordering or inserting an entry recolors every directory and process that falls through to it. Append to the end instead, with both halves filled in.",
+  "chrome": {
+    "bar_bg": {
+      "dark": "#303030",
+      "light": "#e8e8e8"
+    },
+    "bar_fg": {
+      "dark": "#87afaf",
+      "light": "#076678"
+    },
+    "current_bg": {
+      "dark": "#444444",
+      "light": "#d6d6d6"
+    }
+  },
   "palette": [
-    { "name": "bright red", "hex": "#FF5555" },
-    { "name": "bright green", "hex": "#50FA7B" },
-    { "name": "bright yellow", "hex": "#F1FA8C" },
-    { "name": "bright purple", "hex": "#A66BE0" },
-    { "name": "bright pink", "hex": "#FF79C6" },
-    { "name": "bright cyan", "hex": "#8BE9FD" },
-    { "name": "bright orange", "hex": "#FFB86C" },
-    { "name": "light blue", "hex": "#9AEDFE" },
-    { "name": "light green", "hex": "#5AF78E" },
-    { "name": "light yellow", "hex": "#F4F99D" },
-    { "name": "light purple", "hex": "#CAA9FA" },
-    { "name": "light red", "hex": "#FF6E67" },
-    { "name": "soft green", "hex": "#ADEDC8" },
-    { "name": "soft orange", "hex": "#FEA44D" },
-    { "name": "coral", "hex": "#F07178" },
-    { "name": "teal", "hex": "#00B1B3" },
-    { "name": "muted yellow", "hex": "#E6DB74" },
-    { "name": "sky blue", "hex": "#7DCFFF" },
-    { "name": "lavender", "hex": "#D8A0DF" },
-    { "name": "aqua", "hex": "#36C2C2" },
-    { "name": "peach", "hex": "#FF9E64" },
-    { "name": "mint", "hex": "#85DACC" },
-    { "name": "gold", "hex": "#E3CF65" }
+    {
+      "name": "bright red",
+      "dark": "#FF5555",
+      "light": "#9C1A00"
+    },
+    {
+      "name": "bright green",
+      "dark": "#50FA7B",
+      "light": "#004D03"
+    },
+    {
+      "name": "bright yellow",
+      "dark": "#F1FA8C",
+      "light": "#374801"
+    },
+    {
+      "name": "bright purple",
+      "dark": "#A66BE0",
+      "light": "#7107BA"
+    },
+    {
+      "name": "bright pink",
+      "dark": "#FF79C6",
+      "light": "#A70462"
+    },
+    {
+      "name": "bright cyan",
+      "dark": "#8BE9FD",
+      "light": "#065D77"
+    },
+    {
+      "name": "bright orange",
+      "dark": "#FFB86C",
+      "light": "#742500"
+    },
+    {
+      "name": "light blue",
+      "dark": "#9AEDFE",
+      "light": "#094E80"
+    },
+    {
+      "name": "light green",
+      "dark": "#5AF78E",
+      "light": "#017835"
+    },
+    {
+      "name": "light yellow",
+      "dark": "#F4F99D",
+      "light": "#5A7100"
+    },
+    {
+      "name": "light purple",
+      "dark": "#CAA9FA",
+      "light": "#6019FC"
+    },
+    {
+      "name": "light red",
+      "dark": "#FF6E67",
+      "light": "#D00D05"
+    },
+    {
+      "name": "soft green",
+      "dark": "#ADEDC8",
+      "light": "#005F3A"
+    },
+    {
+      "name": "soft orange",
+      "dark": "#FEA44D",
+      "light": "#724901"
+    },
+    {
+      "name": "coral",
+      "dark": "#F07178",
+      "light": "#BA183F"
+    },
+    {
+      "name": "teal",
+      "dark": "#00B1B3",
+      "light": "#01333F"
+    },
+    {
+      "name": "muted yellow",
+      "dark": "#E6DB74",
+      "light": "#796805"
+    },
+    {
+      "name": "sky blue",
+      "dark": "#7DCFFF",
+      "light": "#005AAA"
+    },
+    {
+      "name": "lavender",
+      "dark": "#D8A0DF",
+      "light": "#9504A7"
+    },
+    {
+      "name": "aqua",
+      "dark": "#36C2C2",
+      "light": "#107477"
+    },
+    {
+      "name": "peach",
+      "dark": "#FF9E64",
+      "light": "#A35300"
+    },
+    {
+      "name": "mint",
+      "dark": "#85DACC",
+      "light": "#064B42"
+    },
+    {
+      "name": "gold",
+      "dark": "#E3CF65",
+      "light": "#4A3406"
+    }
   ],
   "dir_colors": {
-    "apps": "#00FFFF",
-    "libs": "#F1FA8C",
-    "mops": "#50FA7B"
+    "apps": {
+      "dark": "#00FFFF",
+      "light": "#007560"
+    },
+    "libs": {
+      "dark": "#F1FA8C",
+      "light": "#374801"
+    },
+    "mops": {
+      "dark": "#50FA7B",
+      "light": "#004D03"
+    }
   },
   "process_colors": {
-    "claude": "#50FA7B",
-    "codex": "#26A34A",
-    "opencode": "#7DCFFF",
-    "emacs": "#FFB86C",
-    "emacsclient": "#E0922D",
-    "git": "#BB55FF",
-    "python": "#F1FA8C",
-    "python3": "#F1FA8C",
-    "node": "#50FA7B",
-    "npm": "#50FA7B"
+    "claude": {
+      "dark": "#50FA7B",
+      "light": "#004D03"
+    },
+    "codex": {
+      "dark": "#26A34A",
+      "light": "#147811"
+    },
+    "opencode": {
+      "dark": "#7DCFFF",
+      "light": "#005AAA"
+    },
+    "emacs": {
+      "dark": "#FFB86C",
+      "light": "#742500"
+    },
+    "emacsclient": {
+      "dark": "#E0922D",
+      "light": "#5D500D"
+    },
+    "git": {
+      "dark": "#BB55FF",
+      "light": "#690068"
+    },
+    "python": {
+      "dark": "#F1FA8C",
+      "light": "#374801"
+    },
+    "python3": {
+      "dark": "#F1FA8C",
+      "light": "#374801"
+    },
+    "node": {
+      "dark": "#50FA7B",
+      "light": "#004D03"
+    },
+    "npm": {
+      "dark": "#50FA7B",
+      "light": "#004D03"
+    }
   }
 }

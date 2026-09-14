@@ -1,42 +1,24 @@
 -- Minimal - a port of ~/tools/vscode/minimal-color-theme
 --
--- The palette is Gruvbox Dark (medium), but the palette is not the point.  This
--- theme colors EIGHT things and leaves everything else at the base foreground,
+-- The palette is Gruvbox medium, but the palette is not the point.  This theme
+-- colors EIGHT things and leaves everything else at the base foreground,
 -- following Nikita Prokopov's "Syntax highlighting is a mess".  Installing a
 -- stock gruvbox would restore the palette and lose the restraint, so the bulk
 -- of what follows is deliberately linking captures back to Normal.
 --
 -- The eight: comments, strings, escape sequences, numeric/character constants,
 -- definition names, control-flow keywords, punctuation, and errors.
+--
+-- This file says WHAT gets colored; lua/minimal/palette.lua says what color it
+-- is on each background.  It reads 'background' rather than setting it, so
+-- whoever sets that has to re-run this file afterwards - see
+-- lua/config/appearance.lua, which is what follows the macOS system appearance.
 
 vim.cmd("highlight clear")
 vim.g.colors_name = "minimal"
 vim.o.termguicolors = true
-vim.o.background = "dark"
 
-local c = {
-  bg        = "#282828",
-  bg_dim    = "#1d2021",  -- panel / sidebar / inactive tab
-  fg        = "#a89984",  -- editor.foreground: the base code color
-  fg_bright = "#ebdbb2",  -- markdown prose, cursor, statusline
-  red       = "#fb4934",  -- comments, invalid
-  green     = "#b8bb26",  -- strings, checked markdown checkboxes
-  yellow    = "#fabd2f",  -- definitions, control flow
-  pink      = "#d3869b",  -- numbers, constants
-  gray      = "#928374",  -- punctuation, escapes
-  orange    = "#d65d0e",  -- markdown list markers
-  orange_hi = "#fe8019",  -- flash jump labels, the one thing louder than the code
-  tan       = "#bdae93",  -- markdown inline code
-  diff_meta = "#d5c4a1",
-  line_nr   = "#7c6f64",
-  -- alpha-blended against bg, since terminals have no alpha channel
-  sel       = "#3c3a36",  -- #ebdbb2 @ 10%
-  match_cur = "#91722b",  -- #fabd2f @ 50%
-  match     = "#5d4d29",  -- #fabd2f @ 25%
-  blue      = "#83a598",
-  aqua      = "#8ec07c",
-  teal      = "#689d6a",
-}
+local c = require("minimal.palette")[vim.o.background]
 
 local hl = function(group, opts) vim.api.nvim_set_hl(0, group, opts) end
 
@@ -137,13 +119,40 @@ hl("@markup.link.url",    { fg = c.gray })
 hl("@markup.quote",       { fg = c.gray, italic = true })
 
 -- ── Diff ──────────────────────────────────────────────────────────────
+-- Three different things ask for colors here.  The `diff*` groups color a patch
+-- READ AS TEXT, so they color the text.  Added / Changed / Removed are the mark
+-- that STANDS IN for a change somewhere there is no room to show it - a gutter
+-- sign, a +12/-3 count - so they are a foreground too.  DiffAdd and friends are
+-- what a diff VIEW paints under whole lines, so those are background only - the
+-- syntax highlighting inside a changed line has to survive the wash, and a line
+-- that differs only in whitespace still has to show that it differs.
+--
+-- Keeping a background on these is also what keeps codediff.nvim in the right
+-- half of the palette: it reads DiffAdd / DiffDelete (and DiffChange, for moved
+-- blocks) for its own colors and, finding no background there, falls back to a
+-- hardcoded dark navy/maroon pair that stays dark in light mode.  It derives
+-- its character-level colors from these by scaling the channels, using a factor
+-- it picks from 'background', so both strengths follow from these three lines.
 for _, group in ipairs({ "diffFile", "diffNewFile", "diffOldFile", "diffIndexLine", "diffLine" }) do
   hl(group, { fg = c.diff_meta })
 end
-hl("DiffAdd",    { fg = c.aqua })
-hl("DiffDelete", { fg = c.red })
-hl("DiffChange", { fg = c.teal })
-hl("DiffText",   { fg = c.yellow, bold = true })
+-- Nvim ships its own Added / Changed / Removed, and every consumer reaches them
+-- before it reaches anything here: gitsigns resolves each gutter sign through
+-- them, and codediff colors the explorer's insertion and deletion counts with
+-- them.  Left alone they are nvim's stock pastels, which is the one place this
+-- theme leaks a color it never chose.
+hl("Added",   { fg = c.green })
+hl("Changed", { fg = c.blue })
+hl("Removed", { fg = c.red })
+
+hl("DiffAdd",    { bg = c.diff_add })
+hl("DiffDelete", { bg = c.diff_delete })
+hl("DiffChange", { bg = c.diff_change })
+hl("DiffText",   { bg = c.diff_text })
+-- The slashes codediff draws over the filler rows that pad one pane out to the
+-- other's length.  Its own default is a hardcoded #444444, which is barely
+-- there against a dark background and near-black against a light one.
+hl("CodeDiffFiller", { fg = c.line_nr })
 
 -- ── Diagnostics ───────────────────────────────────────────────────────
 hl("DiagnosticError", { fg = c.red })
@@ -153,9 +162,11 @@ hl("DiagnosticHint",  { fg = c.aqua })
 hl("DiagnosticUnnecessary", { fg = c.line_nr })
 
 -- ── Flash ─────────────────────────────────────────────────────────────
--- A jump label has one job: be the brightest thing on screen for the half
--- second it exists.  Dark text on solid orange, which no other group here
--- uses, so a label can never be mistaken for code.
+-- A jump label has one job: be the loudest thing on screen for the half second
+-- it exists.  Bold, in the one color nothing else in this file uses, so a label
+-- can never be mistaken for code.  On a light background loud means darker and
+-- more saturated, not brighter, which is why the light `orange_hi` is the
+-- deeper of the two oranges rather than the lighter one.
 hl("FlashLabel", { fg = c.orange_hi, bg = c.bg, bold = true })
 -- The backdrop dims every character that is not a match, and flash links it to
 -- Comment by default - which in this theme is red, so the whole buffer turns

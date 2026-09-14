@@ -29,7 +29,8 @@ defined, not when it is pressed.
 The modules divide by what they are responsible for:
 
 - [pack](./lua/config/pack.lua) — the plugin list
-- [options](./lua/config/options.lua) — editor options and the colorscheme
+- [options](./lua/config/options.lua) — editor options
+- [appearance](./lua/config/appearance.lua) — the colorscheme, and following macOS light/dark
 - [keymaps](./lua/config/keymaps.lua) — editing and LSP mappings
 - [find](./lua/config/find.lua) — the fzf-lua pickers, project and repo wide
 - [treesitter](./lua/config/treesitter.lua) — parsers, installed on demand
@@ -187,8 +188,9 @@ still pastes. The pool is case-sensitive: `I`, `A`, `R`, `D` and `C` are still
 labels, and if one of them gets in the way, add it to `label.exclude` in
 [jump](./lua/config/jump.lua).
 
-The labels are dark text on bright orange, set in
-[the theme](./colors/minimal.lua) rather than in the flash config, because
+The labels are bold text in `orange_hi`, the one color nothing else in the
+theme uses. It is set in [the theme](./colors/minimal.lua) rather than in the
+flash config, because
 flash registers its highlight groups with `default = true` and leaves alone any
 group the colorscheme already defines. The backdrop that dims everything else
 is set there too: flash links it to `Comment` by default, and `Comment` in this
@@ -321,7 +323,7 @@ which is the part worth seeing.
 
 [colors/minimal.lua](./colors/minimal.lua) ports
 [the VS Code Minimal theme](../../vscode/minimal-color-theme). The palette is
-Gruvbox Dark, but the palette is not the point — it colors a short list
+Gruvbox medium, but the palette is not the point — it colors a short list
 (comments, strings, escape sequences, numeric and character constants,
 definition names, control-flow keywords, punctuation, errors) and leaves
 everything else at the base foreground.
@@ -334,3 +336,48 @@ as `@type`, so [after/queries/python/highlights.scm](./after/queries/python/high
 re-captures the definition site as `@type.definition` to tell them apart. Installing a stock gruvbox would restore
 the colors and lose the restraint, so most of that file links captures back to
 `Normal` on purpose.
+
+### Light and dark
+
+nvim follows the macOS system appearance. [appearance](./lua/config/appearance.lua)
+reads it at startup, whenever the window gets the focus back, and every 15
+seconds, then sets `'background'` from the answer; the colorscheme reads
+`'background'` and picks one of the two palettes in
+[lua/minimal/palette.lua](./lua/minimal/palette.lua).
+
+The clock is there because focus is not enough. macOS has no way to tell a
+terminal program that the appearance changed, and toggling it from the menu bar
+with nvim already in front never focuses or unfocuses anything — so a
+focus-driven check leaves the editor in the wrong theme until you tab away and
+come back. The tmux status bar has the same problem and solves it the same way,
+on the same interval, by running its script from the status redraw.
+
+That palette file is one table of *roles*, each row carrying its dark and light
+value together. The roles are named for the job (`fg_bright`, `line_nr`,
+`orange_hi`) rather than for the color, because several of them change sides
+between the two: light-mode red is `#9d0006`, darker than the code beside it,
+where dark-mode red is brighter than it. Keeping both halves on one row is also
+what stops the palettes from drifting — you cannot add a color to one without
+adding it to the other. The selection and search washes are derived rather than
+listed, by mixing a palette color into that palette's background, since a
+terminal has no alpha channel.
+
+nvim is one of three things reading that setting, and they agree because they
+all ask macOS rather than each other: wezterm picks its scheme from its own
+appearance API ([.wezterm.lua](../.wezterm.lua)), and the tmux status bar and
+window titles come from [tmux/appearance.sh](../tmux/appearance.sh), which also
+parks the answer in the `@appearance` tmux option. The bar colors and the window
+title palette both live in
+[colors.json](../../main/src/tools/tmux/colors.json), shared by tmux and
+wezterm, with a dark and a light value per entry.
+
+Two things outside nvim are worth knowing. tmux has to be told to forward the
+focus event (`set -g focus-events on` in [.tmux.conf](../.tmux.conf)) or nvim
+never learns you came back at all. And nvim's own guess has to be displaced: it asks
+the terminal for its background color at startup (OSC 11) and sets
+`'background'` from the reply. Asking macOS is the better question to ask,
+because it is the same one wezterm answers when it picks its own scheme and the
+same one the tmux status bar reads, so the three cannot disagree — and none of
+it rests on an OSC 11 reply surviving the trip out through tmux. Setting
+`'background'` in the config is what disables nvim's guess; it drops its own
+autocommand at `VimEnter` when it sees the config already set the option.
