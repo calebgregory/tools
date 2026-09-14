@@ -145,6 +145,21 @@ hl("Added",   { fg = c.green })
 hl("Changed", { fg = c.blue })
 hl("Removed", { fg = c.red })
 
+-- The same three colors carry the file tree's git marks, because a mark beside
+-- a filename and a sign in the gutter say the same thing about the same file.
+-- nvim-tree's own defaults are generic syntax groups - Comment for an ignored
+-- file, Constant for a conflict - and Comment here is red, so an ignored file
+-- reads as an error.  Only the two statuses git has and the gutter does not
+-- fall outside the three: a conflict, which wants attention, and an ignored
+-- file, which wants none.
+hl("NvimTreeGitStagedIcon",  { link = "Added" })
+hl("NvimTreeGitNewIcon",     { link = "Added" })
+hl("NvimTreeGitDirtyIcon",   { link = "Changed" })
+hl("NvimTreeGitRenamedIcon", { link = "Changed" })
+hl("NvimTreeGitDeletedIcon", { link = "Removed" })
+hl("NvimTreeGitMergeIcon",   { link = "DiagnosticWarn" })
+hl("NvimTreeGitIgnoredIcon", { link = "NonText" })
+
 hl("DiffAdd",    { bg = c.diff_add })
 hl("DiffDelete", { bg = c.diff_delete })
 hl("DiffChange", { bg = c.diff_change })
