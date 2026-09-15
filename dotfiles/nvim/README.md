@@ -115,6 +115,44 @@ Inside the view, these are buffer-local:
 | `<leader>b` | Hide or show the panel |
 | `<leader>e` | Jump back to the panel (shadows "show diagnostic" here) |
 
+#### Reviewing a PR commit by commit
+
+The GitHub PR extension in VS Code shows a PR as one flattened diff. codediff
+lets you pick the commit, or the range of commits, you actually want to look at.
+Nothing here needs the branch checked out: `pr` fetches into private refs and
+leaves the working tree alone.
+
+```vim
+" the whole PR, base..head, as one diff
+:CodeDiff pr 512
+:CodeDiff pr 512 --base release/3.x
+
+" the PR's commits as a list, each expandable into the files it touched;
+" <CR> on a file diffs that commit against its parent
+:CodeDiff history origin/main..HEAD
+:CodeDiff history origin/main..HEAD --reverse   " oldest first
+
+" one commit against its parent, in the explorer view
+:CodeDiff abc123~1 abc123
+
+" a span of commits, e.g. everything pushed since you last reviewed
+:CodeDiff <last-reviewed-sha> HEAD
+
+" drop the fetched PR refs when you are done
+:CodeDiff pr clean 512
+:CodeDiff pr clean --all
+```
+
+The `history` form wants the PR's commits locally. Either check the branch out,
+or run `:CodeDiff pr 512` first and point history at the ref it fetched:
+
+```vim
+:CodeDiff history origin/main..refs/codediff/pull-requests/origin/512/head
+```
+
+Explorer keys above apply; in the history panel `<CR>` also expands a commit,
+`i` switches the file list between flat and tree, and `R` re-fetches.
+
 ### Git in a normal buffer
 
 [gitsigns](https://github.com/lewis6991/gitsigns.nvim) covers the same
