@@ -17,3 +17,12 @@ recurring connector bug, not user error.
 
 Tool name prefix to search for: `mcp__claude_ai_Slack__` (e.g. `slack_read_channel`,
 `slack_send_message`, `slack_search_channels`).
+
+## git workflow: do not stage or commit
+
+Do not stage (`git add`) or commit your own changes. The user reviews changes one commit at a time
+after Claude has made them, and stages hunks as they read them — the staging area is how they track
+what has already been reviewed. Staging or committing on Claude's side destroys that record.
+
+Leave all changes unstaged in the working tree. The user will say when they are done reviewing and
+ready to commit. If there is an exception to this workflow, the user will say so explicitly.
