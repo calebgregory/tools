@@ -26,6 +26,9 @@ map("n", "[d", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "Pre
 map("n", "]d", function() vim.diagnostic.jump({ count = 1 }) end,  { desc = "Next diagnostic" })
 map("n", "<leader>e", vim.diagnostic.open_float,                    { desc = "Show diagnostic" })
 
+-- file nav
+vim.keymap.set('n', '<leader>bb', '<C-^>', { desc = 'Switch to alternate file' })
+
 -- copy the current buffer's path, on the same <C-k> ; chord as the VS Code
 -- copyRelativeFilePath binding
 local function yank_path(modifier)

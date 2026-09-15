@@ -25,7 +25,7 @@ require("flash").setup({
     search = { enabled = true },
     char = {
       jump_labels = true,
-      label = { exclude = "hjkliardcpP" },
+      label = { exclude = "hjkliardcpPxyd" },
     },
   },
 })
