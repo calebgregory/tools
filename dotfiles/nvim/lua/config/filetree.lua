@@ -21,9 +21,9 @@ map("n", "<leader>n", "<cmd>NvimTreeFindFile<CR>",   { desc = "Reveal current fi
 -- are left modified, not written - follow a rename with :wa.
 --
 -- basedpyright's finder only rewrites the last dotted component of a module
--- path, so this covers renaming a module in place.  Moving a file to another
--- directory, renaming a package directory, and renaming __init__.py produce no
--- edits (the server skips the latter two outright).
+-- path, so this covers renaming a module or a package directory in place.
+-- Moving either to a different directory produces no edits, and renaming
+-- __init__.py is skipped by the server (DetachHead/basedpyright#1888, #498).
 local api = require("nvim-tree.api")
 api.events.subscribe(api.events.Event.WillRenameNode, function(data)
   local params = { files = { {
