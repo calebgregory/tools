@@ -3,6 +3,21 @@
 -- lives under after/ so it runs once that has had its say.
 vim.bo.tabstop, vim.bo.softtabstop, vim.bo.shiftwidth = 2, 2, 2
 
+-- config.keymaps binds <F12> to vim.lsp.buf.definition; no server attaches to
+-- markdown, and the thing under the cursor here that has a definition is a
+-- link, so the key follows it instead.
+vim.keymap.set("n", "<F12>", require("markdown_links").follow,
+  { buffer = true, desc = "Follow the link under the cursor" })
+
+-- Link destinations are the only thing worth completing in markdown, so this
+-- 'complete' drops every source config.complete sets and keeps one: "F", the
+-- 'completefunc' below, which answers with paths inside a destination and with
+-- nothing anywhere else.  The word scans that are useful in code are a
+-- distraction in prose, and the "o" has nothing behind it here anyway - no
+-- language server attaches to markdown.
+vim.bo.completefunc = "v:lua.require'markdown_links'.complete"
+vim.bo.complete = "F"
+
 -- A checkbox is a list item, so both bullet and ordered forms count, and only
 -- those: matching a bare "[x]" anywhere would rewrite footnote and link
 -- references in prose.

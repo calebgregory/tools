@@ -33,18 +33,23 @@ The modules divide by what they are responsible for:
 - [appearance](./lua/config/appearance.lua) — the colorscheme, and following macOS light/dark
 - [keymaps](./lua/config/keymaps.lua) — editing and LSP mappings
 - [find](./lua/config/find.lua) — the fzf-lua pickers, project and repo wide
+- [replace](./lua/config/replace.lua) — find and replace over the quickfix list
 - [treesitter](./lua/config/treesitter.lua) — parsers, installed on demand
 - [git](./lua/config/git.lua) — gitsigns and the `:CodeDiff` source-control view
 - [filetree](./lua/config/filetree.lua) — nvim-tree
 - [surround](./lua/config/surround.lua) — nvim-surround
 - [jump](./lua/config/jump.lua) — flash.nvim, the jump labels
 - [lsp](./lua/config/lsp.lua) — basedpyright and ruff, one server per project root
+- [complete](./lua/config/complete.lua) — the as-you-type completion menu
 - [mypy](./lua/config/mypy.lua) — type diagnostics, run on save
 - [format](./lua/config/format.lua) — what happens when you write a file
 
 [lua/color_identifiers.lua](./lua/color_identifiers.lua) sits outside that
 directory on purpose. It is a plugin we happen to keep in this repo, with a
 `setup()` you call, rather than configuration that runs on load.
+[lua/markdown_links.lua](./lua/markdown_links.lua) is outside it for the same
+kind of reason: [after/ftplugin/markdown.lua](./after/ftplugin/markdown.lua)
+requires it when you open a markdown file, not `init.lua` at startup.
 
 ## Keybindings
 
@@ -52,7 +57,7 @@ directory on purpose. It is a plugin we happen to keep in this repo, with a
 
 | Key | Does |
 |---|---|
-| `F12` | Go to definition. Crosses editable deps into `libs/*/src`. |
+| `F12` | Go to definition. Crosses editable deps into `libs/*/src`. In markdown it follows the link under the cursor, see below. |
 | `Shift+F12` | References — **current project only**, see below. |
 | `K` | Hover docs |
 | `<leader>R` | References across the whole repo, via ripgrep |
@@ -67,6 +72,38 @@ instead of twenty minutes — it never loads the other ~99 projects, so it canno
 see references in them. `<leader>R` is the cross-project half: ripgrep for the
 word under cursor, run from the git root.
 
+### Completion
+
+A popup menu fills in as you type: from the language server in python, from the
+words already open in your buffers everywhere else, and from file paths inside a
+markdown link. nvim 0.12 does this itself — `'autocomplete'` — so there is no
+completion plugin and nothing to keep in step with the LSP config
+— [complete](./lua/config/complete.lua).
+
+| Key | Does |
+|---|---|
+| `Tab` | Step into the menu, and down it. A real tab when no menu is open. |
+| `Shift+Tab` | Back up the menu, and out of it |
+| `Enter` | Accept the selected item. A newline when nothing is selected. |
+| `Ctrl+y` | Accept, the built-in spelling |
+| `Ctrl+e` | Dismiss the menu and put back what you typed |
+
+Nothing is selected when the menu opens, which is what keeps `Enter` and `Tab`
+worth pressing while you type — both mean what they always meant until you have
+stepped into the list. Accepting an item applies the edits that come with it, so
+taking `DefaultDict` from the menu also writes `from typing import DefaultDict`
+at the top of the file.
+
+The sources and their order are `'complete'`: the `'omnifunc'` first, which
+`vim.lsp` points at whichever server attached, then the current buffer, the
+other windows and the other loaded buffers. The caps in it — `.^10`, `w^5` —
+limit how many candidates each word scan may contribute, so a long file cannot
+bury what the server said. A filetype can swap the list out, as markdown does
+below.
+
+`:set noac` turns the menu off for the session. If it opens faster than you
+want it to, `'autocompletedelay'` holds it back that many milliseconds.
+
 ### Finding files and text
 
 | Key | Does |
@@ -78,6 +115,49 @@ word under cursor, run from the git root.
 | `<leader>fb` | Buffers |
 | `<leader>fs` | Symbols in this file |
 | `<leader>?` | Search keybindings |
+
+### Find and replace
+
+Finding and replacing are two steps with the quickfix list in between. That list
+is what you read before anything is written, and what you cut down first — a
+rename that should skip two of its forty matches is an fzf multi-select, not a
+cleverer pattern.
+
+1. `<leader>R` or `<leader>fG` to find the matches.
+2. Mark the ones you want inside fzf, then `Alt+q` to send them to the quickfix
+   list.
+3. `<leader>rr`, or `:Replace`, to rewrite them.
+
+| Key | Does |
+|---|---|
+| `Tab` / `Shift+Tab` | (inside fzf) mark this line and move down / up |
+| `Alt+a` | (inside fzf) mark everything, or unmark it |
+| `Alt+q` | (inside fzf) send the marked lines to the quickfix list |
+| `<leader>rr` | Replace across the quickfix list |
+
+A marked line carries a `┃` in the left margin and the count sits above the
+prompt. Marking nothing is not the same as marking everything: `Alt+q` on its
+own sends the one line under the cursor, so replacing a whole search reads
+`Alt+a` `Alt+q`.
+
+`:Replace` asks for a pattern, then a replacement, then for confirmation, and
+says what it changed — [replace](./lua/config/replace.lua). Both prompts are
+`:substitute` syntax: the pattern is a Vim pattern, and an `&` in the
+replacement stands for the matched text. The pattern arrives prefilled from the
+word under the cursor as `\C\<word\>`, case-sensitive because `'ignorecase'`
+is on and renaming `patient` must not rewrite `Patient`, and word-bounded
+because `patient_id` is a different name. Edit it when you want something
+looser.
+
+Only the lines in the quickfix list change, not every line of the files they
+sit in. We write those files with `:noautocmd`, so a rename in forty files does
+not also run ruff and mypy over forty files — the write is the rename and
+nothing else. None of it is git-aware, and undo is per file, so review it with
+`<leader>gs` and step back through git rather than through `u`.
+
+`<leader>rn` is still the better rename when it can answer: it is the language
+server, so it knows a name from a string that looks like one. It only covers
+the project basedpyright is rooted at, which is why this exists beside it.
 
 ### Source control
 
@@ -193,6 +273,39 @@ Carried over from `.vimrc.after` and the VS Code vim settings.
 | `Ctrl+j` / `Ctrl+k` | normal, visual | Move line or selection down / up |
 | `Ctrl+w` `h/j/k/l` | normal | Focus window left/down/up/right (native) |
 
+### Markdown
+
+These attach only in a markdown buffer —
+[after/ftplugin/markdown.lua](./after/ftplugin/markdown.lua).
+
+| Key | Does |
+|---|---|
+| `F12` | Follow the link under the cursor |
+| `Alt+d` | Tick the checkbox on this line, or empty an already ticked one |
+| `Alt+s` | Mark it in progress, or empty an already in-progress one |
+
+`F12` is go-to-definition everywhere else, and the link is what markdown has a
+definition for. The cursor can sit anywhere in `[text](./other.md)`, label
+included. A relative destination resolves against the file that holds the link
+first and the cwd second; a destination with no extension gets `.md` tried too;
+a `#heading` fragment moves the cursor to that heading, in the file you landed
+in or in this one when the fragment is all there is; and a URL opens in the
+browser. A destination that does not exist yet opens as an empty buffer, with a
+warning naming the path we resolved it to.
+
+Inside a link destination the completion menu offers what you could point at:
+the files and directories beside this one, directories marked with a trailing
+`/` so that typing on walks into them. Nothing else completes in a markdown
+buffer. `'complete'` here is that one source and no other, so writing prose
+never raises a menu — the word scans that are useful in code are a distraction
+in a sentence.
+
+We read the link off the treesitter tree rather than the line, so a link written
+inside backticks or a fenced block is text and the key leaves it alone. The one
+thing the line fallback is there for is a label holding a matched pair of
+brackets, `[a [b] c](dest)`, which CommonMark calls a link and
+tree-sitter-markdown does not — [markdown_links](./lua/markdown_links.lua).
+
 ### Jumping
 
 [flash.nvim](https://github.com/folke/flash.nvim) labels the places you can
@@ -275,6 +388,7 @@ Neovim 0.12 ships these; nothing here configures them.
 
 | Command | Does |
 |---|---|
+| `:Replace` | Find and replace over the quickfix list |
 | `:LspRoots` | Which servers are running and where each is rooted |
 | `:TSInstallAll` | Install the treesitter parsers this config expects |
 | `:lua vim.pack.update()` | Update plugins |
