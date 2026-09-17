@@ -61,7 +61,7 @@ requires it when you open a markdown file, not `init.lua` at startup.
 | `Shift+F12` | References — **current project only**, see below. |
 | `K` | Hover docs |
 | `<leader>R` | References across the whole repo, via ripgrep |
-| `<leader>rn` | Rename symbol |
+| `<leader>rn` / `F2` | Rename symbol |
 | `<leader>ca` | Code action |
 | `[d` / `]d` | Previous / next diagnostic |
 | `<leader>e` | Show diagnostic under cursor |
@@ -96,9 +96,9 @@ at the top of the file.
 
 The sources and their order are `'complete'`: the `'omnifunc'` first, which
 `vim.lsp` points at whichever server attached, then the current buffer, the
-other windows and the other loaded buffers. The caps in it — `.^10`, `w^5` —
-limit how many candidates each word scan may contribute, so a long file cannot
-bury what the server said. A filetype can swap the list out, as markdown does
+other windows and the other loaded buffers. The caps in it — `.^10`, `w^5`,
+`b^5` — limit how many candidates each word scan may contribute, so a long file
+cannot bury what the server said. A filetype can swap the list out, as markdown does
 below.
 
 `:set noac` turns the menu off for the session. If it opens faster than you
@@ -270,8 +270,18 @@ Carried over from `.vimrc.after` and the VS Code vim settings.
 | `jj` | insert | Escape |
 | `Ctrl+c` | insert | Open a line above |
 | `Ctrl+u` | normal | Upcase word under cursor |
-| `Ctrl+j` / `Ctrl+k` | normal, visual | Move line or selection down / up |
+| `Alt+j` / `Alt+k` | normal, visual | Move line or selection down / up |
+| `<leader>bb` | normal | Switch to the alternate file |
+| `Ctrl+k` `;` | normal | Copy this file's path, relative to the cwd |
+| `Ctrl+k` `'` | normal | Copy this file's absolute path |
 | `Ctrl+w` `h/j/k/l` | normal | Focus window left/down/up/right (native) |
+
+Moving lines sits on Alt rather than the Ctrl that VS Code used, so that
+`Ctrl+k` stays free to open a chord — without that, every line move would wait
+out `'timeoutlen'` first. The two path-copy chords are the same `Ctrl+k` prefix
+VS Code puts `copyRelativeFilePath` on. WezTerm sends the left Option key as
+Meta, which is what makes `Alt+j` arrive at all; the right one composes
+characters.
 
 ### Markdown
 
@@ -334,10 +344,11 @@ commands. `S` stays out of visual mode, where nvim-surround wants it.
 
 After an `f` or `t`, the labels stay up for a moment, so a key that is a label
 would shadow whatever it normally does. The keys held back from the label pool
-are `hjkliardc`, which flash chooses, plus `p` and `P`, so that `fx` then `p`
-still pastes. The pool is case-sensitive: `I`, `A`, `R`, `D` and `C` are still
-labels, and if one of them gets in the way, add it to `label.exclude` in
-[jump](./lua/config/jump.lua).
+are `hjkliardc`, which flash chooses, plus `p`, `P`, `x` and `y`, so that `fx`
+then `p`, `x` or `yy` still does what it always does. The pool is
+case-sensitive, which is why `p` and `P` each need their own entry — `I`, `A`,
+`R`, `D`, `C`, `X` and `Y` are still labels. If one of them gets in the way, add
+it to `label.exclude` in [jump](./lua/config/jump.lua).
 
 The labels are bold text in `orange_hi`, the one color nothing else in the
 theme uses. It is set in [the theme](./colors/minimal.lua) rather than in the
@@ -380,7 +391,7 @@ Neovim 0.12 ships these; nothing here configures them.
 | `]l` / `[l` | Next / previous location-list entry |
 | `]a` / `[a` | Next / previous file in the arglist |
 | `]D` / `[D` | Last / first diagnostic in the buffer |
-| `]` / `[` | Add an empty line below / above |
+| `]<Space>` / `[<Space>` | Add an empty line below / above |
 | `]n` / `[n` | Next / previous treesitter node (visual mode) |
 | `Ctrl+w` `d` | Show diagnostics under the cursor |
 
@@ -389,7 +400,7 @@ Neovim 0.12 ships these; nothing here configures them.
 | Command | Does |
 |---|---|
 | `:Replace` | Find and replace over the quickfix list |
-| `:LspRoots` | Which servers are running and where each is rooted |
+| `:LspRoots` | Which servers are running, where each is rooted, and which ruff it runs |
 | `:TSInstallAll` | Install the treesitter parsers this config expects |
 | `:lua vim.pack.update()` | Update plugins |
 | `:ColorIdentifiersToggle` | Turn per-name identifier colors on or off |
@@ -404,6 +415,10 @@ actions rewrite code and the formatter is what tidies up after them. This is
 `editor.formatOnSave` and `source.fixAll` from VS Code, plus import sorting,
 which `ruff format` does not do on its own — sorting is isort's job, and ruff
 exposes it as a code action instead.
+
+Which rules the fix-all action applies is the project's business and nothing
+this config decides — they come from the project's own ruff settings and from
+the ruff its venv pins, which is chosen as described below.
 
 Every other filetype gets trailing whitespace trimmed. Every file ends in a
 newline, which is nvim's own default ('fixeol') rather than anything this
@@ -440,6 +455,13 @@ rest.
 `mise` handles anything with a prebuilt binary in its registry — `neovim`,
 `ruff`, `ty`, and `tree-sitter` (which nvim-treesitter shells out to when
 compiling parsers). See [mise.toml](../mise.toml).
+
+The mise `ruff` is a fallback, not the one that usually runs. When a server
+starts, [lsp](./lua/config/lsp.lua) walks from that server's root up to the
+repo root and takes the first `.venv/bin/ruff` it finds, so a project gets
+linted by the ruff it pins. The walk goes upward because the ds-monorepo
+installs ruff once, into the repo-root venv, and each project underneath has a
+venv without it. `:LspRoots` prints which ruff each running server chose.
 
 `uv` handles `basedpyright`, which mise has no registry entry for. See
 [uv-tools.txt](../bootstrap/uv-tools.txt).

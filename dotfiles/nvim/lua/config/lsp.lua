@@ -39,8 +39,37 @@ vim.lsp.config("basedpyright", {
   end,
 })
 
+-- The monorepo installs ruff once, in the repo-root venv, while each project
+-- underneath gets a venv without it.  Walk from the server's root up to the
+-- repo root and take the first venv carrying a ruff, so the editor runs the
+-- version the project pins rather than whatever mise has on PATH.  The two
+-- disagree about more than bug fixes: 0.16 put the whole UP set in its default
+-- selection, so a newer global ruff rewrites annotations the repo's own ruff
+-- says nothing about, and CI and the editor stop agreeing.
+local function venv_ruff(root_dir)
+  local repo_root = vim.fs.root(root_dir, ".git")
+  local dir = root_dir
+  while dir do
+    local ruff = dir .. "/.venv/bin/ruff"
+    if vim.uv.fs_stat(ruff) then return ruff end
+    if dir == repo_root then return nil end
+    -- dirname("/") is "/", which is the only way out of the walk when the file
+    -- is not in a git repo at all
+    local parent = vim.fs.dirname(dir)
+    dir = parent ~= dir and parent or nil
+  end
+end
+
+-- root_dir -> the ruff that root's server actually started with, so :LspRoots
+-- can answer "which ruff is this buffer being linted by" without guessing
+local ruff_bins = {}
+
 vim.lsp.config("ruff", {
-  cmd = { "ruff", "server" },
+  cmd = function(dispatchers, config)
+    local ruff = venv_ruff(config.root_dir) or "ruff"
+    ruff_bins[config.root_dir] = ruff
+    return vim.lsp.rpc.start({ ruff, "server" }, dispatchers)
+  end,
   filetypes = { "python" },
   root_markers = { "pyproject.toml" },
   on_attach = function(client)
@@ -53,6 +82,9 @@ vim.lsp.enable({ "basedpyright", "ruff" })
 
 vim.api.nvim_create_user_command("LspRoots", function()
   for _, c in ipairs(vim.lsp.get_clients()) do
-    print(string.format("%-14s %s", c.name, vim.fn.fnamemodify(c.root_dir or "-", ":~")))
+    local root = c.root_dir or "-"
+    local bin = c.name == "ruff" and ruff_bins[root] or nil
+    print(string.format("%-14s %-56s %s",
+      c.name, vim.fn.fnamemodify(root, ":~"), bin and vim.fn.fnamemodify(bin, ":~") or ""))
   end
-end, { desc = "List active servers and their roots" })
+end, { desc = "List active servers, their roots, and which ruff each one runs" })
