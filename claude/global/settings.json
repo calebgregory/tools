@@ -83,7 +83,9 @@
   },
   "spinnerVerbs": {
     "mode": "replace",
-    "verbs": ["\u2026"]
+    "verbs": [
+      "…"
+    ]
   },
   "effortLevel": "high",
   "tui": "fullscreen",
