@@ -4,7 +4,13 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["thds.termtool", "thds.core", "thds.mops"]
+dependencies = [
+    "thds.termtool",
+    "thds.core",
+    "thds.mops",
+    "google-api-python-client",
+    "google-auth-oauthlib",
+]
 
 [build-system]
 requires = ["uv_build>=0.9.26,<0.10.0"]
@@ -16,6 +22,11 @@ module-root = "src"
 
 [dependency-groups]
 dev = ["mypy>=1.19.1", "pytest>=9.0.2"]
+
+# Google ships these without stubs or a py.typed marker.
+[[tool.mypy.overrides]]
+module = ["googleapiclient.*", "google_auth_oauthlib.*"]
+ignore_missing_imports = true
 
 [project.scripts]
 relative-dates = "tools.dates.relative_dates:cli"
@@ -31,3 +42,6 @@ k8s-run-status = "tools.k8s.run_status:main"
 k8s-run-watch = "tools.k8s.run_watch:main"
 k8s-oom-watchdog = "tools.k8s.oom_watchdog:main"
 tmux-window-status = "tools.tmux.window_status:main"
+gmail-sender-report = "tools.gmail.sender_report:cli"
+gmail-trash-sender = "tools.gmail.trash_sender:cli"
+gmail-untrash = "tools.gmail.untrash:cli"

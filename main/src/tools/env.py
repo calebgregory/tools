@@ -24,6 +24,10 @@ _THIS_REPO_ROOT = _repo_root(Path(__file__).parent)
 _ENV_TOML = _THIS_REPO_ROOT / ".env.toml"
 _ENV_TEMPLATE = _THIS_REPO_ROOT / ".env.template.toml"
 
+SECRET_DIR = _THIS_REPO_ROOT / ".secret"
+"""Where a tool caches credentials it obtained for itself (OAuth tokens and the like), as
+opposed to the ones a human types into `.env.toml`. Gitignored, per-machine."""
+
 
 @dataclass
 class ClaudeConfig:
@@ -34,6 +38,15 @@ class ClaudeConfig:
     unset. Required when Claude Code's auto-memory key was derived from an
     ancestor of the project target (e.g. when target=~/work/notes/personal-work
     but the auto-memory dir is keyed off ~/work/notes)."""
+
+
+@dataclass
+class GmailConfig:
+    client_id: str = ""
+    client_secret: str = ""
+    """From an OAuth client of type "Desktop app" in the Google Cloud console. Google
+    calls this a secret, but a desktop client cannot keep one — it is an identifier for
+    the app, and the consent screen plus the cached token are what actually gate access."""
 
 
 @dataclass
@@ -79,6 +92,7 @@ class TmuxConfig:
 class EnvTomlConfig:
     computer_name: str = ""
     claude: ClaudeConfig = field(default_factory=ClaudeConfig)
+    gmail: GmailConfig = field(default_factory=GmailConfig)
     immich: ImmichConfig = field(default_factory=ImmichConfig)
     tmux: TmuxConfig = field(default_factory=TmuxConfig)
     vault: VaultConfig = field(default_factory=VaultConfig)
@@ -109,6 +123,12 @@ def load_env() -> EnvTomlConfig | None:
             for project_name, path_str in claude_data.get("auto-memory-paths", {}).items()
             if (path := _expand_user(path_str))
         },
+    )
+
+    gmail_data = data.get("gmail", {})
+    config.gmail = GmailConfig(
+        client_id=gmail_data.get("client_id", ""),
+        client_secret=gmail_data.get("client_secret", ""),
     )
 
     immich_data = data.get("immich", {})
