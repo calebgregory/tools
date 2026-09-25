@@ -221,6 +221,14 @@ local function format_tab_title(tab, tabs, panes, config, hover, max_width)
         dir = format_directory_path(tab.active_pane.current_working_dir.path)
     end
 
+    -- A title set by hand (LEADER , below) replaces the directory; it goes
+    -- through the same coloring so it keeps a stable color per name. An empty
+    -- title means "back to automatic".
+    local label = dir
+    if tab.tab_title and #tab.tab_title > 0 then
+        label = tab.tab_title
+    end
+
     local tab_format_items = { { Text = tostring(tab.tab_index + 1) .. " | "} }
 
     -- Apply process coloring based on lookup table
@@ -232,8 +240,7 @@ local function format_tab_title(tab, tabs, panes, config, hover, max_width)
 
     table.insert(tab_format_items, { Text = ": " })
 
-    -- Apply directory coloring
-    extend_table(tab_format_items, format_colored_directory(dir))
+    extend_table(tab_format_items, format_colored_directory(label))
 
     return tab_format_items
 end
@@ -327,6 +334,15 @@ config.keys = {
 
     -- Tabs
     { key = 'c', mods = 'LEADER', action = act.SpawnTab 'DefaultDomain' },
+    -- Rename current tab (empty input restores the automatic title)
+    { key = ',', mods = 'LEADER', action = act.PromptInputLine {
+          description = 'Enter new name for current tab (empty to reset)',
+          action = wezterm.action_callback(function(window, pane, line)
+                  if line then
+                      window:active_tab():set_title(line)
+                  end
+          end),
+    }},
     { key = 'k', mods = 'LEADER', action = act.CloseCurrentTab { confirm = false } },
     { key = '[', mods = 'LEADER', action = act.ActivateTabRelative(-1) },
     { key = ']', mods = 'LEADER', action = act.ActivateTabRelative(1) },
