@@ -24,7 +24,7 @@ map("n", "<F2>", vim.lsp.buf.rename,     { desc = "Rename symbol" })
 map("n", "<leader>ca", vim.lsp.buf.code_action,{ desc = "Code action" })
 map("n", "[d", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "Previous diagnostic" })
 map("n", "]d", function() vim.diagnostic.jump({ count = 1 }) end,  { desc = "Next diagnostic" })
-map("n", "<leader>e", vim.diagnostic.open_float,                    { desc = "Show diagnostic" })
+map("n", "<leader>d", vim.diagnostic.open_float,                    { desc = "Show diagnostic" })
 
 -- file nav
 vim.keymap.set('n', '<leader>bb', '<C-^>', { desc = 'Switch to alternate file' })

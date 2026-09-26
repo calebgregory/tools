@@ -39,6 +39,7 @@ The modules divide by what they are responsible for:
 - [filetree](./lua/config/filetree.lua) — nvim-tree
 - [surround](./lua/config/surround.lua) — nvim-surround
 - [jump](./lua/config/jump.lua) — flash.nvim, the jump labels
+- [multicursor](./lua/config/multicursor.lua) — multicursor.nvim, Ctrl+n like VS Code's Cmd+D
 - [lsp](./lua/config/lsp.lua) — basedpyright and ruff, one server per project root
 - [complete](./lua/config/complete.lua) — the as-you-type completion menu
 - [mypy](./lua/config/mypy.lua) — type diagnostics, run on save
@@ -64,7 +65,7 @@ requires it when you open a markdown file, not `init.lua` at startup.
 | `<leader>rn` / `F2` | Rename symbol |
 | `<leader>ca` | Code action |
 | `[d` / `]d` | Previous / next diagnostic |
-| `<leader>e` | Show diagnostic under cursor |
+| `<leader>d` | Show diagnostic under cursor |
 
 `Shift+F12` answers only for the project you are in. basedpyright is rooted at
 the nearest `pyproject.toml`, which is what keeps startup near one second
@@ -193,7 +194,7 @@ Inside the view, these are buffer-local:
 | `K` | Show the full path |
 | `R` | Refresh |
 | `<leader>b` | Hide or show the panel |
-| `<leader>e` | Jump back to the panel (shadows "show diagnostic" here) |
+| `<leader>e` | Jump back to the panel (shadows "toggle the tree" here) |
 
 #### Reviewing a PR commit by commit
 
@@ -258,7 +259,7 @@ checked in.
 
 | Key | Does |
 |---|---|
-| `Ctrl+n` | Toggle the tree |
+| `<leader>e` | Toggle the tree |
 | `<leader>n` | Reveal the current file in the tree |
 
 ### Editing
@@ -315,6 +316,22 @@ inside backticks or a fenced block is text and the key leaves it alone. The one
 thing the line fallback is there for is a label holding a matched pair of
 brackets, `[a [b] c](dest)`, which CommonMark calls a link and
 tree-sitter-markdown does not — [markdown_links](./lua/markdown_links.lua).
+
+### Multiple cursors
+
+[multicursor.nvim](https://github.com/jake-stewart/multicursor.nvim) gives
+`Ctrl+n` the job VS Code's `Cmd+D` had. Once you have the cursors, use vim as
+usual — `c`, `i`, `A`, `dw` and the rest act at every cursor.
+
+| Key | Mode | Does |
+|---|---|---|
+| `Ctrl+n` | normal, visual | Add a cursor at the next match of the word or selection |
+| `<leader>A` | normal, visual | Add a cursor at every match in the buffer |
+| `Ctrl+x` | normal, visual | Skip this match and move on to the next (only with 2+ cursors) |
+| `Esc` | normal | Back to one cursor (only with 2+ cursors) |
+
+`Ctrl+x` and `Esc` are only mapped while there is more than one cursor, so
+`Ctrl+x` is still decrement the rest of the time.
 
 ### Jumping
 
@@ -467,10 +484,11 @@ venv without it. `:LspRoots` prints which ruff each running server chose.
 [uv-tools.txt](../bootstrap/uv-tools.txt).
 
 Plugins come from `vim.pack`, built into nvim 0.12, pinned in
-[nvim-pack-lock.json](./nvim-pack-lock.json). There are seven: `fzf-lua` for
+[nvim-pack-lock.json](./nvim-pack-lock.json). There are eight: `fzf-lua` for
 finding things, `nvim-treesitter` for parsers, `codediff.nvim` and
 `gitsigns.nvim` for source control, `nvim-tree.lua` for the file tree,
-`nvim-surround` for quotes and brackets, and `flash.nvim` for jumping.
+`nvim-surround` for quotes and brackets, `flash.nvim` for jumping, and
+`multicursor.nvim` for multiple cursors.
 
 ## Color identifiers
 

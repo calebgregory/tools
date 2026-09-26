@@ -12,7 +12,7 @@ require("nvim-tree").setup({
   update_focused_file = { enable = true },  -- follow the buffer you are in
 })
 
-map("n", "<C-n>",     "<cmd>NvimTreeToggle<CR>",     { desc = "Toggle file tree" })
+map("n", "<leader>e", "<cmd>NvimTreeToggle<CR>",     { desc = "Toggle file tree" })
 map("n", "<leader>n", "<cmd>NvimTreeFindFile<CR>",   { desc = "Reveal current file in tree" })
 
 -- nvim-tree renames the file itself and tells no one.  Before it does, ask any
