@@ -8,8 +8,6 @@ dependencies = [
     "thds.termtool",
     "thds.core",
     "thds.mops",
-    "google-api-python-client",
-    "google-auth-oauthlib",
 ]
 
 [build-system]
@@ -42,6 +40,3 @@ k8s-run-status = "tools.k8s.run_status:main"
 k8s-run-watch = "tools.k8s.run_watch:main"
 k8s-oom-watchdog = "tools.k8s.oom_watchdog:main"
 tmux-window-status = "tools.tmux.window_status:main"
-gmail-sender-report = "tools.gmail.sender_report:cli"
-gmail-trash-sender = "tools.gmail.trash_sender:cli"
-gmail-untrash = "tools.gmail.untrash:cli"
