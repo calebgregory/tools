@@ -22,29 +22,22 @@ vim.o.complete = "o,.^10,w^5,b^5"
 --
 -- "noselect" is the one that matters for typing.  The docs for 'completeopt'
 -- say 'autocomplete' turns it on for you, and it does not: without it spelled
--- out here the first item comes up selected, so pressing <CR> at the end of a
--- word takes the completion instead of breaking the line.  Written out, the
--- menu opens with nothing selected and <CR> stays a newline until you step
--- into the list.
+-- out here the first item comes up selected, so pressing <Tab> at the end of a
+-- word takes the completion instead of indenting.  Written out, the menu opens
+-- with nothing selected and <Tab> stays a tab until you step into the list.
 vim.o.completeopt = "menu,popup,fuzzy,noselect"
 
 local map = vim.keymap.set
 
--- <Tab> is how you step into the menu.  <C-y> accepts and <C-e> dismisses,
--- both built in; <CR> below is the second spelling of accept.
-local function pum(keys, otherwise)
-  return function()
-    return vim.fn.pumvisible() == 1 and keys or otherwise
-  end
-end
-
-map("i", "<Tab>",   pum("<C-n>", "<Tab>"),   { expr = true, desc = "Next completion, else a tab" })
-map("i", "<S-Tab>", pum("<C-p>", "<S-Tab>"), { expr = true, desc = "Previous completion, else a shift-tab" })
-map("i", "<CR>", function()
+-- <C-n> and <C-p> step through the menu, <C-y> accepts and <C-e> dismisses,
+-- all built in; <Tab> below is the second spelling of accept.  <CR> is left
+-- alone: with an item selected its text is already in the buffer, so a newline
+-- after it is the right thing.
+map("i", "<Tab>", function()
   -- selected is -1 both when the menu is closed and when it is open with
-  -- nothing highlighted, which are the two cases that want a real newline
-  return vim.fn.complete_info({ "selected" }).selected ~= -1 and "<C-y>" or "<CR>"
-end, { expr = true, desc = "Accept the selected completion, else a newline" })
+  -- nothing highlighted, which are the two cases that want a real tab
+  return vim.fn.complete_info({ "selected" }).selected ~= -1 and "<C-y>" or "<Tab>"
+end, { expr = true, desc = "Accept the selected completion, else a tab" })
 
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("complete", { clear = true }),

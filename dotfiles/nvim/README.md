@@ -84,15 +84,17 @@ completion plugin and nothing to keep in step with the LSP config
 
 | Key | Does |
 |---|---|
-| `Tab` | Step into the menu, and down it. A real tab when no menu is open. |
-| `Shift+Tab` | Back up the menu, and out of it |
-| `Enter` | Accept the selected item. A newline when nothing is selected. |
+| `Ctrl+n` | Step into the menu, and down it |
+| `Ctrl+p` | Back up the menu, and out of it |
+| `Tab` | Accept the selected item. A real tab when nothing is selected. |
 | `Ctrl+y` | Accept, the built-in spelling |
 | `Ctrl+e` | Dismiss the menu and put back what you typed |
 
-Nothing is selected when the menu opens, which is what keeps `Enter` and `Tab`
-worth pressing while you type — both mean what they always meant until you have
-stepped into the list. Accepting an item applies the edits that come with it, so
+Nothing is selected when the menu opens, which is what keeps `Tab` worth
+pressing while you type — it means what it always meant until you have stepped
+into the list. `Enter` is not mapped: with an item selected its text is already
+in the buffer, so a newline after it is what you get. Accepting an item applies
+the edits that come with it, so
 taking `DefaultDict` from the menu also writes `from typing import DefaultDict`
 at the top of the file.
 
