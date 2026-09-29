@@ -12,4 +12,6 @@ vim.pack.add({
   { src = "https://github.com/kylechui/nvim-surround", version = vim.version.range("^3.0.0") },
   { src = "https://github.com/folke/flash.nvim" },
   { src = "https://github.com/jake-stewart/multicursor.nvim", version = "1.0" },
+  { src = "https://github.com/MeanderingProgrammer/render-markdown.nvim", version = vim.version.range("^8.0.0") },
+  { src = "https://github.com/sammaji/markdown-preview.nvim", version = vim.version.range("^0.2.0") },
 })

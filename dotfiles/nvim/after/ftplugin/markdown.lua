@@ -9,6 +9,15 @@ vim.bo.tabstop, vim.bo.softtabstop, vim.bo.shiftwidth = 2, 2, 2
 vim.keymap.set("n", "<F12>", require("markdown_links").follow,
   { buffer = true, desc = "Follow the link under the cursor" })
 
+-- Two ways to see the markdown drawn: <leader>m in this buffer, with
+-- render-markdown.nvim (set up in config.render), and <leader>M in the browser,
+-- with markdown-preview.nvim.  The first browser preview downloads that
+-- plugin's server binary if it is missing.
+vim.keymap.set("n", "<leader>m", "<cmd>RenderMarkdown buf_toggle<cr>",
+  { buffer = true, desc = "Markdown: toggle rendering in this buffer" })
+vim.keymap.set("n", "<leader>M", "<cmd>MarkdownPreviewToggle<cr>",
+  { buffer = true, desc = "Markdown: toggle the browser preview" })
+
 -- Link destinations are the only thing worth completing in markdown, so this
 -- 'complete' drops every source config.complete sets and keeps one: "F", the
 -- 'completefunc' below, which answers with paths inside a destination and with

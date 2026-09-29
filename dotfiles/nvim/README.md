@@ -40,6 +40,7 @@ The modules divide by what they are responsible for:
 - [surround](./lua/config/surround.lua) — nvim-surround
 - [jump](./lua/config/jump.lua) — flash.nvim, the jump labels
 - [multicursor](./lua/config/multicursor.lua) — multicursor.nvim, Ctrl+n like VS Code's Cmd+D
+- [render](./lua/config/render.lua) — render-markdown.nvim, markdown drawn in place
 - [lsp](./lua/config/lsp.lua) — basedpyright and ruff, one server per project root
 - [complete](./lua/config/complete.lua) — the as-you-type completion menu
 - [mypy](./lua/config/mypy.lua) — type diagnostics, run on save
@@ -294,6 +295,8 @@ These attach only in a markdown buffer —
 | `F12` | Follow the link under the cursor |
 | `Alt+d` | Tick the checkbox on this line, or empty an already ticked one |
 | `Alt+s` | Mark it in progress, or empty an already in-progress one |
+| `<leader>m` | Turn in-place rendering off or on for this buffer |
+| `<leader>M` | Open the browser preview, or close it |
 
 `F12` is go-to-definition everywhere else, and the link is what markdown has a
 definition for. The cursor can sit anywhere in `[text](./other.md)`, label
@@ -316,6 +319,17 @@ inside backticks or a fenced block is text and the key leaves it alone. The one
 thing the line fallback is there for is a label holding a matched pair of
 brackets, `[a [b] c](dest)`, which CommonMark calls a link and
 tree-sitter-markdown does not — [markdown_links](./lua/markdown_links.lua).
+
+[render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim)
+draws headings, bullets, checkboxes, tables and code blocks in place. It draws
+only in normal mode, and the line under the cursor shows its raw text, so you
+still edit the source. We give `[/]` and `[>]` the in-progress icon, because the
+plugin knows only `[ ]`, `[x]` and `[-]` — [render](./lua/config/render.lua).
+
+[markdown-preview.nvim](https://github.com/sammaji/markdown-preview.nvim) opens
+the buffer in the browser instead, and scrolls and updates as you type. It draws
+what the terminal cannot, such as math, Mermaid diagrams and images. The first
+preview downloads the plugin's server binary.
 
 ### Multiple cursors
 
@@ -484,11 +498,12 @@ venv without it. `:LspRoots` prints which ruff each running server chose.
 [uv-tools.txt](../bootstrap/uv-tools.txt).
 
 Plugins come from `vim.pack`, built into nvim 0.12, pinned in
-[nvim-pack-lock.json](./nvim-pack-lock.json). There are eight: `fzf-lua` for
+[nvim-pack-lock.json](./nvim-pack-lock.json). There are ten: `fzf-lua` for
 finding things, `nvim-treesitter` for parsers, `codediff.nvim` and
 `gitsigns.nvim` for source control, `nvim-tree.lua` for the file tree,
-`nvim-surround` for quotes and brackets, `flash.nvim` for jumping, and
-`multicursor.nvim` for multiple cursors.
+`nvim-surround` for quotes and brackets, `flash.nvim` for jumping,
+`multicursor.nvim` for multiple cursors, `render-markdown.nvim` for drawing
+markdown in place, and `markdown-preview.nvim` for the browser preview.
 
 ## Color identifiers
 
