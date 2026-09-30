@@ -68,6 +68,10 @@
           {
             "type": "command",
             "command": "lemonaid claude session-start"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/tools/claude/global/theme-follow-system.sh"
           }
         ]
       }
@@ -93,6 +97,7 @@
     "enabled": true,
     "mode": "hold"
   },
+  "theme": "custom:system",
   "editorMode": "vim",
   "autoCompactEnabled": false,
   "voiceEnabled": true

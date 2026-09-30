@@ -10,6 +10,7 @@ Machine-wide Claude Code settings. Contents are symlinked into `~/.claude/` by [
 | `CLAUDE.md` | Global instructions applied to all Claude sessions |
 | `rules/` | Coding standards and preferences |
 | `statusline.py` | Custom statusline script (displays session metadata) |
+| `theme-follow-system.sh` | Switches the `custom:system` theme between `dark-ansi` and `light-ansi` to match macOS appearance; started by the `SessionStart` hook |
 
 ## Setup
 
