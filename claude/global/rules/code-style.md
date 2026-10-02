@@ -6,6 +6,28 @@
 
 - Do not write comments that are a restatement of a function call or a log statement.
 
+## Name a value for the reason it was chosen
+
+> Part of _Code as documentation_
+
+A name should carry the rule that produced the value. `selected`, `chosen`, `filtered`, `target` and
+`result` say that a decision happened but not what it was, so the reader has to trace the sort, filter
+or branch above to learn why this value and not another. Name the criterion instead, and the line
+documents itself.
+
+```py
+# good:
+sorted_claims = sorted(claims, key=_claim_recency_key, reverse=True)
+most_recent_claim = sorted_claims[0]
+
+# bad:
+sorted_claims = sorted(claims, key=_claim_recency_key, reverse=True)
+selected = sorted_claims[0]
+```
+
+When the criterion changes, rename the value with it. A name that states the rule goes wrong the moment
+the rule does, which is what makes the drift visible in review.
+
 ## Reduce visual clutter
 
 - Prefer building complex data inline declaratively over imperatively extending.  Example:
