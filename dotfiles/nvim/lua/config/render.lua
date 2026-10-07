@@ -6,7 +6,11 @@
 -- The plugin knows [ ] and [x] and, by default, [-].  after/ftplugin/markdown.lua
 -- writes [/] for in progress and answers to a hand-typed [>] too, so both get
 -- the same icon here; without these they would render as plain text.
-local IN_PROGRESS = { rendered = "󰥔 ", highlight = "RenderMarkdownTodo" }
+local IN_PROGRESS = { rendered = "◪", highlight = "RenderMarkdownInProgress",
+                      scope_highlight = "RenderMarkdownInProgressScope" }
+-- "󰥔 " "◪" "▩" "⧄"
+
+
 
 require("render-markdown").setup({
   checkbox = {

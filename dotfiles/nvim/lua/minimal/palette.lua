@@ -53,6 +53,7 @@ local function palette(variant)
     diff_delete = blend(p.red, p.bg, 0.14),
     diff_change = blend(p.blue, p.bg, 0.14),
     diff_text   = blend(p.blue, p.bg, 0.28),       -- the span that differs, inside a changed line
+    in_progress = blend(p.blue, p.bg, 0.14),       -- behind an in-progress markdown task
   })
 end
 

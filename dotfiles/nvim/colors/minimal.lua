@@ -111,6 +111,12 @@ hl("@markup.list",        { fg = c.orange })
 -- reads as just another list marker; the unchecked box still does, which is
 -- what we want - the color is carrying "done", not "this is a checkbox".
 hl("@markup.list.checked", { fg = c.green })
+-- render-markdown draws an in-progress box ([/] or [>]) as a clock under this
+-- group (lua/config/render.lua).  It is a state too, so it gets its own color.
+hl("RenderMarkdownInProgress", { fg = c.blue })
+-- and the task's text sits on a wash of the same blue.  Background only, so the
+-- markup inside it keeps its own colors.
+hl("RenderMarkdownInProgressScope", { bg = c.in_progress })
 hl("@markup.raw",         { fg = c.tan })
 hl("@markup.raw.block",   { fg = c.tan })
 hl("@markup.heading",     { fg = c.fg_bright, bold = true })
