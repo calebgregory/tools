@@ -70,3 +70,19 @@ alias allow="xattr -d com.apple.quarantine"
 alias wezlogs="ls -t ~/.local/share/wezterm | head -n 1 | xargs tail"
 
 alias vv="uv run"
+
+function unicode ()
+{
+  # thank you, Matt Hawthorn
+  local PY_SEARCH_UNICODE_SCRIPT='import sys, re, unicodedata as ud
+N_UNICODE = 0x10FFFF + 1
+VERBOSE, words = (True, sys.argv[2:]) if sys.argv[1] == "-v" else (False, sys.argv[1:])
+for c in map(ud.lookup,
+             filter(re.compile(r"(\b{p})|({p}\b)".format(p=" ".join(words)), re.I).search,
+                    filter(None, map(lambda c: ud.name(c, None),
+                                     map(chr, range(0, N_UNICODE)))))):
+    print(c, " ", ud.name(c, "")) if VERBOSE else print(c, end=" ")
+print()
+';
+  python -c "$PY_SEARCH_UNICODE_SCRIPT" "$@"
+}
