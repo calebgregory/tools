@@ -5,7 +5,8 @@ characters, or to an alias from `_DIR_ALIASES` for the directories you live in. 
 segment takes its color from a hash of its full name, so sibling directories share a
 prefix color and shortening a name does not recolor it. A window running a program
 reads `program: par/child`, or just `program` for editors and agents whose launch
-directory is not what you need to see.
+directory is not what you need to see. A window you renamed by hand reads just that
+name, colored the way a directory of that name would be.
 
 Colors come from `colors.json` beside this module, which `dotfiles/.wezterm.lua`
 also reads so wezterm tab titles color the same names the same way. Only the djb2
@@ -16,7 +17,8 @@ each time would be felt. `dotfiles/tmux/appearance.sh` does the asking and parks
 the answer in the `@appearance` tmux option.
 
 Argv contract (positional, in this order): pane_path, pane_current_path,
-pane_current_command, pane_title, appearance. `pane_path` comes from OSC 7 and
+pane_current_command, pane_title, appearance, window_name. `window_name` is empty
+unless the window was renamed by hand; `.tmux.conf` decides that. `pane_path` comes from OSC 7 and
 wins when set; `pane_current_path` is the process cwd fallback. Output is a tmux
 format string using `#[fg=...]` directives, so it must be spliced in via `#(...)`.
 """
@@ -200,7 +202,10 @@ def format_window(
     process: str | None = None,
     title: str | None = None,
     appearance: Appearance = "dark",
+    window_name: str | None = None,
 ) -> str:
+    if window_name:
+        return _colored(window_name, _dir_color(window_name, _PALETTES[appearance]))
     program = _resolve_program(process, title, path)
     if program is None:
         return "$" + format_path(path, appearance)
@@ -220,7 +225,7 @@ def main(argv: ty.Sequence[str] = sys.argv[1:]) -> None:
     if len(argv) < 2:
         print(
             "usage: tmux-window-status <pane_path> <pane_current_path>"
-            " [command] [title] [appearance]",
+            " [command] [title] [appearance] [window_name]",
             file=sys.stderr,
         )
         sys.exit(2)
@@ -228,7 +233,8 @@ def main(argv: ty.Sequence[str] = sys.argv[1:]) -> None:
     process = argv[2] if len(argv) > 2 else None
     title = argv[3] if len(argv) > 3 else None
     appearance = _appearance(argv[4] if len(argv) > 4 else None)
-    print(format_window(pane_path or pane_current_path, process, title, appearance))
+    window_name = argv[5] if len(argv) > 5 else None
+    print(format_window(pane_path or pane_current_path, process, title, appearance, window_name))
 
 
 if __name__ == "__main__":

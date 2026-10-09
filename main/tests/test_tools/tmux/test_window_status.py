@@ -183,3 +183,19 @@ def test_main_falls_back_to_cwd_when_osc7_path_is_empty(capsys: pytest.CaptureFi
     window_status.main(["", f"{_HOME}/stale/c", "zsh", ""])
 
     assert capsys.readouterr().out.strip() == "$" + format_path(f"{_HOME}/stale/c")
+
+
+def test_window_name_replaces_program_and_path() -> None:
+    assert format_window(f"{_HOME}/tools/main", "claude", window_name="deploys") == _dir("deploys")
+
+
+def test_main_shows_window_name_when_given(capsys: pytest.CaptureFixture[str]) -> None:
+    window_status.main([f"{_HOME}/a/b", "", "zsh", "", "light", "deploys"])
+
+    assert capsys.readouterr().out.strip() == _dir("deploys", palette=window_status._PALETTES["light"])
+
+
+def test_main_ignores_empty_window_name(capsys: pytest.CaptureFixture[str]) -> None:
+    window_status.main([f"{_HOME}/a/b", "", "zsh", "", "dark", ""])
+
+    assert capsys.readouterr().out.strip() == "$" + format_path(f"{_HOME}/a/b")
