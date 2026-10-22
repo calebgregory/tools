@@ -29,4 +29,5 @@ fd = "10"
 fzf = "0"
 hyperfine = "1"
 ripgrep = "15"
+"github:arl/gitmux" = "latest"  # git status in the tmux status bar; the old ~/tools/bin copy was x86
 yazi = "26"

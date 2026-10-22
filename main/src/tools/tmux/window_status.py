@@ -107,6 +107,11 @@ def _process_color(name: str, palette: _Palette) -> str:
     return palette.processes.get(name, palette.ordered[_djb2(name) % len(palette.ordered)])
 
 
+def name_color(name: str, appearance: Appearance) -> str:
+    """The color a directory of this name would get in a window title."""
+    return _dir_color(name, _PALETTES[appearance])
+
+
 def _colored(text: str, color: str) -> str:
     return f"#[fg={color}]{text}#[fg=default]"
 
