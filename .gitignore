@@ -14,3 +14,4 @@ node_modules
 .DS_Store
 
 claude/global/skills/synced
+claude/global/skills/.trash
