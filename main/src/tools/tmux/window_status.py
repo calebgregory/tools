@@ -107,9 +107,11 @@ def _process_color(name: str, palette: _Palette) -> str:
     return palette.processes.get(name, palette.ordered[_djb2(name) % len(palette.ordered)])
 
 
-def name_color(name: str, appearance: Appearance) -> str:
-    """The color a directory of this name would get in a window title."""
-    return _dir_color(name, _PALETTES[appearance])
+def palette_color(position: int, appearance: Appearance) -> str:
+    """The palette entry at `position`, wrapping around; for callers that deal
+    colors out in order rather than by name."""
+    ordered = _PALETTES[appearance].ordered
+    return ordered[position % len(ordered)]
 
 
 def _colored(text: str, color: str) -> str:

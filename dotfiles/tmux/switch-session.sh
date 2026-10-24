@@ -1,6 +1,6 @@
 #!/bin/sh
 # Switch this client to the session numbered $1 in the status bar's session list.
-# The number is the session's @index option, written by tmux-session-index
+# The number is the session's @index option, written by tmux-session-labels
 # (~/tools/main); looking it up there, rather than counting list-sessions
 # output again, guarantees the key picks the session whose number is on screen.
 set -eu
