@@ -12,7 +12,7 @@
 # md-chat  - source is gone from ~/tools/md-chat and was never committed;
 #            the installed tool is broken.  Restore from a backup to revive.
 -e ~/tools/pr-respond
--e ~/tools/confident-confidant    # coco, coco-summarize, transcribe*
+-e ~/tools/confident-confidant[parakeet]  # coco, coco-summarize, transcribe*; on-device transcription
 
 # ── Work-repo CLIs ────────────────────────────────────────────────────
 -e ~/work/ds-monorepo/tools/slack           # slack, slack-mcp

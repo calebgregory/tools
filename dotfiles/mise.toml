@@ -1,6 +1,12 @@
 [settings]
 trusted_config_paths = ["~/work/ds-monorepo", "~/work/ds-monorepo-wt"]
 
+[env]
+# parakeet-mlx's default 120s chunking drops whole passages at chunk boundaries; transcribe the
+# file in one pass, with local attention to keep memory bounded on long recordings.
+PARAKEET_CHUNK_DURATION = "0"
+PARAKEET_LOCAL_ATTENTION = "true"
+
 [tools]
 node = "24"
 python = ["3.13", "3.12", "3.10"]
@@ -24,6 +30,7 @@ patat = "0"
 pnpm = "10"
 'aqua:duckdb/duckdb' = "1.5"
 'pipx:xonsh[full]' = "0"
+'pipx:parakeet-mlx' = { version = "0", os = ["macos"] }  # local speech-to-text; MLX is Apple Silicon only
 aws-cli = "latest"
 fd = "10"
 fzf = "0"
