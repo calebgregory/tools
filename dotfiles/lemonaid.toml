@@ -23,9 +23,21 @@ default = ["claude", ""]
 shell = [""]
 
 [tui]
+# Color cards by brief status and show what each lemon needs from me.
+brief_status = true
+
+# Context use per lemon, as a percentage of this threshold (100% = time to wrap up).
+[tui.context_threshold]
+claude = "50%"
+codex = "50%"
 
 [tui.keybindings]
 up_down = "kj"
+
+[brief]
+# Obsidian vaults: `.md` paths under these open in Obsidian (briefs, and terminal
+# clicks via `lemonaid terminal vault-links wezterm`; re-run that after changing this).
+vaults = ["~/work/notes"]
 
 # Places: directories and their tmux sessions. lemonaid delegates worktree
 # operations to `wt` (thds.gent). Reference: ~/tools/lemonaid/docs/places.md
