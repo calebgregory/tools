@@ -21,6 +21,9 @@ vim.lsp.config("basedpyright", {
   -- has its own uv venv, and the editable .pth files inside it are how the
   -- server reaches libs/*/src.
   on_init = function(client)
+    -- A file with no pyproject.toml above it starts the server in single-file
+    -- mode with no root, so there is no project venv to look for.
+    if not client.root_dir then return end
     local venv = client.root_dir .. "/.venv/bin/python"
     if not vim.uv.fs_stat(venv) then
       -- Without it the server still attaches and still answers about this
@@ -47,6 +50,7 @@ vim.lsp.config("basedpyright", {
 -- selection, so a newer global ruff rewrites annotations the repo's own ruff
 -- says nothing about, and CI and the editor stop agreeing.
 local function venv_ruff(root_dir)
+  if not root_dir then return nil end
   local repo_root = vim.fs.root(root_dir, ".git")
   local dir = root_dir
   while dir do
@@ -67,7 +71,8 @@ local ruff_bins = {}
 vim.lsp.config("ruff", {
   cmd = function(dispatchers, config)
     local ruff = venv_ruff(config.root_dir) or "ruff"
-    ruff_bins[config.root_dir] = ruff
+    -- "-" is the key :LspRoots looks up for a rootless client
+    ruff_bins[config.root_dir or "-"] = ruff
     return vim.lsp.rpc.start({ ruff, "server" }, dispatchers)
   end,
   filetypes = { "python" },
