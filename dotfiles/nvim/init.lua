@@ -27,7 +27,6 @@ require("config.multicursor")
 require("config.render")
 require("config.lsp")
 require("config.complete")
-require("config.mypy")
 require("config.format")
 
 -- the one plugin that lives in this repo rather than coming from vim.pack

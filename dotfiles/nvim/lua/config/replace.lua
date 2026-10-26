@@ -8,7 +8,7 @@
 -- cleverer pattern.
 --
 -- vim.lsp.buf.rename (<leader>rn) is the better tool when it can answer at all.
--- It cannot here: basedpyright is rooted at the nearest pyproject.toml and has
+-- It cannot here: pyrefly is rooted at the nearest pyproject.toml and has
 -- never loaded the other ~99 projects, so it renames within one of them.  This
 -- is text, and text does not care where a project ends.
 
