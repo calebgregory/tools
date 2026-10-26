@@ -10,6 +10,7 @@ OOMKilled rather than on a projected trend.
 
     k8s-run-status --pid 54451
     k8s-run-status --pid 54451 --namespace caleb-gregory --stragglers 10
+    k8s-run-status --pod orch-some-pod-058b05f   # orchestrator in a pod
 """
 
 import argparse
@@ -103,7 +104,7 @@ def _straggler_lines(pods: ty.Sequence[_probe.Pod], limit: int) -> list[str]:
 
 
 def _render(
-    pid: int,
+    orchestrator: _probe.Orchestrator,
     namespace: str,
     alive: bool,
     elapsed: str,
@@ -113,11 +114,11 @@ def _render(
     memory: _probe.MemoryStats | None,
     stragglers: int,
 ) -> str:
-    orchestrator = f"alive, up {elapsed}" if alive else "GONE"
+    liveness = f"alive, up {elapsed}" if alive else "GONE"
     indent = "\n          "
     return textwrap.dedent(
         f"""
-        orchestrator  pid {pid} - {orchestrator}
+        orchestrator  {orchestrator.describe()} - {liveness}
         namespace     {namespace}
 
         jobs      {_job_line(jobs)}
@@ -134,14 +135,13 @@ def _render(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--pid", type=int, required=True, help="local orchestrator pid")
-    parser.add_argument("--namespace", default="caleb-gregory")
-    parser.add_argument(
-        "--stragglers", type=int, default=5, help="how many longest-running pods to list"
-    )
+    _probe.add_orchestrator_args(parser)
+    parser.add_argument("--stragglers", type=int, default=5, help="how many longest-running pods to list")
     args = parser.parse_args()
 
     try:
+        orchestrator = _probe.orchestrator_from_args(args)
+        alive = orchestrator.alive()
         pods = _probe.get_pods(args.namespace)
         nodes = _probe.get_nodes()
         jobs = _probe.get_jobs(args.namespace)
@@ -151,10 +151,10 @@ def main() -> None:
 
     print(
         _render(
-            pid=args.pid,
+            orchestrator=orchestrator,
             namespace=args.namespace,
-            alive=_probe.process_alive(args.pid),
-            elapsed=_probe.process_elapsed(args.pid),
+            alive=alive,
+            elapsed=orchestrator.elapsed() if alive else "unknown",
             jobs=jobs,
             pods=pods,
             nodes=nodes,

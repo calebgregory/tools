@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Kill switch for an overnight mops pipeline: poll a namespace for OOMKilled pods;
 once the number of distinct OOMKilled containers seen reaches --kill-after (default 1),
-SIGTERM the local orchestrator process and delete all Jobs in the namespace so nothing
-keeps burning spot nodes.
+SIGTERM the orchestrator process (local with --pid, or inside a pod with --pod) and delete
+all Jobs in the namespace so nothing keeps burning spot nodes. An orchestrator pod is a
+bare pod, not a Job, so the delete leaves it standing for a post-mortem.
 
 The count accumulates across polls, so pods that Kubernetes garbage-collects between
 polls still count once observed.
@@ -18,6 +19,8 @@ import signal
 import subprocess
 import sys
 import time
+
+from tools.k8s import _probe
 
 
 def _now() -> str:
@@ -53,14 +56,40 @@ def _find_oomkilled(pods: dict) -> dict[str, str]:
     }
 
 
-def _process_alive(pid: int) -> bool:
-    try:
-        os.kill(pid, 0)
-    except ProcessLookupError:
-        return False
-    except PermissionError:
-        return True
-    return True
+def _kill_pod_process(orchestrator: _probe.PodProcess, grace_seconds: int = 15) -> None:
+    pod, namespace, pid = orchestrator
+    _log(f"DESTRUCTIVE: sending SIGTERM to orchestrator pid {pid} in pod {pod}")
+    subprocess.run(
+        ["kubectl", "exec", pod, "-n", namespace, "--", "sh", "-c", f"kill -TERM {pid}"],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=60,
+    )
+    deadline = time.time() + grace_seconds
+    while time.time() < deadline:
+        try:
+            if not orchestrator.alive():
+                _log(f"pid {pid} in pod {pod} exited after SIGTERM")
+                return
+        except _probe.ProbeError as exc:
+            _log(f"WARN: could not confirm the exit: {exc}")
+        time.sleep(1)
+    _log(f"DESTRUCTIVE: pid {pid} in pod {pod} still alive after {grace_seconds}s; sending SIGKILL")
+    subprocess.run(
+        ["kubectl", "exec", pod, "-n", namespace, "--", "sh", "-c", f"kill -KILL {pid}"],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=60,
+    )
+
+
+def _kill_orchestrator(orchestrator: _probe.Orchestrator) -> None:
+    if isinstance(orchestrator, _probe.PodProcess):
+        _kill_pod_process(orchestrator)
+    else:
+        _kill_local_process(orchestrator.pid)
 
 
 def _kill_local_process(pid: int, grace_seconds: int = 15) -> None:
@@ -102,10 +131,7 @@ def _delete_all_jobs(namespace: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--pid", type=int, required=True, help="local orchestrator pid to SIGTERM on trigger"
-    )
-    parser.add_argument("--namespace", default="caleb-gregory")
+    _probe.add_orchestrator_args(parser)
     parser.add_argument("--interval", type=int, default=60, help="poll interval seconds")
     parser.add_argument(
         "--kill-after",
@@ -114,20 +140,25 @@ def main() -> None:
         help="number of distinct OOMKilled containers that triggers the kill",
     )
     args = parser.parse_args()
+    try:
+        orchestrator = _probe.orchestrator_from_args(args)
+    except _probe.ProbeError as exc:
+        _log(f"cannot find the orchestrator: {exc}")
+        sys.exit(2)
 
     _log(
         f"watching namespace={args.namespace} every {args.interval}s; "
-        f"after {args.kill_after} distinct OOMKilled container(s) will SIGTERM pid {args.pid} "
-        f"then delete all jobs"
+        f"after {args.kill_after} distinct OOMKilled container(s) will SIGTERM "
+        f"{orchestrator.describe()} then delete all jobs"
     )
     consecutive_errors = 0
     polls = 0
     seen_oom: dict[str, str] = {}
     while True:
-        if not _process_alive(args.pid):
-            _log(f"orchestrator pid {args.pid} has exited; nothing left to watch — exiting")
-            sys.exit(0)
         try:
+            if not orchestrator.alive():
+                _log(f"orchestrator {orchestrator.describe()} has exited; nothing left to watch — exiting")
+                sys.exit(0)
             pods = _get_pods(args.namespace)
             consecutive_errors = 0
         except Exception as e:
@@ -146,7 +177,7 @@ def main() -> None:
             for hit in new_oom.values():
                 _log(f"  {hit}")
         if len(seen_oom) >= args.kill_after:
-            _kill_local_process(args.pid)
+            _kill_orchestrator(orchestrator)
             _delete_all_jobs(args.namespace)
             _log("done; exiting")
             sys.exit(1)

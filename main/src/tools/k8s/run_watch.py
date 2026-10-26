@@ -15,6 +15,7 @@ trend line, which is how you tell a genuine climb from the sawtooth of allocate-
 
     k8s-run-watch --pid 54451
     k8s-run-watch --pid 54451 --interval 60 --heartbeat-polls 1   # trend sampling
+    k8s-run-watch --pod orch-some-pod-058b05f           # orchestrator in a pod
 """
 
 import argparse
@@ -75,8 +76,7 @@ def _heartbeat(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--pid", type=int, required=True, help="local orchestrator pid to follow")
-    parser.add_argument("--namespace", default="caleb-gregory")
+    _probe.add_orchestrator_args(parser)
     parser.add_argument("--interval", type=int, default=60, help="poll interval seconds")
     parser.add_argument(
         "--memory-pct",
@@ -97,10 +97,15 @@ def main() -> None:
         help="warn once if nothing is Running for this many consecutive polls",
     )
     args = parser.parse_args()
+    try:
+        orchestrator = _probe.orchestrator_from_args(args)
+    except _probe.ProbeError as exc:
+        _emit(f"cannot find the orchestrator: {exc}")
+        sys.exit(2)
 
     _emit(
-        f"watching namespace={args.namespace} pid={args.pid} every {args.interval}s; "
-        f"reporting only - k8s-oom-watchdog owns the kill switch"
+        f"watching namespace={args.namespace} orchestrator {orchestrator.describe()} every "
+        f"{args.interval}s; reporting only - k8s-oom-watchdog owns the kill switch"
     )
 
     seen_trouble: set[str] = set()
@@ -112,11 +117,10 @@ def main() -> None:
     polls = 0
 
     while True:
-        if not _probe.process_alive(args.pid):
-            _emit(f"ORCHESTRATOR EXITED: pid {args.pid} is gone - stopping watch")
-            sys.exit(0)
-
         try:
+            if not orchestrator.alive():
+                _emit(f"ORCHESTRATOR EXITED: {orchestrator.describe()} is gone - stopping watch")
+                sys.exit(0)
             pods = _probe.get_pods(args.namespace)
             nodes = _probe.get_nodes()
             jobs = _probe.get_jobs(args.namespace)

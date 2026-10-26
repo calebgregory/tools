@@ -9,13 +9,28 @@ OOMKilled, never on a prediction.
 
 ## Inputs
 
-- **orchestrator pid** (required). The user normally supplies it. If not, find it with
-  `ps -ef | grep -i <pipeline-name>` and confirm the match with the user before arming
-  anything, since the pid becomes a kill target.
-- **namespace** (default `caleb-gregory`).
+- **orchestrator** (required), one of:
+  - `--pid <pid>`: a local orchestrator process. The user normally supplies it. If not, find
+    it with `ps -ef | grep -i <pipeline-name>` and confirm the match with the user before
+    arming anything, since the pid becomes a kill target.
+  - `--pod <pod>`: an orchestrator running inside a pod in the namespace (the katamari
+    README's "From an orchestrator pod" flow). The tools find the run's process with
+    `ps` over `kubectl exec`, matching `--pod-pattern` (default: a python process running a
+    `run.py`) and taking the oldest match; `--pod-pid` names it directly. Liveness and the
+    kill go through `kubectl exec` too.
+- **namespace** (default `caleb-gregory`). With `--pod`, also the pod's namespace.
 
-Confirm the pid is alive and note what it is running before starting:
-`ps -p <pid> -o pid,etime,command`.
+Confirm the orchestrator is alive and note what it is running before starting. Locally,
+`ps -p <pid> -o pid,etime,command`; in a pod,
+`kubectl exec <pod> -n <ns> -- ps -eo pid,etime,args`.
+
+A pod started by `libs/mops/k8s-pod/connect.py` runs `thds.core.exit_after` as pid 1 with
+the `--shutdown-hours` budget, so the pod, and the run in it, die when that budget is
+spent. Read the budget from pid 1's command line and compare it with the expected run
+length up front. Its tmux session is `debug`; `kubectl exec -it <pod> -n <ns> -- tmux
+attach -t debug` joins it, and `tmux capture-pane -p -t debug` over `kubectl exec` reads
+the run's own output without attaching. The orchestrator pod is a bare pod, not a Job, so
+the watchdog's job delete leaves it standing.
 
 ## Tools
 
@@ -28,8 +43,9 @@ lives in `src/tools/k8s/`.
 | `k8s-run-watch` | Event stream for the Monitor tool. Reports; never kills. |
 | `k8s-run-status` | One-shot snapshot for triage. |
 
-All three take `--pid` and `--namespace`. If a command is not found, the tool needs
-reinstalling: `cd ~/tools/main && uv tool install -e .`.
+All three take `--pid` or `--pod`, and `--namespace`. Below, `<target>` stands for
+whichever you have: `--pid <pid>` or `--pod <pod>`. If a command is not found, the tool
+needs reinstalling: `cd ~/tools/main && uv tool install -e .`.
 
 ## Setup
 
@@ -38,24 +54,25 @@ Run these three steps at the start, in order.
 **1. Baseline.** Capture the starting state so later changes are interpretable:
 
 ```bash
-k8s-run-status --pid <pid> --namespace <ns>
+k8s-run-status <target> --namespace <ns>
 ```
 
 **2. Arm the kill switch** as a background Bash task (not Monitor - it needs no
 notifications, and it exits on its own):
 
 ```bash
-k8s-oom-watchdog --pid <pid> --namespace <ns> --interval 60
+k8s-oom-watchdog <target> --namespace <ns> --interval 60
 ```
 
 **3. Arm observation** with the Monitor tool, `persistent: true`:
 
 ```bash
-k8s-run-watch --pid <pid> --namespace <ns>
+k8s-run-watch <target> --namespace <ns>
 ```
 
 Both watchers exit by themselves when the orchestrator process disappears, so there is
-nothing to clean up afterward.
+nothing to clean up afterward. With `--pod`, a transient `kubectl exec` failure is reported
+as a probe error and retried, never read as the orchestrator dying.
 
 Tell the user which watcher holds kill authority and which only reports. They need to know
 that a silent watchdog is not the same as a healthy run.
@@ -78,7 +95,8 @@ whether replacements are running.
 **Cleanup is authorized in one case:** the orchestrator has died and left pods still
 Running or Pending. Nothing will ever collect them, so they would spin indefinitely. Then
 delete the Jobs in the namespace. Confirm the orchestrator is genuinely gone first
-(`ps -p <pid>`), and say what you deleted.
+(`ps -p <pid>` locally; `k8s-run-status --pod <pod>` says GONE for a pod), and say what you
+deleted.
 
 ## Reading the signals correctly
 
@@ -139,7 +157,7 @@ the user approving something.
 Determine whether it finished or died, and say which. The evidence is cluster-side:
 
 ```bash
-k8s-run-status --pid <pid> --namespace <ns>
+k8s-run-status <target> --namespace <ns>
 ```
 
 A clean finish shows every job `complete`, nothing Running or Pending, and no pod with a
@@ -149,5 +167,6 @@ the orphan case, where deleting the Jobs is authorized.
 Report, in this order: whether it succeeded, how long it took, what failed and whether it
 self-healed, and anything you flagged that turned out to be a non-issue. Say plainly when a
 concern you raised was unfounded. Then note what you cannot see from the cluster: the
-orchestrator's own exit code and final output went to the user's terminal, and the
-pipeline's output data needs its own check.
+orchestrator's own exit code and final output went to the user's terminal (or, for a pod,
+its tmux pane: `kubectl exec <pod> -n <ns> -- tmux capture-pane -p -t debug -S -200`, as
+long as the pod is still up), and the pipeline's output data needs its own check.
