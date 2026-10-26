@@ -20,3 +20,5 @@ claude/global/skills/brief
 claude/global/skills/watch-briefs
 claude/global/skills/watch-doc
 claude/global/skills/watch-pr
+
+claude/work-org/settings.local.json
