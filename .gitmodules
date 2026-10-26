@@ -7,3 +7,6 @@
 [submodule "dotfiles/.emacs.d"]
 	path = dotfiles/.emacs.d
 	url = git@github.com:calebgregory/config.emacs.d.git
+[submodule "basedpyright"]
+	path = basedpyright
+	url = git@github.com:calebgregory/basedpyright.git
