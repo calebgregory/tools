@@ -92,4 +92,4 @@ See [skills/](./skills/) for full documentation of each skill.
 
 ## Task Format
 
-See [CLAUDE.md](../CLAUDE.md) for task format and environment details.
+See the project’s own `CLAUDE.md` for task format and environment details.

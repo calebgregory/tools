@@ -26,4 +26,9 @@ extend-ignore = [
 ]
 
 [dependency-groups]
-dev = ["mypy>=1.19.1", "pytest>=9.0.2", "ruff>=0.14.14"]
+dev = [
+    "mypy>=1.19.1",
+    "pyrefly>=1.4.0",
+    "pytest>=9.0.2",
+    "ruff>=0.14.14",
+]

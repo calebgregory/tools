@@ -869,14 +869,14 @@ wheels = [
 
 [[package]]
 name = "thds-core"
-version = "1.51.20260513170421"
+version = "1.58.20261026202040"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "setuptools" },
     { name = "typing-extensions" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/42/cf/4f059183a0b0ca0d2a69435a0a22403ebcc9bfb65b69460a4230f1972d81/thds_core-1.51.20260513170421-py3-none-any.whl", hash = "sha256:50554e6204d8ba0ba37817abb381cf046a2dbc95d8d11835cd3b1ef3e8515aa7", size = 119977, upload-time = "2026-05-13T17:04:54.591Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/74/83a81e6150becc13ab65d755f03e14160ce446be31567a01f45811e65187/thds_core-1.58.20261026202040-py3-none-any.whl", hash = "sha256:89ed060b0bac006faa30d23de209622130c8c17f5ce5b5222d5f260122ab16f4", size = 129441, upload-time = "2026-10-26T20:21:08.482Z" },
 ]
 
 [[package]]

@@ -11,7 +11,7 @@
       "Read(~/work/ds-monorepo)",
       "Read(~/work/ds-monorepo-wt/*)",
       "Read(~/work/notes/*)",
-      "Read(~/tools/claude/work-org/memory/*)"
+      "Read(~/tools/lemons/_shared/work-org/memory/*)"
     ]
   },
   "model": "fable",
@@ -79,7 +79,7 @@
           },
           {
             "type": "command",
-            "command": "$HOME/tools/claude/global/theme-follow-system.sh"
+            "command": "$HOME/tools/lemons/claude/global/theme-follow-system.sh"
           }
         ]
       },
@@ -128,7 +128,7 @@
     "command": "lemonaid-claude-statusline"
   },
   "enabledPlugins": {
-    "swift-lsp@claude-plugins-official": true,
+    "swift-lsp@claude-plugins-official": false,
     "datadog@claude-plugins-official": true
   },
   "spinnerVerbs": {
@@ -151,7 +151,7 @@
       "**Repository visibility**: assume private unless the remote host and repo name indicate otherwise, or a visibility check in the transcript shows public",
       "**Internal sharing / snippet hosting**: treat public paste/gist services as outside the trust boundary",
       "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar",
-      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment (hyphen/underscore/dot-delimited \u2014 e.g. matches `prod-db`, not `producer`)",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment (hyphen/underscore/dot-delimited — e.g. matches `prod-db`, not `producer`)",
       "**Protected deployment namespaces / environments**: fall back to the Sensitive remote targets heuristic",
       "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment"
     ]

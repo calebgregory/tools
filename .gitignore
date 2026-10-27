@@ -13,12 +13,4 @@ node_modules
 
 .DS_Store
 
-claude/global/skills/synced
-claude/global/skills/.trash
-# lemonaid skills: per-machine links written by `lemonaid skills install`
-claude/global/skills/brief
-claude/global/skills/watch-briefs
-claude/global/skills/watch-doc
-claude/global/skills/watch-pr
-
-claude/work-org/settings.local.json
+lemons/claude/work-org/settings.local.json

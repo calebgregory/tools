@@ -26,7 +26,7 @@ _ENV_TEMPLATE = _THIS_REPO_ROOT / ".env.template.toml"
 
 
 @dataclass
-class ClaudeConfig:
+class LemonsConfig:
     project_targets: dict[str, Path] = field(default_factory=dict)
     auto_memory_paths: dict[str, Path] = field(default_factory=dict)
     """Per-project override of the path used to derive the auto-memory key
@@ -78,7 +78,7 @@ class TmuxConfig:
 @dataclass
 class EnvTomlConfig:
     computer_name: str = ""
-    claude: ClaudeConfig = field(default_factory=ClaudeConfig)
+    lemons: LemonsConfig = field(default_factory=LemonsConfig)
     immich: ImmichConfig = field(default_factory=ImmichConfig)
     tmux: TmuxConfig = field(default_factory=TmuxConfig)
     vault: VaultConfig = field(default_factory=VaultConfig)
@@ -97,16 +97,16 @@ def load_env() -> EnvTomlConfig | None:
     config = EnvTomlConfig()
     config.computer_name = data.get("computer_name", "")
 
-    claude_data = data.get("claude", {})
-    config.claude = ClaudeConfig(
+    lemons_data = data.get("lemons", data.get("claude", {}))
+    config.lemons = LemonsConfig(
         project_targets={
             project_name: target
-            for project_name, target_str in claude_data.get("project-targets", {}).items()
+            for project_name, target_str in lemons_data.get("project-targets", {}).items()
             if (target := _expand_user(target_str))
         },
         auto_memory_paths={
             project_name: path
-            for project_name, path_str in claude_data.get("auto-memory-paths", {}).items()
+            for project_name, path_str in lemons_data.get("auto-memory-paths", {}).items()
             if (path := _expand_user(path_str))
         },
     )

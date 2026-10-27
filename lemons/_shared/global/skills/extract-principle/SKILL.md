@@ -1,6 +1,6 @@
 ---
 name: extract-principle
-description: Distill a coding principle from corrections made during this conversation and add it to the appropriate rules file under ~/.claude/rules/.
+description: Distill a coding principle from corrections made during this conversation and add it to the appropriate rules file under ~/tools/principles/.
 disable-model-invocation: true
 ---
 
@@ -10,14 +10,14 @@ Analyze the current conversation to identify coding principles implied by the us
 
 ## Steps
 
-1. **Read existing rules** — read all `*.md` files under `~/.claude/rules/` to understand what's already documented and how it's structured
+1. **Read existing rules** — read all `*.md` files under `~/tools/principles/` to understand what's already documented and how it's structured
 2. **Scan the conversation** for moments where the user corrected your output:
    - Direct instructions ("no, do it like X", "always use Y", "that's wrong because...", "why don't we do Z instead?")
    - Re-requests where the user rephrased with different constraints
    - Patterns where the user manually edited code you wrote (visible via file diffs or follow-up context)
 3. **Distill the principle** — generalize from the specific correction to the underlying _why_. The principle should be:
    - **Abstract**: not tied to the specific file/variable/function from the correction
-   - **Actionable**: tells Claude what to do (or not do) in future situations
+   - **Actionable**: tells the agent what to do (or not do) in future situations
    - **Concise**: follows the density and tone of existing rules (see style guide below)
 4. **Check for duplication** — grep existing rules for related concepts. If a related rule exists:
    - Propose **amending** the existing rule rather than adding a new one

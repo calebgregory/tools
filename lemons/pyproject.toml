@@ -1,0 +1,27 @@
+[project]
+name = "lemons"
+version = "0.1.0"
+description = "Shared agent context and harness adapters"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = ["tools"]
+
+[build-system]
+requires = ["uv_build>=0.9.26,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "lemons"
+module-root = "src"
+
+[dependency-groups]
+dev = ["mypy>=1.19.1", "pytest>=9.0.2"]
+
+[tool.uv.sources]
+tools = { path = "../main", editable = true }
+
+# Without this section pyrefly walks up to ~/tools/pyproject.toml, treats ~/tools as the import root,
+# and resolves `lemons` to this directory's claude/ and codex/ config dirs instead of src/lemons.
+[tool.pyrefly]
+python-interpreter-path = ".venv/bin/python"
+search-path = ["src"]
