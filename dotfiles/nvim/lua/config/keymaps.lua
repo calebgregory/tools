@@ -29,6 +29,9 @@ map("n", "<leader>d", vim.diagnostic.open_float,                    { desc = "Sh
 -- file nav
 vim.keymap.set('n', '<leader>bb', '<C-^>', { desc = 'Switch to alternate file' })
 
+-- tab nav
+vim.keymap.set('n', '<leader>to', ':tabonly<CR>', { desc = 'Close other tabs' })
+
 -- copy the current buffer's path, on the same <C-k> ; chord as the VS Code
 -- copyRelativeFilePath binding
 local function yank_path(modifier)
