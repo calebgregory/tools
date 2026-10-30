@@ -367,19 +367,19 @@ config.keys = {
     { key = ' ', mods = 'LEADER', action = act.ActivateCopyMode },
 }
 
--- Add translucency
-config.window_background_opacity = 0.98
+config.window_background_opacity = 1
 config.macos_window_background_blur = 20
 config.window_decorations = "RESIZE"
 config.tab_bar_at_bottom = true
 config.status_update_interval = 2500
--- config.use_fancy_tab_bar = true
+
 config.window_frame = {
     font = wezterm.font('FiraCode'),
     font_size = 12,
     active_titlebar_bg = chrome.bar_bg,
     inactive_titlebar_bg = chrome.bar_bg,
 }
+config.font = wezterm.font_with_fallback({'Atkinson Hyperlegible Mono', 'FiraCode'})
 
 config.colors = {
     tab_bar = {
