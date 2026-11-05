@@ -114,6 +114,10 @@ def palette_color(position: int, appearance: Appearance) -> str:
     return ordered[position % len(ordered)]
 
 
+def chrome_color(element: ty.Literal["bar_bg", "bar_fg", "current_bg"], appearance: Appearance) -> str:
+    return _COLORS["chrome"][element][appearance]
+
+
 def _colored(text: str, color: str) -> str:
     return f"#[fg={color}]{text}#[fg=default]"
 
@@ -222,7 +226,7 @@ def format_window(
     return f"{colored_program}: {format_path(path, appearance)}"
 
 
-def _appearance(value: str | None) -> Appearance:
+def parse_appearance(value: str | None) -> Appearance:
     """Anything but an explicit "light" is dark, because tmux hands us an empty
     `@appearance` until `dotfiles/tmux/appearance.sh` has run once."""
     return "light" if value == "light" else "dark"
@@ -239,7 +243,7 @@ def main(argv: ty.Sequence[str] = sys.argv[1:]) -> None:
     pane_path, pane_current_path = argv[0], argv[1]
     process = argv[2] if len(argv) > 2 else None
     title = argv[3] if len(argv) > 3 else None
-    appearance = _appearance(argv[4] if len(argv) > 4 else None)
+    appearance = parse_appearance(argv[4] if len(argv) > 4 else None)
     window_name = argv[5] if len(argv) > 5 else None
     print(format_window(pane_path or pane_current_path, process, title, appearance, window_name))
 

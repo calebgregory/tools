@@ -109,7 +109,7 @@ def test_light_and_dark_give_a_name_different_colors() -> None:
     [("light", "light"), ("dark", "dark"), ("", "dark"), (None, "dark"), ("Dark", "dark")],
 )
 def test_appearance_falls_back_to_dark(argv_value: str | None, expected: str) -> None:
-    assert window_status._appearance(argv_value) == expected
+    assert window_status.parse_appearance(argv_value) == expected
 
 
 def test_main_passes_appearance_through(capsys: pytest.CaptureFixture[str]) -> None:

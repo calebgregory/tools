@@ -16,6 +16,9 @@ run writes, per session, `@index`, `@session_color_dark`, `@session_color_light`
 `@session_row`, the whole row as a format string for `status-format` to expand with
 `#{E:...}`. Run with no arguments (`sync`) after any session is created, renamed or
 closed.
+
+`choose-tree` has the same limitation (it sorts sessions only by id, name or activity),
+so `menu` opens a `display-menu` session picker in the same order instead.
 """
 
 import argparse
@@ -23,7 +26,7 @@ import subprocess
 import sys
 import typing as ty
 
-from tools.tmux.window_status import palette_color
+from tools.tmux.window_status import chrome_color, palette_color, parse_appearance
 
 
 class Session(ty.NamedTuple):
@@ -86,9 +89,17 @@ def _literal(text: str) -> str:
     return text.replace("#", "##")
 
 
+def _color(label: SessionLabel) -> str:
+    return f"#{{?#{{==:#{{@appearance}},light}},{_literal(label.color_light)},{_literal(label.color_dark)}}}"
+
+
+def _is_current(label: SessionLabel) -> str:
+    return f"#{{==:#{{session_id}},{label.session_id}}}"
+
+
 def _row_entry(label: SessionLabel) -> str:
-    color = f"#{{?#{{==:#{{@appearance}},light}},{_literal(label.color_light)},{_literal(label.color_dark)}}}"
-    is_current = f"#{{==:#{{session_id}},{label.session_id}}}"
+    color = _color(label)
+    is_current = _is_current(label)
     name = _literal(label.name)
     return (
         f"#[range=session|{label.session_id}]"
@@ -96,6 +107,23 @@ def _row_entry(label: SessionLabel) -> str:
         f" {label.index_}: #[fg={color}]{name}#[fg=default] "
         "#[norange default] "
     )
+
+
+def session_menu_items(labels: ty.Sequence[SessionLabel]) -> list[str]:
+    """`display-menu` item arguments (name, key, command per session) in `labels` order.
+
+    tmux expands each name as a format in the client's session, so the colors and the
+    bold current session work as in `session_row`. Only sessions 0-9 get a shortcut key,
+    so that the key is always the number the session row shows."""
+    return [
+        arg
+        for label in labels
+        for arg in (
+            f"#{{?{_is_current(label)},#[bold],}}{label.index_}: #[fg={_color(label)}]{_literal(label.name)}",
+            str(label.index_) if label.index_ < 10 else "",
+            f"switch-client -t '{label.session_id}'",
+        )
+    ]
 
 
 def _tmux(*args: str) -> str:
@@ -134,9 +162,21 @@ def main(argv: ty.Sequence[str] = sys.argv[1:]) -> None:
     move = commands.add_parser("move", help="put a session at a position, shifting the others")
     move.add_argument("session_id", help="$-prefixed id, as #{session_id} gives it")
     move.add_argument("position", type=int)
+    menu = commands.add_parser("menu", help="pick a session from a menu in the session row's order")
+    menu.add_argument("client", help="the client to show the menu on, as #{client_name} gives it")
+    menu.add_argument("appearance", nargs="?", help="light or dark, as #{@appearance} gives it")
     args = parser.parse_args(argv)
 
     sessions = session_order(_sessions_in_creation_order())
+    if args.command == "menu":
+        # A menu ignores attributes like reverse in its selected style and takes only the
+        # colors, so a per-session highlight is not possible; use the current window's gray.
+        selected_bg = chrome_color("current_bg", parse_appearance(args.appearance))
+        _tmux(
+            *("display-menu", "-c", args.client, "-T", "sessions", "-x", "C", "-y", "C", "-H", f"bg={selected_bg}"),
+            *session_menu_items(session_labels(sessions)),
+        )
+        return
     if args.command == "move":
         sessions = moved(sessions, args.session_id, args.position)
     _store(session_labels(sessions))
