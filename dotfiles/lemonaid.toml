@@ -17,10 +17,22 @@ scratch_height = "10"
 # `lemonaid tmux new` / `lemonaid place open` build sessions from this window list.
 # Window 0 is the one `T` in history replaces with the resume command (resume_window).
 resume_window = 0
+# Directories a Codex lemon may write outside its workspace. Reviewers write their review doc into
+# the notes repo, which the workspace-write sandbox would otherwise refuse.
+codex_writable_roots = ["~/work/notes"]
 
 [tmux-session.templates]
 default = ["claude", ""]
 shell = [""]
+
+# Lemon presets: `lemonaid lemon start ... --preset codex`, `lemonaid place open ... --preset codex`.
+# `--no-daemon` is required for any Codex launch that attaches a brief (a Codex on the shared
+# app-server can't be matched to its window). `--approve-for-me` routes approval requests through
+# Codex's automatic review in the workspace-write sandbox instead of asking in the pane.
+[launch.presets.codex]
+harness = "codex"
+args = ["--no-daemon", "--approve-for-me"]
+description = "Codex; approvals routed to automatic review in the workspace-write sandbox"
 
 [tui]
 # Color cards by brief status and show what each lemon needs from me.
