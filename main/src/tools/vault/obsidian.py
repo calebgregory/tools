@@ -3,9 +3,20 @@ import subprocess
 import typing as ty
 from pathlib import Path
 
+# obsidian-cli occasionally hangs (about once a week) on `open` after it prints "Opened:", blocked
+# reading its socket to Obsidian, and it ignores SIGTERM. The timeout kills it with SIGKILL. We give it
+# no stdin because it puts a terminal stdin into raw mode, and a killed process never restores it,
+# which leaves sync-vault's prompts unable to read input.
+_OBSIDIAN_CLI_TIMEOUT_SECONDS = 10
+
 
 def _list_vault_names() -> list[str]:
-    output = subprocess.check_output(["obsidian-cli", "vaults"], text=True)
+    output = subprocess.check_output(
+        ["obsidian-cli", "vaults"],
+        stdin=subprocess.DEVNULL,
+        text=True,
+        timeout=_OBSIDIAN_CLI_TIMEOUT_SECONDS,
+    )
     vault_names = output.strip().split()
     return vault_names
 
@@ -16,7 +27,12 @@ class _VaultInfo(ty.NamedTuple):
 
 
 def _get_vault_info(vault_name: str) -> _VaultInfo:
-    output = subprocess.check_output(["obsidian-cli", f"vault={vault_name}", "vault"], text=True)
+    output = subprocess.check_output(
+        ["obsidian-cli", f"vault={vault_name}", "vault"],
+        stdin=subprocess.DEVNULL,
+        text=True,
+        timeout=_OBSIDIAN_CLI_TIMEOUT_SECONDS,
+    )
 
     vault_info_dict = dict()
     for line in output.strip().splitlines():
@@ -53,9 +69,13 @@ def obsidian_open(p: Path) -> bool:
         try:
             vault_name, file_relpath = _xf_to_file_in_vault(p)
             subprocess.check_call(
-                ["obsidian-cli", f"vault={vault_name}", "open", f"path={file_relpath}", "newtab"]
+                ["obsidian-cli", f"vault={vault_name}", "open", f"path={file_relpath}", "newtab"],
+                stdin=subprocess.DEVNULL,
+                timeout=_OBSIDIAN_CLI_TIMEOUT_SECONDS,
             )
             return True
+        except subprocess.TimeoutExpired as e:
+            print(f"  obsidian-cli timed out after {e.timeout}s; continuing without opening {p}")
         except (subprocess.CalledProcessError, _VaultNotFoundException):
             pass
     return False
