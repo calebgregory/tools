@@ -43,10 +43,19 @@ class SessionLabel(ty.NamedTuple):
     color_light: str
 
 
+def _is_hidden_session(session: Session) -> bool:
+    """Tools keep their hidden sessions under names starting with `_` (lemonaid's popup
+    residents are `_lma_*`, with `status off`). Walking a client into one hides the status
+    bar and can trip the tool's own hooks, so we give them no label and hide them from the
+    status bar."""
+    return session.name.startswith("_")
+
+
 def session_order(sessions_in_creation_order: ty.Sequence[Session]) -> list[Session]:
-    """Labelled sessions in `@index` order, then the unlabelled ones in creation order."""
+    """Labelled sessions in `@index` order, then the unlabelled ones in creation order,
+    leaving out hidden sessions."""
     return sorted(
-        sessions_in_creation_order,
+        (session for session in sessions_in_creation_order if not _is_hidden_session(session)),
         key=lambda session: (1, 0) if session.index_ is None else (0, session.index_),
     )
 
@@ -90,7 +99,9 @@ def _literal(text: str) -> str:
 
 
 def _color(label: SessionLabel) -> str:
-    return f"#{{?#{{==:#{{@appearance}},light}},{_literal(label.color_light)},{_literal(label.color_dark)}}}"
+    return (
+        f"#{{?#{{==:#{{@appearance}},light}},{_literal(label.color_light)},{_literal(label.color_dark)}}}"
+    )
 
 
 def _is_current(label: SessionLabel) -> str:
@@ -148,7 +159,14 @@ def _store(labels: ty.Sequence[SessionLabel]) -> None:
             *("set-option", "-t", label.session_id, "@index", str(label.index_), ";"),
             *("set-option", "-t", label.session_id, "@session_color_dark", label.color_dark, ";"),
             *("set-option", "-t", label.session_id, "@session_color_light", label.color_light, ";"),
-            *("set-option", "-t", label.session_id, "@next_session", labels[(position + 1) % len(labels)].session_id, ";"),
+            *(
+                "set-option",
+                "-t",
+                label.session_id,
+                "@next_session",
+                labels[(position + 1) % len(labels)].session_id,
+                ";",
+            ),
             *("set-option", "-t", label.session_id, "@prev_session", labels[position - 1].session_id, ";"),
         )
     ]
@@ -156,7 +174,9 @@ def _store(labels: ty.Sequence[SessionLabel]) -> None:
 
 
 def main(argv: ty.Sequence[str] = sys.argv[1:]) -> None:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     commands = parser.add_subparsers(dest="command")
     commands.add_parser("sync", help="keep the order, number new sessions, close gaps (the default)")
     move = commands.add_parser("move", help="put a session at a position, shifting the others")
@@ -173,7 +193,19 @@ def main(argv: ty.Sequence[str] = sys.argv[1:]) -> None:
         # colors, so a per-session highlight is not possible; use the current window's gray.
         selected_bg = chrome_color("current_bg", parse_appearance(args.appearance))
         _tmux(
-            *("display-menu", "-c", args.client, "-T", "sessions", "-x", "C", "-y", "C", "-H", f"bg={selected_bg}"),
+            *(
+                "display-menu",
+                "-c",
+                args.client,
+                "-T",
+                "sessions",
+                "-x",
+                "C",
+                "-y",
+                "C",
+                "-H",
+                f"bg={selected_bg}",
+            ),
             *session_menu_items(session_labels(sessions)),
         )
         return

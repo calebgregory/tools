@@ -23,3 +23,10 @@ def test_a_gap_left_by_a_closed_session_does_not_change_the_order() -> None:
     after_gap = session(session_id="$3", index_=2)
 
     assert session_order([before_gap, after_gap]) == [before_gap, after_gap]
+
+
+def test_hidden_sessions_are_left_out() -> None:
+    shown = session(session_id="$1", name="notes", index_=0)
+    hidden = session(session_id="$2", name="_lma_grove", index_=1)
+
+    assert session_order([shown, hidden]) == [shown]
