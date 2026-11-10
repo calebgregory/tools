@@ -1,6 +1,6 @@
 ---
 name: extract-principle
-description: Distill a coding principle from corrections made during this conversation and add it to the appropriate rules file under ~/tools/principles/.
+description: Distill a principle or a piece of work know-how from corrections made during this conversation, and add it to ~/tools/principles/ or ~/tools/lemons/_shared/global/know-how.md.
 disable-model-invocation: true
 ---
 
@@ -10,11 +10,12 @@ Analyze the current conversation to identify coding principles implied by the us
 
 ## Steps
 
-1. **Read existing rules** — read all `*.md` files under `~/tools/principles/` to understand what's already documented and how it's structured
+1. **Read existing rules** — read all `*.md` files under `~/tools/principles/`, and `~/tools/lemons/_shared/global/know-how.md`, to understand what's already documented and how it's structured
 2. **Scan the conversation** for moments where the user corrected your output:
    - Direct instructions ("no, do it like X", "always use Y", "that's wrong because...", "why don't we do Z instead?")
    - Re-requests where the user rephrased with different constraints
    - Patterns where the user manually edited code you wrote (visible via file diffs or follow-up context)
+   - Inline review comments the user left in files you changed
 3. **Distill the principle** — generalize from the specific correction to the underlying _why_. The principle should be:
    - **Abstract**: not tied to the specific file/variable/function from the correction
    - **Actionable**: tells the agent what to do (or not do) in future situations
@@ -22,7 +23,7 @@ Analyze the current conversation to identify coding principles implied by the us
 4. **Check for duplication** — grep existing rules for related concepts. If a related rule exists:
    - Propose **amending** the existing rule rather than adding a new one
    - Show the before/after of the amendment
-5. **Classify** — determine which existing file and section it belongs in, or whether it warrants a new file (explain why, propose a filename)
+5. **Classify** — a rule that holds outside `ds-monorepo` goes in `~/tools/principles/` (public); a fact about the monorepo's libraries, our infrastructure or work services goes in `know-how.md` (gitignored). If a correction is a general rule shown with a monorepo API, split it between the two. Then determine which existing file and section it belongs in, or whether it warrants a new file (explain why, propose a filename)
 6. **Present the proposal** — show:
    - The correction(s) that motivated it
    - The proposed principle text
@@ -43,7 +44,8 @@ Match the voice and structure of the existing rules files:
 
 ## Rules
 
-- Only extract principles that are **generalizable** — skip one-off preferences or project-specific decisions
+- Only extract principles that are **generalizable** — skip one-off preferences. A monorepo-wide convention is generalizable; it goes in `know-how.md`
+- Never put work-internal names, hosts or IDs in `~/tools/principles/`; that directory is public
 - When in doubt about whether something is a principle vs. a one-off, ask the user
 - Never write to rules files without explicit confirmation
 - If the conversation contains multiple corrections, propose them one at a time
