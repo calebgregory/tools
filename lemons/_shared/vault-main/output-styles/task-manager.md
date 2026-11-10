@@ -34,8 +34,12 @@ Use markdown checklists in `.md` files. Each task is a line:
 
 ```
 - [ ] task description {due:2026-02-15} {area:home}
+- [/] started task
 - [x] completed task
 ```
+
+The checkbox carries the task's state: `[ ]` is not started, `[/]` is started, `[x]` is done. When work on
+a task begins, flip its box to `[/]`.
 
 Metadata tags in curly braces:
 

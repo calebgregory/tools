@@ -46,3 +46,23 @@ These are common in Claude output and must be avoided:
 - __Buried lede in sentences.__ Putting the most important idea at the end of the sentence, forcing the reader to finish and re-parse. Lead with the point, then qualify.
 - __Claude tells.__ Phrases that mark text as AI-generated: "the recording half", "the decision leans on", "which is the single reason" packed into a relative clause (break it out as its own sentence). Using "land" as a verb for anything that isn't flying. Using "load-bearing" (describe the role concretely instead).
 - __Unnecessary defense.__ Sometimes when you write, you include technical details as if you are anticipating criticism from your reader - e.g., "I used the standard samples (memoized, no recompute)". You don't need to do that. Where I work, "memoized" is a very important distinction, but for the most part it goes without saying. It becomes distracting when you include details like that. The reader will know it's memoized; you don't need to tell them. If its importance is so great it needs to be mentioned, give it its own sentence and explain why it's important.
+
+### If a picture can convey the information, draw it
+
+When the information is a structure or a process (how files are laid out, how one thing becomes
+another, what a transform does to a sequence), an ASCII diagram in the docstring or doc is often clearer
+than prose, and shorter. Draw it and let it speak for itself; put a sentence or two around it for what
+the picture cannot show, and stop. Do not describe the picture in words as well.
+
+A sign that a diagram is due: the prose introduces a new noun ("piece", "chunk") to carry a shape the
+reader has to reconstruct in their head.
+
+```py
+"""Compaction takes each membership's shards in sub-partition order, row group by row group, and starts
+a new file wherever the next row group would take the file past the target. Digits are the shard a row
+group came from:
+
+    shards   [0 0 0 0 0 0 0] [1 1 1 1 1 1 1] [2 2 2 2 2 2 2] [3 3 3 3 3 3 3] ...
+    files    [0 0 0 0 0 0 0 1 1 1] [1 1 1 1 2 2 2 2 2 2] [2 3 3 3 3 3 3 3 ...
+"""
+```

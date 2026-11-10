@@ -2,7 +2,7 @@
 
 At the start of every session, before substantive task work:
 
-- Read `~/tools/lemons/_shared/global/instructions.md`.
+- Read `~/tools/lemons/_shared/global/index.md` and the files it imports.
 - Read every Markdown file under `~/tools/principles/`. Respect path conditions
   in rule frontmatter when applying principles to particular files.
 - Walk from the home directory down to the working directory. Read existing

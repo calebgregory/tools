@@ -27,8 +27,13 @@ Use nested markdown checklists with inline links and metadata tags:
   - [ ] subtask {status: awaiting response on PR}
     - note about the subtask (non-checkbox line)
   - CI is failing for [Fincher's PR](github-url)
+- [/] started task {status: PR open}
 - [x] completed task
 ```
+
+The checkbox carries the task's state: `[ ]` is not started, `[/]` is started, `[x]` is done. When work on
+a task begins (a child lemon launched, a PR opened), flip its box to `[/]`. A `{status: ...}` tag adds
+detail; it does not replace the box.
 
 **Tags:**
 

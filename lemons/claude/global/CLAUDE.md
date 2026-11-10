@@ -1,6 +1,6 @@
 # Claude instructions
 
-@~/tools/lemons/_shared/global/instructions.md
+@~/tools/lemons/_shared/global/index.md
 
 ## Slack MCP connector availability
 

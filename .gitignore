@@ -14,3 +14,5 @@ node_modules
 .DS_Store
 
 lemons/claude/work-org/settings.local.json
+
+lemons/_shared/global/know-how.md

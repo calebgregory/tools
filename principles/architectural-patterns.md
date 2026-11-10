@@ -88,3 +88,19 @@ src/pkg/
 ```
 
 This keeps everything for a feature physically together — adding or removing a feature is a one-directory change. Adding a third surface (e.g. an MCP server alongside the CLI) becomes another thin shell that imports from the feature dirs. The dispatcher (e.g. `cli/__main__.py`, `mcp/server.py`) is the only layer-named module; it imports per-feature submodules and registers them.
+
+## Carry facts on records; don't parse them out of paths or names
+
+When a stage knows a fact about a file or object, record it on the record (a typed metadata slot holding
+a small attrs object, so attributes can be added without changing the slot's type), and have later stages
+read the attribute. Reading a fact back out of a directory or file name is brittle.
+
+## Put a pipeline-wide value in the module that owns the output's conventions
+
+A value that a whole pipeline's output depends on (a file size target) lives in the higher-level module
+that owns the output's conventions, not beside the one step that applies it.
+
+## Don't design for a dead consumer, and don't add hooks for one caller
+
+Don't constrain a design for a consumer nobody uses any more. Don't add a hook to a shared abstraction
+when the one pipeline that needs the step can do it itself after the shared call returns.

@@ -28,6 +28,15 @@ selected = sorted_claims[0]
 When the criterion changes, rename the value with it. A name that states the rule goes wrong the moment
 the rule does, which is what makes the drift visible in review.
 
+## Name a thing with the usual word for its concept
+
+Name a grouping for the data concept, not the filesystem one: for example, if you have a parquet dataset
+partitioned by `membership`, name a `dict[partition, files-in-partition]` "by membership", not "by
+directory".
+
+Use the word people already use for the thing: a horizontal split of one dataset is a "shard", not a
+"piece". When prose needs a new noun to carry a shape, draw the shape instead (see `writing-style.md`).
+
 ## Reduce visual clutter
 
 - Prefer building complex data inline declaratively over imperatively extending.  Example:
@@ -90,6 +99,21 @@ print("\n".join([
 
 - A module's unit tests are the one consumer allowed to import its `_`-prefixed names. A test is part of the module's own maintenance, not an external consumer, and the test tree mirrors the source tree so the coupling is visible. Do not make a name public just so a test can reach it.
 
+## Name a generator for what it does: `yield_...`
+
+A function that returns an `Iterator[T]` (a generator, or anything lazily produced) is named `yield_<things>` or `_yield_<things>`. The exception is a parenthetical, such as a reference implementation kept beside the real one for comparison, whose name should say what it is instead. The caller then sees at the call site that the values arrive one at a time and that the work happens as they are consumed, which is what decides whether the result can be iterated twice, held in a list, or passed on.
+
+```py
+# good:
+def _yield_tables_of_whole_row_groups(chunk: _Chunk, row_group_size: int) -> ty.Iterator[pa.Table]: ...
+
+for table in _yield_tables_of_whole_row_groups(chunk, size):
+    writer.write_table(table, row_group_size=size)
+
+# bad:
+def _tables_of_whole_row_groups(chunk: _Chunk, row_group_size: int) -> ty.Iterator[pa.Table]: ...
+```
+
 ## Prefer explicit data flow
 
 - When a nested function needs to "return" a value to its enclosing scope, prefer passing that value as a function parameter rather than mutating a captured `nonlocal` variable. This makes data flow explicit.
@@ -143,3 +167,8 @@ for name in ("start", "end"):
 
 Bind the repeated transform once (e.g. a `partial`) so the lines stay short; the field names are the part
 that must stay literal.
+
+## Assign attributes on mutable attrs classes; don't `evolve` them
+
+Don't use `attrs.evolve` on a mutable class (`@define` without `frozen`). Assign the attribute:
+`stats.num_shards = ...`. `evolve` is for frozen classes, and even then only when nothing else works.

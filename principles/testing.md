@@ -10,6 +10,11 @@ You should be able to understand what a test is testing by reading the test alon
 
 Make builder parameters keyword-only (after `*`) with sensible defaults. This way call sites only specify the values relevant to the test, reducing visual clutter and focusing the reader on what matters.
 
+## Parametrize what a test needs instead of binding to a module constant
+
+Give the function a parameter with a production default, so production callers don't change:
+`patients_dir_path: Path = _PATIENTS_DIR`. The test then passes `tmp_path` and needs no cleanup.
+
 ## Use `pytest.mark.parametrize` for simple mapping tests
 
 When the test logic is identical across cases and only input/output differs, use `pytest.mark.parametrize` instead of writing separate test methods.
