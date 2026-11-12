@@ -84,6 +84,29 @@ vim.lsp.config("ruff", {
   end,
 })
 
+-- pyrefly registers its file watchers with a baseUri that ends in "/", and
+-- nvim 0.12 matches events against baseUri .. "/" .. pattern, so every path it
+-- tests needs a doubled slash and no event ever reaches the server: a module
+-- created on disk stays "cannot find module" until pyrefly restarts.  Upstream
+-- master strips the slash; drop this once the installed nvim does too.
+local function _strip_base_uri_trailing_slash(err, params, ctx)
+  for _, reg in ipairs(params.registrations or {}) do
+    if reg.method == "workspace/didChangeWatchedFiles" then
+      for _, watcher in ipairs(reg.registerOptions.watchers) do
+        local glob = watcher.globPattern
+        if type(glob) == "table" then
+          if type(glob.baseUri) == "string" then
+            glob.baseUri = glob.baseUri:gsub("/$", "")
+          else
+            glob.baseUri.uri = glob.baseUri.uri:gsub("/$", "")
+          end
+        end
+      end
+    end
+  end
+  return vim.lsp.handlers["client/registerCapability"](err, params, ctx)
+end
+
 -- Each project's [tool.pyrefly] names its own python-interpreter-path, so
 -- pyrefly finds the project venv from its config and needs none of the
 -- on_init venv plumbing basedpyright does.
@@ -95,6 +118,7 @@ vim.lsp.config("pyrefly", {
   end,
   filetypes = { "python" },
   root_markers = { "pyproject.toml" },
+  handlers = { ["client/registerCapability"] = _strip_base_uri_trailing_slash },
 })
 
 -- basedpyright stays configured above but off: pyrefly answers hover,
