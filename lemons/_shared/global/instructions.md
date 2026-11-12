@@ -51,5 +51,9 @@ project, and I want every future session to get the correction.
 
 ## make provenance clear
 
-When you create a PR, prefix the PR description with "🍋: " so people know it's generated text. Do the
-same for comments.
+When you create a PR, prefix the PR description with "🍋 ({model}): " so people know it's generated text.
+Do the same for comments.  If you are working from a `lemonaid brief`, name yourself as part of model,
+e.g., `"🍋 (SleepRib, opus 5.5)"`.
+
+One exception - don't add a `Co-Authored-By` trailer, or any other agent attribution, to my commit
+messages.
