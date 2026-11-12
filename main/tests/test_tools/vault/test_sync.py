@@ -235,6 +235,20 @@ class TestSyncInteractive:
         assert (src / "other.md").read_text() == "from dest\n"
         assert summary.copied_to_source == 1
 
+    def test_dest_only_kill_deletes_from_dest(self, tmp_path: Path) -> None:
+        src = tmp_path / "src"
+        dst = tmp_path / "dst"
+        src.mkdir()
+        dst.mkdir()
+        _populate(dst, {"other.md": "from dest\n"})
+
+        with patch("builtins.input", return_value="k"):
+            summary = sync(src, dst)
+
+        assert not (dst / "other.md").exists()
+        assert not (src / "other.md").exists()
+        assert summary == SyncSummary(deleted_from_dest=1)
+
     def test_diverged_text_approve_all_hunks(self, tmp_path: Path) -> None:
         src = tmp_path / "src"
         dst = tmp_path / "dst"

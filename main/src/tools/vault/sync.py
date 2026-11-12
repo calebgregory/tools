@@ -6,7 +6,8 @@ shared vault.  You maintain your own copy of the files you care about (source)
 and periodically sync against the shared directory (dest):
 
 - Files missing from dest are offered for restore (source -> dest).
-- Files only in dest are offered for pickup (dest -> source).
+- Files only in dest are offered for pickup (dest -> source), or for deletion
+  from dest.
 - Diverged text files get git-add-patch-style per-hunk resolution with a
   three-way choice: take source's version (source -> dest), sync dest's
   version to source (dest -> source), or skip (leave that region diverged).
@@ -50,7 +51,9 @@ class SyncAction(ty.NamedTuple):
     dest: Path
 
 
-SyncActionPerformed = ty.Literal["copied_to_dest", "copied_to_source", "merged", "skipped"]
+SyncActionPerformed = ty.Literal[
+    "copied_to_dest", "copied_to_source", "merged", "skipped", "deleted_from_dest"
+]
 
 
 @dataclass
@@ -59,6 +62,7 @@ class SyncSummary:
     copied_to_source: int = 0
     merged: int = 0
     skipped: int = 0
+    deleted_from_dest: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -162,10 +166,14 @@ def _handle_dest_only(action: SyncAction, *, dry_run: bool) -> SyncActionPerform
     if dry_run:
         print(_DIM("  [dry-run] would copy dest -> source"))
         return "copied_to_source"
-    response = input(_BLUE("  Copy to source? [Y/n] ")).strip().lower()
+    response = input(_BLUE("  Copy to source? [Y]es / [n]o / [k]ill from dest ")).strip().lower()
     if response in ("", "y"):
         _copy_file(action.dest, action.source)
         return "copied_to_source"
+    if response == "k":
+        action.dest.unlink()
+        print(_RED(f"  deleted {action.dest}"))
+        return "deleted_from_dest"
     return "skipped"
 
 
@@ -289,6 +297,8 @@ def sync(source: Path, dest: Path, *, dry_run: bool = False) -> SyncSummary:
                 summary.merged += 1
             case "skipped":
                 summary.skipped += 1
+            case "deleted_from_dest":
+                summary.deleted_from_dest += 1
 
     _print_summary(summary)
     return summary
@@ -300,6 +310,7 @@ def _print_summary(s: SyncSummary) -> None:
         f"  Copied to dest:   {s.copied_to_dest}",
         f"  Copied to source: {s.copied_to_source}",
         f"  Merged:           {s.merged}",
+        f"  Deleted in dest:  {s.deleted_from_dest}",
         f"  Skipped:          {s.skipped}",
     ]
     print("\n".join(lines))
