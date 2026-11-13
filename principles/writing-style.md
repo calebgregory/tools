@@ -66,3 +66,7 @@ group came from:
     files    [0 0 0 0 0 0 0 1 1 1] [1 1 1 1 2 2 2 2 2 2] [2 3 3 3 3 3 3 3 ...
 """
 ```
+
+## Write each paragraph on one line in a document written for me to read
+
+In a scratch or temporary document written for me to read, such as a reading order or a review aid, write each paragraph and each bullet on a single line, and let my viewer wrap it. Text hard-wrapped at a fixed width looks mangled when the viewer wraps it again at a different width. This doesn't apply to files in a repository whose formatter wraps Markdown at a fixed width; follow that repository's convention there.
