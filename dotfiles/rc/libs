@@ -2,3 +2,9 @@
 
 # wt - Git worktree utilities
 [ -f ~/.gent/init.sh ] && source ~/.gent/init.sh
+
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/caleb.gregory/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+# End of Docker CLI completions
