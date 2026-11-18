@@ -8,7 +8,7 @@ PARAKEET_CHUNK_DURATION = "0"
 PARAKEET_LOCAL_ATTENTION = "true"
 
 [tools]
-node = "24"
+node = "24.22"
 python = ["3.13", "3.12", "3.10"]
 gh = ["2"]
 uv = "0.13"
@@ -38,3 +38,4 @@ hyperfine = "1"
 ripgrep = "15"
 "github:arl/gitmux" = "latest"  # git status in the tmux status bar; the old ~/tools/bin copy was x86
 yazi = "26"
+azure-cli = { version = "latest", uvx_args = "--prerelease=if-necessary-or-explicit" }  # mise's registry default allows prereleases, which pulls a wrapt .dev build
