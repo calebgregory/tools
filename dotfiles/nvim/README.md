@@ -581,7 +581,7 @@ title palette both live in
 wezterm, with a dark and a light value per entry.
 
 Two things outside nvim are worth knowing. tmux has to be told to forward the
-focus event (`set -g focus-events on` in [.tmux.conf](../.tmux.conf)) or nvim
+focus event (`set -g focus-events on` in [tmux/core.conf](../tmux/core.conf)) or nvim
 never learns you came back at all. And nvim's own guess has to be displaced: it asks
 the terminal for its background color at startup (OSC 11) and sets
 `'background'` from the reply. Asking macOS is the better question to ask,
