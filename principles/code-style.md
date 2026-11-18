@@ -28,6 +28,21 @@ selected = sorted_claims[0]
 When the criterion changes, rename the value with it. A name that states the rule goes wrong the moment
 the rule does, which is what makes the drift visible in review.
 
+The same holds for a condition or sub-expression that needs a comment to say what it means. Assign it
+to a variable whose name says that, and drop the comment. The name stays beside the logic, and a comment
+can drift from the code without anyone seeing it.
+
+```py
+# good:
+bookings_overlap = booking.start < other.end and other.start < booking.end
+if bookings_overlap:
+    raise DoubleBookingError(booking, other)
+
+# bad:
+if booking.start < other.end and other.start < booking.end:  # the bookings overlap
+    raise DoubleBookingError(booking, other)
+```
+
 ## Name a thing with the usual word for its concept
 
 Name a grouping for the data concept, not the filesystem one: for example, if you have a parquet dataset
@@ -131,6 +146,20 @@ def _tables_of_whole_row_groups(chunk: _Chunk, row_group_size: int) -> ty.Iterat
 ## Return type annotations
 
 All function definitions must include a return type annotation. For functions that return nothing, annotate with `-> None`.
+
+## Mark module-level constants `ty.Final`
+
+Annotate a module-level constant with `ty.Final`, including a private one. The type checker then refuses a
+reassignment anywhere, and the reader knows at the definition that the name never changes. With a bare
+`ty.Final`, the checker infers the literal type, so you don't need to spell the type out.
+
+```py
+# good:
+_MEMBERSHIP_COL_NAME: ty.Final = "membership"
+
+# bad:
+_MEMBERSHIP_COL_NAME = "membership"
+```
 
 ## Prefer Literal over bare str for constrained values
 
