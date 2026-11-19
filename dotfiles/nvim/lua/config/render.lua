@@ -20,3 +20,9 @@ require("render-markdown").setup({
     },
   },
 })
+
+-- markdown-preview.nvim draws the same buffer in the browser (<leader>M).  Its
+-- page takes its fonts from a theme file.
+require("markdown-preview").setup({
+  theme_css = vim.fs.joinpath(vim.fn.stdpath("config"), "markdown-preview.css"),
+})

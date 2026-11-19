@@ -49,9 +49,9 @@ The modules divide by what they are responsible for:
 [lua/color_identifiers.lua](./lua/color_identifiers.lua) sits outside that
 directory on purpose. It is a plugin we happen to keep in this repo, with a
 `setup()` you call, rather than configuration that runs on load.
-[lua/markdown_links.lua](./lua/markdown_links.lua) is outside it for the same
-kind of reason: [after/ftplugin/markdown.lua](./after/ftplugin/markdown.lua)
-requires it when you open a markdown file, not `init.lua` at startup.
+[lua/markdown_links.lua](./lua/markdown_links.lua) and
+[lua/critic.lua](./lua/critic.lua) are outside it for the same kind of reason:
+[after/ftplugin/markdown.lua](./after/ftplugin/markdown.lua) requires them when you open a markdown file, not `init.lua` at startup.
 
 ## Keybindings
 
@@ -299,6 +299,9 @@ These attach only in a markdown buffer —
 | `Alt+s` | Mark it in progress, or empty an already in-progress one |
 | `<leader>m` | Turn in-place rendering off or on for this buffer |
 | `<leader>M` | Open the browser preview, or close it |
+| `<leader>cc` | With a selection, highlight it and comment on it. In a thread, reply to it. Elsewhere, comment after the cursor. The comment opens in a small window: `:w` adds it, `q` drops it |
+| `<leader>cp` | Open the comment panel, or close it |
+| `<leader>cy` / `<leader>cn` | Accept / reject the change under the cursor |
 
 `F12` is go-to-definition everywhere else, and the link is what markdown has a
 definition for. The cursor can sit anywhere in `[text](./other.md)`, label
@@ -328,10 +331,21 @@ only in normal mode, and the line under the cursor shows its raw text, so you
 still edit the source. We give `[/]` and `[>]` the in-progress icon, because the
 plugin knows only `[ ]`, `[x]` and `[-]` — [render](./lua/config/render.lua).
 
+[CriticMarkup](https://fletcher.github.io/MultiMarkdown-6/syntax/critic.html)
+marks changes and comments in the text itself: `{++added++}`, `{--deleted--}`,
+`{~~old~>new~~}`, `{==highlighted==}` and `{>>comment<<}`. Relay's comments count
+too: a block of `{{`, attributes such as `author="…"`, `>>`, the comment and
+`<<}}`. The comments that follow one form its thread of replies. We color each mark and
+hide its delimiters while the buffer is rendered. The comment panel lists the
+comments beside the buffer; moving through it highlights the text each one is
+about, and `Enter` jumps there. Accepting or rejecting a change also removes the
+thread about it — [critic](./lua/critic.lua).
+
 [markdown-preview.nvim](https://github.com/sammaji/markdown-preview.nvim) opens
 the buffer in the browser instead, and scrolls and updates as you type. It draws
 what the terminal cannot, such as math, Mermaid diagrams and images. The first
-preview downloads the plugin's server binary.
+preview downloads the plugin's server binary. The page's fonts come from
+[markdown-preview.css](./markdown-preview.css).
 
 ### Multiple cursors
 

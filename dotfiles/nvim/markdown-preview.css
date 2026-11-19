@@ -1,0 +1,15 @@
+/* markdown-preview.nvim's theme file (theme_css, set in lua/config/render.lua).
+   It holds only the variables we change; the plugin keeps its defaults for the
+   rest.  Both fonts are installed in ~/Library/Fonts, so the browser finds them
+   by name.  The plugin reads this file on every page load: refresh the page to
+   see a change. */
+:root {
+  --font-sans: "Atkinson Hyperlegible Next", sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono", monospace;
+}
+
+/* The plugin's markdown.css sets 16px here; headings and code are sized
+   relative to it.  The page loads this file after markdown.css, so this wins. */
+.markdown-body {
+  font-size: 18px;
+}

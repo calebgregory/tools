@@ -123,6 +123,16 @@ hl("@markup.heading",     { fg = c.fg_bright, bold = true })
 hl("@markup.link",        { fg = c.blue, underline = true })
 hl("@markup.link.url",    { fg = c.gray })
 hl("@markup.quote",       { fg = c.gray, italic = true })
+-- CriticMarkup (lua/critic.lua).  The changes use the diff washes, so a tracked
+-- change reads like a diff view; a highlight uses the search wash, and the one
+-- the comment panel points at uses the brighter one under the cursor.
+hl("CriticAddition",      { bg = c.diff_add })
+hl("CriticDeletion",      { bg = c.diff_delete, strikethrough = true })
+hl("CriticHighlight",     { bg = c.match })
+hl("CriticFocus",         { bg = c.match_cur })
+hl("CriticComment",       { fg = c.red, italic = true })
+hl("CriticAuthor",        { fg = c.fg_bright, bold = true })  -- a Relay comment's author, in the panel
+hl("CriticDelimiter",     { fg = c.line_nr })
 
 -- ── Diff ──────────────────────────────────────────────────────────────
 -- Three different things ask for colors here.  The `diff*` groups color a patch
