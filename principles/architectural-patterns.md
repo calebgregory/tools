@@ -104,3 +104,39 @@ that owns the output's conventions, not beside the one step that applies it.
 
 Don't constrain a design for a consumer nobody uses any more. Don't add a hook to a shared abstraction
 when the one pipeline that needs the step can do it itself after the shared call returns.
+
+## Keep one copy of a rule; if the dependencies force a second, test them for parity
+
+A rule here is knowledge that code applies in more than one place: a mapping from labels to column
+names, the spelling of a partition value, the predicate that selects a customer's rows. Give each rule one
+home, in a module that every user of the rule can import.
+
+A copy usually appears when a library low in the dependency graph needs a rule that lives in a library
+that depends on it. For example, a `locations` library maps dataset names to storage paths, and a
+`domain` library, which imports `locations`, defines which rows each customer may see. If `locations`
+also offers `read_dataframe(customer)`, it needs the row rule, cannot import `domain`, and ends up with
+its own copy. Before you copy, ask why the low library needs the rule at all. Here it needs the rule only
+because it reads data, which is its callers' job. Moving the reading up to the callers, or moving the
+rule down into `locations`, leaves one copy. That is the fix to aim for.
+
+Sometimes that refactor is too large for the task at hand, and doing it would stall the task. Then use a
+copy as a provisional workaround, and record the refactor as a follow-up task for a cooldown, so the copy
+does not become permanent by default. While the copy exists, keep it private (`_`-prefixed) to the module
+that needs it, and point every other user at the rule's home. Add a parity test: a test in a project that
+can import both modules, which asserts that the copy and the original agree. A parity test may read the
+copy's private names. Comparing the two copies is its whole purpose, so it is the one test outside the
+copy's own module that may reach inside.
+
+## Split a large module into a package without moving its consumers
+
+When a module file grows too large, turn it into a package of the same name: `git mv` the file to
+`<name>/core.py` (or split it by concept into several submodules) in a commit of its own, so blame follows
+it, and have `<name>/__init__.py` re-export the module's public names, listed by name. Mark them as
+re-exports the way the library already does: some list them in `__all__`, others import each name with
+`# noqa: F401`. Every `import <name>` and `<name>.<thing>` keeps working, so no consumer changes.
+
+A submodule that pulls in a heavy dependency (pyarrow, Spark) stays out of `__init__.py`. Its callers
+import it by its full path (`<name>.filter`), so importing the package stays cheap for everyone else.
+
+Keep the module's name, even if a better one occurs to you while you split it. A rename makes every
+importer change for little gain.
