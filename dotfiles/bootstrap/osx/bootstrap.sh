@@ -16,8 +16,6 @@ utils=(
   # vim
   # rbenv
 
-  mise  # use mise as much as possible
-
   # other utils
   coreutils
   wget
@@ -31,6 +29,9 @@ utils=(
 for u in "${utils[@]}"; do
   brew install "$u"
 done
+
+# [install mise](https://mise.jdx.dev/installing-mise.html#mise-run) to ~/.local/bin; use mise as much as possible
+curl https://mise.run | sh
 
 # [install lein for clj things](https://leiningen.org/#install), adding it to path and making it executable
 # curl https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein -o ~/.local/bin/lein

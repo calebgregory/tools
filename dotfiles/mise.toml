@@ -38,4 +38,4 @@ hyperfine = "1"
 ripgrep = "15"
 "github:arl/gitmux" = "latest"  # git status in the tmux status bar; the old ~/tools/bin copy was x86
 yazi = "26"
-azure-cli = { version = "latest", uvx_args = "--prerelease=if-necessary-or-explicit" }  # mise's registry default allows prereleases, which pulls a wrapt .dev build
+azure-cli = { version = "latest", dependency_prereleases = "if-necessary" }  # mise's registry default allows prereleases, which pulls a wrapt .dev build
