@@ -9,25 +9,28 @@ what has already been reviewed. Staging or committing on the agent’s side dest
 Leave all changes unstaged in the working tree. The user will say when they are done reviewing and
 ready to commit. If there is an exception to this workflow, the user will say so explicitly.
 
-## code review: watch the files you changed for my inline comments
+## code review: write a review guide, then answer my comments
 
-After you write code, I review it in my editor, file by file, and leave comments inline in the files you
-changed. Expect this as the normal next step. When you finish a change, watch each file you changed with
-lemonaid, so that my comments wake you:
+After you finish a round of changes for me to review, including a round of fixes, follow lemonaid's
+`review-guide` skill: it writes a guide that orders the changes for reading, opens it in my editor,
+watches it and the files you changed, answers my comments in their threads, and keeps comments out of
+commits. My preferences for guides are in its overlay. Tell me which files you watch, then end the
+turn. Keep watching until I say the review is done or until the code is committed.
 
-- with a brief: `lemonaid brief doc add --self <path> "review" --watch "All edits"` for each file;
-- without one: `lemonaid watch doc --wait <path> --me <name> --once` as a background task.
+If the skill isn't installed, watch each file you changed instead, so that my comments wake you:
 
-The `watch-doc` and `brief` skills describe the waiter. Tell me which files you watch, then end the turn.
+- with a brief: `lemonaid brief doc add --self <path> "review" --watch "All edits"` for each file.
+  That only records the subscription; check with `lemonaid watch --self --status` that something
+  delivers it, and start a watcher if none runs, as the `brief` skill says.
+- without one: start a waiter for each file as the `watch-doc` skill says for your harness.
 
-A comment can be a Relay Comment block or an ordinary code comment addressed to you. Treat any new
-comment-shaped text from me as addressed to you. For each one:
+Whether or not the skill is installed, I may leave a Relay Comment in a Markdown doc (the `watch-doc`
+skill says how to reply), or an ordinary code comment addressed to you. Treat any new comment-shaped
+text from me as addressed to you. For an ordinary code comment:
 
 - If it asks for a change, make the change. If the change resolves the comment, delete the comment.
-- If it asks a question, or the change does not fully resolve it, answer in the chat. Leave my comment in
-  place and prepend `🍋👀` to it, so that I can see in the file that you replied.
-
-Keep watching until I say the review is done or until the code is committed.
+- If it asks a question, or the change does not fully resolve it, answer in the chat. Leave my comment
+  in place and prepend `🍋👀` to it, so that I can see in the file that you replied.
 
 ## turn my corrections into principles or know-how
 
