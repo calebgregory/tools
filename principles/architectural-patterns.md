@@ -140,3 +140,30 @@ import it by its full path (`<name>.filter`), so importing the package stays che
 
 Keep the module's name, even if a better one occurs to you while you split it. A rename makes every
 importer change for little gain.
+
+## A module can implement a protocol
+
+When several implementations of one interface hold no state, write each as a plain module of functions
+and describe the interface as a `ty.Protocol`. Type checkers accept a module whose top-level functions
+match the protocol's methods, so a small registry can hand out modules as protocol instances, and no
+class or instance exists only to group functions.
+
+```py
+# kinds/__init__.py
+from . import markdown, python
+
+
+class Kind(ty.Protocol):
+    def code_regions(self, text: str) -> list[CodeRegion]: ...
+    def marker_pattern(self) -> re.Pattern[str]: ...
+
+
+_KINDS: ty.Final[dict[FileKind, Kind]] = {"python": python, "markdown": markdown}
+
+
+def get(kind: FileKind) -> Kind:
+    return _KINDS[kind]
+```
+
+The shared code then calls `kinds.get(kind).code_regions(text)` and never branches on which kind it has.
+

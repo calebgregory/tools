@@ -19,11 +19,3 @@ a text editor changes the project for everyone and for CI in order to fix one pe
 
 The question to ask is whose problem it is. A rule the project genuinely should not enforce belongs in
 the project config; a rule you personally do not want applied to your keystrokes belongs in your editor.
-
-## Check that a search can match before trusting an empty result
-
-An empty search result proves nothing until you know the pattern can match. `git grep -E` uses POSIX
-extended regular expressions, which have no `\b`, so a pattern containing it silently matches nothing and
-a search for leftover names reports none. Spell the boundary out (`name([^a-z_]|$)`), or use `git grep -P`
-where PCRE is available. Before relying on "no matches", run the pattern once against a line you know is
-there.

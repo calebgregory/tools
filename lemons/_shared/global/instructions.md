@@ -34,17 +34,20 @@ Keep watching until I say the review is done or until the code is committed.
 Each correction I make, in review comments or in chat, is a chance to teach the next session too. When a
 correction sounds general rather than a one-off, propose an entry for it (the `extract-principle` skill
 describes how; `/extract-principle` in Claude, `$extract-principle` in Codex). Write it only after I
-confirm. Put it in one of two places:
+confirm. Put it in one of three places:
 
-- `~/tools/principles/`: a rule that holds anywhere. How to write code, tests and prose, and facts about
+- `~/tools/principles/`: a rule for writing code, tests and prose that holds anywhere, and facts about
   public tools and libraries (pyarrow, attrs, k8s). This directory is in a public GitHub repo; don't
   write anything business-sensitive there.
-- `~/tools/lemons/_shared/global/know-how.md`: a fact about my work systems. The `ds-monorepo` libraries
-  and conventions (`thds.*`, mops, ADLS), our infrastructure, and services such as Databricks. This file
-  is gitignored, because work-internal names and IDs must not go on the internet.
+- `~/tools/lemons/_shared/global/know-how/for-lemons/`: how a lemon should work. Its workflow (reviews,
+  hand-offs), the quirks of its own tools, and my setup (lemonaid, nvim, tmux). This directory is public
+  too. List a new file in `~/tools/lemons/_shared/global/index.md`.
+- `~/tools/lemons/_shared/global/know-how/private.md`: a fact about my work systems. The `ds-monorepo`
+  libraries and conventions (`thds.*`, mops, ADLS), our infrastructure, and services such as Databricks.
+  This file is gitignored, because work-internal names and IDs must not go on the internet.
 
 Many corrections are both: a general rule shown with a monorepo API. Split them. The rule goes in
-principles, and the API goes in know-how.
+principles, and the API goes in `know-how/private.md`.
 
 Don't save these corrections to a project's memory directory. Project memory is visible only in that one
 project, and I want every future session to get the correction.

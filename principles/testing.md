@@ -83,3 +83,24 @@ When the expected object is easily constructible, assert equality against a comp
 ## Use `is None` for None checks on numeric types
 
 `if x` treats 0 as falsy, which is wrong when 0 is a valid domain value (e.g. `Identifier(0)`). Always use `if x is None` when the variable can legitimately be zero.
+
+## Check that a test fails without the fix it guards
+
+A test written for a fix proves nothing until you have seen it fail without the fix. Undo the fix once
+(comment it out, or swap the guard for a no-op), run the test, and see it fail; then restore the fix.
+A test for a race or an ordering bug is the easy one to get wrong: the code under test often recovers
+by some other path (a retry, a re-read), so the test passes whether or not the fix is there. If it
+does pass without the fix, force the interleaving the bug needs, for instance by pausing one step until
+the other side reaches its own.
+
+Undo the fix by bringing back the old behavior, not just by deleting the fix's lines. Other code may
+catch the case another way once a line is gone, and the test then passes for the wrong reason.
+
+For example, a server refuses to edit an open buffer once the file on disk has changed since the
+buffer opened. To tell, it records the file's contents at open (a baseline) and compares the file
+with it before each edit. Before the fix, it recorded a baseline only when the buffer matched the
+file, and a buffer with no baseline counted as unchanged, so a buffer opened with unsaved changes
+never noticed the file changing. The test opens such a buffer, changes the file, and expects the
+edit to be refused. Deleting the fix's line, the one that records a baseline at open, still passes
+the test: the comparison now sees no baseline against an existing file and calls that a change.
+Restoring the old rule as well, so that no baseline counts as unchanged, makes the test fail.
