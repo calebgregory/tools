@@ -5,7 +5,7 @@ import pytest
 from lemons.bootstrap import Harness
 from tools.env import EnvTomlConfig, LemonsConfig
 
-from lemons import bootstrap, links
+from lemons import bootstrap, lemonaid, links
 
 
 def _write(path: Path, text: str) -> None:
@@ -23,7 +23,8 @@ def managed_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 
     `vault-main` maps to `~/vault` and has a skill and an output style. `work-org` maps to
     `~/work/.claude`, has a skill, an output style, shared memory, a Claude adapter file under
-    `agents/`, a Codex adapter, and an auto-memory path override of `~/memory-root`.
+    `agents/`, a Codex adapter, and an auto-memory path override of `~/memory-root`. lemonaid
+    has an overlay for its `review-guide` skill, and a stand-in `lemonaid` is first on PATH.
     """
     repository = tmp_path / "repository"
     lemons = repository / "lemons"
@@ -43,11 +44,14 @@ def managed_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     _write(lemons / "claude/work-org/agents/apply-update.md", "agent")
     _write(lemons / "codex/AGENTS.md", "# Codex")
     _write(lemons / "codex/work-org/AGENTS.md", "# Codex work project")
+    _write(lemons / "lemonaid/skills/review-guide/overlay.md", "## Preferences")
     monkeypatch.setattr(links, "LEMONS_DIR", lemons)
     monkeypatch.setattr(links, "SHARED_DIR", lemons / "_shared")
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.delenv("CLAUDE_CONFIG_DIR", raising=False)
     monkeypatch.delenv("CODEX_HOME", raising=False)
+    monkeypatch.delenv("LEMONAID_LEMONS_DIR", raising=False)
+    _fake_lemonaid(tmp_path, monkeypatch)  # never the user's own lemonaid
     config = EnvTomlConfig(
         lemons=LemonsConfig(
             project_targets={
@@ -313,3 +317,141 @@ def test_removed_sources_leave_no_stale_links(managed_home: Path) -> None:
     assert not (managed_home / "work/.claude/agents/apply-update.md").is_symlink()
     assert (managed_home / "vault/.claude/skills/tidy").is_symlink()
     assert (managed_home / ".claude/skills/foreign").readlink() == foreign
+
+
+def _fake_lemonaid(directory: Path, monkeypatch: pytest.MonkeyPatch, *, exit_status: int = 0) -> Path:
+    """A `lemonaid` alone on PATH that records its arguments, one call per line."""
+    calls = directory / "calls"
+    _write(directory / "bin/lemonaid", f'#!/bin/sh\necho "$@" >> {calls}\nexit {exit_status}\n')
+    (directory / "bin/lemonaid").chmod(0o755)
+    monkeypatch.setenv("PATH", str(directory / "bin"))
+    return calls
+
+
+def _calls(home: Path) -> list[str]:
+    calls = home / "calls"
+    return calls.read_text().splitlines() if calls.exists() else []
+
+
+def test_lemonaid_links_skill_overlays_into_its_home(managed_home: Path) -> None:
+    lemonaid.install()
+    lemonaid.install()
+
+    overlay = managed_home / ".lemons/skills/review-guide/overlay.md"
+    assert overlay.readlink() == links.LEMONS_DIR / "lemonaid/skills/review-guide/overlay.md"
+    assert overlay.read_text() == "## Preferences"
+
+
+@pytest.mark.parametrize("override", ["custom-lemons", ""])
+def test_lemonaid_home_override_is_read_as_lemonaid_reads_it(
+    managed_home: Path, monkeypatch: pytest.MonkeyPatch, override: str
+) -> None:
+    monkeypatch.chdir(managed_home)
+    monkeypatch.setenv("LEMONAID_LEMONS_DIR", str(managed_home / override) if override else "")
+
+    lemonaid.install()
+
+    home = managed_home / (override or ".lemons")
+    assert (home / "skills/review-guide/overlay.md").is_symlink()
+    assert not (managed_home / "skills").exists()
+
+
+def test_removing_an_overlay_removes_only_its_own_link(managed_home: Path) -> None:
+    lemonaid.install()
+    written = managed_home / ".lemons/skills/watch-pr/overlay.md"
+    _write(written, "written by hand")
+    personal = links.LEMONS_DIR / "_shared/global/notes.md"
+    _write(personal, "a file of the user's elsewhere in lemons")
+    linked_by_hand = managed_home / ".lemons/skills/brief/overlay.md"
+    linked_by_hand.parent.mkdir(parents=True)
+    linked_by_hand.symlink_to(personal)
+    (links.LEMONS_DIR / "lemonaid/skills/review-guide/overlay.md").unlink()
+
+    lemonaid.install()
+
+    assert not (managed_home / ".lemons/skills/review-guide/overlay.md").is_symlink()
+    assert written.read_text() == "written by hand"
+    assert linked_by_hand.readlink() == personal
+
+
+def test_a_users_link_where_ours_goes_is_refused_not_replaced(managed_home: Path) -> None:
+    personal = managed_home / "my-preferences.md"
+    _write(personal, "mine")
+    theirs = managed_home / ".lemons/skills/review-guide/overlay.md"
+    theirs.parent.mkdir(parents=True)
+    theirs.symlink_to(personal)
+
+    with pytest.raises(FileExistsError, match="move it aside"):
+        lemonaid.install()
+
+    assert theirs.readlink() == personal
+    assert _calls(managed_home) == []
+
+
+def test_rendering_installs_only_the_skills_whose_additions_changed(managed_home: Path) -> None:
+    (links.LEMONS_DIR / "lemonaid/skills/empty-on-purpose").mkdir()
+
+    status = lemonaid.install()
+
+    assert status == 0
+    assert _calls(managed_home) == ["skills install review-guide"]
+
+
+def test_rendering_after_removing_an_overlay_renders_that_skill_again(managed_home: Path) -> None:
+    lemonaid.install()
+    shutil.rmtree(links.LEMONS_DIR / "lemonaid/skills/review-guide")
+
+    lemonaid.install()
+
+    assert _calls(managed_home) == ["skills install review-guide", "skills install review-guide"]
+
+
+def test_a_failed_render_after_a_removal_is_retried_on_the_next_run(
+    managed_home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    lemonaid.install()
+    shutil.rmtree(links.LEMONS_DIR / "lemonaid/skills/review-guide")
+    _fake_lemonaid(managed_home, monkeypatch, exit_status=2)
+
+    failed = lemonaid.install()
+    _fake_lemonaid(managed_home, monkeypatch)
+    retried = lemonaid.install()
+
+    assert (failed, retried) == (2, 0)
+    first_run_failure_and_retry = ["skills install review-guide"] * 3
+    assert _calls(managed_home) == first_run_failure_and_retry
+    assert not (managed_home / ".lemons/skills/review-guide/overlay.md").is_symlink()
+
+
+def test_rendering_returns_the_installers_failure(
+    managed_home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _fake_lemonaid(managed_home, monkeypatch, exit_status=2)
+
+    status = lemonaid.install()
+
+    assert status == 2
+
+
+def test_rendering_without_lemonaid_says_what_to_run(
+    managed_home: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("PATH", str(managed_home / "nothing-here"))
+
+    status = lemonaid.install()
+
+    assert status == 1
+    assert "`lemonaid skills install review-guide`" in capsys.readouterr().out
+
+
+def test_a_lemonaid_that_cannot_start_counts_as_a_failed_render(
+    managed_home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    lemonaid.install()
+    shutil.rmtree(links.LEMONS_DIR / "lemonaid/skills/review-guide")
+    _write(managed_home / "bin/lemonaid", "#!/nonexistent/interpreter\n")
+
+    status = lemonaid.install()
+
+    assert status == 127
+    assert (managed_home / ".lemons/skills/review-guide/overlay.md").is_symlink()

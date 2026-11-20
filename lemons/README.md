@@ -2,7 +2,8 @@
 
 [Shared instructions and workflows](_shared/) serve Claude and Codex. General
 coding and writing guidance lives in [principles](../principles/). Harness-specific
-configuration and startup adapters live in [claude](claude/) and [codex](codex/).
+configuration and startup adapters live in [claude](claude/) and [codex](codex/), and our
+additions to lemonaid, such as overlays on its packaged skills, in [lemonaid](lemonaid/).
 
 Obsidian Sync ignores hidden directories. Vault-level `.claude` configuration lives
 in this repository and is linked into each vault so it remains version controlled
@@ -18,6 +19,7 @@ use project-relative paths and will be archived with the project.
 cd ~/tools/lemons
 ./claude/bootstrap.py
 ./codex/bootstrap.py
+./lemonaid/bootstrap.py
 ```
 
 The scripts run through `uv run`, which resolves this package from the current
@@ -37,6 +39,16 @@ and `<project>/.claude/skills`. The bootstrap links every file in a project adap
 under [claude](claude/) (except `README.md` and `.gitignore`), plus the shared output
 styles, individually into the real project `.claude` directory. Project memory and
 Claude's automatic memory directory link to the shared project memory.
+
+lemonaid receives each file under [lemonaid/skills](lemonaid/skills/), linked at the same
+path under `~/.lemons/skills` (`LEMONAID_LEMONS_DIR` moves it): an `overlay.md` there is
+appended to that packaged lemonaid skill. lemonaid reads overlays only when it renders its
+skills, so the bootstrap then runs `lemonaid skills install` for each skill whose
+additions it linked or removed, and no others, and exits with its status. It removes only
+links that point into [lemonaid](lemonaid/), and refuses to replace a link of yours at a
+path it would link; anything else in `~/.lemons` is left alone. If the render fails after
+it removed a link, it puts the link back, so the next run retries.
+Rerun it after editing an overlay.
 
 Codex receives its [startup adapter](codex/AGENTS.md), global skill links under
 `~/.agents/skills`, project skill links under `<project>/.agents/skills`, and a
