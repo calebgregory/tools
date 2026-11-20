@@ -134,3 +134,36 @@ vim.api.nvim_create_user_command("LspRoots", function()
       c.name, vim.fn.fnamemodify(root, ":~"), bin and vim.fn.fnamemodify(bin, ":~") or ""))
   end
 end, { desc = "List active servers, their roots, and which ruff and pyrefly each one runs" })
+
+-- Review comments kept in the file: lemonaid's nvim client, which lemonaid ships beside
+-- its server and `lemonaid editor nvim-path` locates.  Asking takes as long as starting
+-- Python, so we ask in the background and set up when the answer comes.  Then a probe:
+-- `lemonaid lsp` needs lemonaid's `lsp` extra, an install without it exits at once, and
+-- nvim would report that for every python and markdown buffer.  On empty input a working
+-- server exits 0.  Enabling it after startup attaches it to the buffers already open.
+local function enable_review_comments(plugin_dir)
+  vim.opt.rtp:append(plugin_dir)
+  require("lma").setup({
+    -- in a markdown buffer whose comments are CriticMarkup or Relay blocks, <leader>cc
+    -- and <leader>cp stay critic.lua's
+    yield_to = function(buf)
+      return vim.bo[buf].filetype == "markdown" and require("critic").has_comments(buf)
+    end,
+  })
+  vim.system({ "lemonaid", "lsp" }, { stdin = "" }, vim.schedule_wrap(function(probe)
+    if probe.code == 0 then
+      vim.lsp.enable("lemonaid")
+    else
+      vim.notify("lemonaid lsp doesn't run, so review comments aren't shown:\n" .. vim.trim(probe.stderr or ""),
+        vim.log.levels.WARN)
+    end
+  end))
+end
+
+-- The client needs nvim 0.12; without lemonaid on PATH, vim.system would throw.
+if vim.fn.has("nvim-0.12") == 1 and vim.fn.executable("lemonaid") == 1 then
+  vim.system({ "lemonaid", "editor", "nvim-path" }, { text = true }, vim.schedule_wrap(function(located)
+    -- an install without the client is an older lemonaid; nothing to set up
+    if located.code == 0 then enable_review_comments(vim.trim(located.stdout)) end
+  end))
+end

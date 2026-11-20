@@ -133,6 +133,17 @@ hl("CriticFocus",         { bg = c.match_cur })
 hl("CriticComment",       { fg = c.red, italic = true })
 hl("CriticAuthor",        { fg = c.fg_bright, bold = true })  -- a Relay comment's author, in the panel
 hl("CriticDelimiter",     { fg = c.line_nr })
+-- Review comments kept in the file (lemonaid's nvim client, lua/lma), in the same
+-- washes as CriticMarkup's, so a comment reads the same in code and in a vault doc.
+hl("LmaAnchor",           { bg = c.match })
+hl("LmaSpan",             { bg = c.match })
+hl("LmaFocus",            { bg = c.match_cur })
+hl("LmaSign",             { fg = c.red })
+hl("LmaHint",             { fg = c.red, italic = true })
+hl("LmaAuthor",           { fg = c.fg_bright, bold = true })
+hl("LmaTime",             { fg = c.line_nr })
+hl("LmaQuote",            { fg = c.gray, italic = true })
+hl("LmaResolved",         { fg = c.line_nr })
 
 -- ── Diff ──────────────────────────────────────────────────────────────
 -- Three different things ask for colors here.  The `diff*` groups color a patch

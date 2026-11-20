@@ -41,7 +41,7 @@ The modules divide by what they are responsible for:
 - [jump](./lua/config/jump.lua) — flash.nvim, the jump labels
 - [multicursor](./lua/config/multicursor.lua) — multicursor.nvim, Ctrl+n like VS Code's Cmd+D
 - [render](./lua/config/render.lua) — render-markdown.nvim, markdown drawn in place
-- [lsp](./lua/config/lsp.lua) — basedpyright and ruff, one server per project root
+- [lsp](./lua/config/lsp.lua) — basedpyright and ruff, one server per project root, and lemonaid's review comments
 - [complete](./lua/config/complete.lua) — the as-you-type completion menu
 - [mypy](./lua/config/mypy.lua) — type diagnostics, run on save
 - [format](./lua/config/format.lua) — what happens when you write a file
@@ -346,6 +346,28 @@ the buffer in the browser instead, and scrolls and updates as you type. It draws
 what the terminal cannot, such as math, Mermaid diagrams and images. The first
 preview downloads the plugin's server binary. The page's fonts come from
 [markdown-preview.css](./markdown-preview.css).
+
+### Review comments
+
+lemonaid's nvim client draws review comments kept in a Python or Markdown file,
+the format lemons reply in, and writes them through lemonaid's server.
+lemonaid ships the client, and its
+[docs/comments.md](../../lemonaid/docs/comments.md#the-nvim-client) has the
+whole of it. [lsp](./lua/config/lsp.lua) asks `lemonaid editor nvim-path` where
+it is, after startup, and turns it on only if `lemonaid lsp` runs, which needs
+lemonaid's `lsp` extra.
+
+| Key | Does |
+|---|---|
+| `<leader>cc` | On code, comment on the line or the selection. In the panel or a thread float, reply to the comment under the cursor, about the selected part if there is one. `:w` sends, `q` keeps a draft |
+| `<leader>cr` | Resolve the thread under the cursor; in the panel or a float, the comment under the cursor |
+| `<leader>ct` | Show the thread under the cursor in a float; again to move into it |
+| `<leader>cp` | Open the thread panel, or close it |
+
+In a markdown buffer that has CriticMarkup or Relay comments and no review
+comments, `<leader>cc` and `<leader>cp` stay critic.lua's, so a vault doc works
+as before. `:LmaMarkers` shows the hidden markers, and `:LmaDrafts` lists
+comments the server never confirmed.
 
 ### Multiple cursors
 
