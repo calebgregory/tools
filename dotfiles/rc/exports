@@ -7,7 +7,6 @@ export NVM_DIR="$HOME/.nvm"
 export MAGICK_HOME="$HOME/ImageMagick-7.0.8"
 export DYLD_LIBRARY_PATH="$MAGICK_HOME/lib/"
 export ANDROID_HOME="$HOME/Library/Android/sdk"
-export JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home"
 export TOOLS_HOME="$HOME/tools"
 
 export LC_ALL=en_US.UTF-8
@@ -24,4 +23,4 @@ PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/
 [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
 export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
 
-export PATH="$PATH:$HOME/.local/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$JAVA_HOME/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/opts/bin:/usr/local/go/bin:$GOPATH:$GOPATH/bin:$MAGICK_HOME/bin:/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$HOME/Library/Application Support/JetBrains/Toolbox/scripts:$HOME/bin:$TOOLS_HOME/bin:$TOOLS_HOME/scripts"
+export PATH="$PATH:$HOME/.local/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/opts/bin:/usr/local/go/bin:$GOPATH:$GOPATH/bin:$MAGICK_HOME/bin:/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$HOME/Library/Application Support/JetBrains/Toolbox/scripts:$HOME/bin:$TOOLS_HOME/bin:$TOOLS_HOME/scripts"
