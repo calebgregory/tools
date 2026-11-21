@@ -73,11 +73,11 @@ map_checkbox("<A-s>", "/", is_in_progress, "Checkbox on this line: in progress")
 -- CriticMarkup: tracked changes and comments written in the text - lua/critic.lua.
 local critic = require("critic")
 critic.attach(0)
-vim.keymap.set("n", "<leader>cp", critic.toggle_panel,
+vim.keymap.set("n", "<leader>rp", critic.toggle_panel,
   { buffer = true, desc = "Critic: toggle the comment panel" })
-vim.keymap.set("x", "<leader>cc", critic.comment_selection,
+vim.keymap.set("x", "<leader>rc", critic.comment_selection,
   { buffer = true, desc = "Critic: highlight the selection and comment on it" })
-vim.keymap.set("n", "<leader>cc", critic.comment_here,
+vim.keymap.set("n", "<leader>rc", critic.comment_here,
   { buffer = true, desc = "Critic: comment after the cursor" })
 vim.keymap.set("n", "<leader>cy", critic.accept,
   { buffer = true, desc = "Critic: accept the change under the cursor" })

@@ -143,16 +143,14 @@ end, { desc = "List active servers, their roots, and which ruff and pyrefly each
 -- server exits 0.  Enabling it after startup attaches it to the buffers already open.
 local function enable_review_comments(plugin_dir)
   vim.opt.rtp:append(plugin_dir)
-  require("lma").setup({
-    -- in a markdown buffer whose comments are CriticMarkup or Relay blocks, <leader>cc
-    -- and <leader>cp stay critic.lua's
-    yield_to = function(buf)
-      return vim.bo[buf].filetype == "markdown" and require("critic").has_comments(buf)
-    end,
-  })
+  require("lma").setup()
   vim.system({ "lemonaid", "lsp" }, { stdin = "" }, vim.schedule_wrap(function(probe)
     if probe.code == 0 then
       vim.lsp.enable("lemonaid")
+      -- running from the start, so a lemon's `lemonaid editor open` reaches this nvim
+      -- before any python or markdown buffer is open
+      local lma = require("lma")
+      if lma.start_server then lma.start_server() end -- a lemonaid older than start_server has none
     else
       vim.notify("lemonaid lsp doesn't run, so review comments aren't shown:\n" .. vim.trim(probe.stderr or ""),
         vim.log.levels.WARN)

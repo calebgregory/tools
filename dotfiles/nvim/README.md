@@ -299,8 +299,8 @@ These attach only in a markdown buffer —
 | `Alt+s` | Mark it in progress, or empty an already in-progress one |
 | `<leader>m` | Turn in-place rendering off or on for this buffer |
 | `<leader>M` | Open the browser preview, or close it |
-| `<leader>cc` | With a selection, highlight it and comment on it. In a thread, reply to it. Elsewhere, comment after the cursor. The comment opens in a small window: `:w` adds it, `q` drops it |
-| `<leader>cp` | Open the comment panel, or close it |
+| `<leader>rc` | With a selection, highlight it and comment on it. In a thread, reply to it. Elsewhere, comment after the cursor. The comment opens in a small window: `:w` adds it, `q` drops it |
+| `<leader>rp` | Open the comment panel, or close it |
 | `<leader>cy` / `<leader>cn` | Accept / reject the change under the cursor |
 
 `F12` is go-to-definition everywhere else, and the link is what markdown has a
@@ -363,10 +363,17 @@ lemonaid's `lsp` extra.
 | `<leader>cr` | Resolve the thread under the cursor; in the panel or a float, the comment under the cursor |
 | `<leader>ct` | Show the thread under the cursor in a float; again to move into it |
 | `<leader>cp` | Open the thread panel, or close it |
+| `<leader>cx` | Delete the thread under the cursor; in the panel or a float, the comment under the cursor and its replies. It asks first |
+| `<leader>cm` | With a selection, move a thread's anchor to it (you choose which thread when the file has several) |
+| `<leader>cw` | Save the file after each comment, so the lemon hears of it at once, or stop. Off when nvim starts, so a batch of comments goes out on one `:w` |
 
-In a markdown buffer that has CriticMarkup or Relay comments and no review
-comments, `<leader>cc` and `<leader>cp` stay critic.lua's, so a vault doc works
-as before. `:LmaMarkers` shows the hidden markers, and `:LmaDrafts` lists
+A lemon's reply that arrives while you work is announced, and its thread's sign turns
+to `●` until you visit it. `lemonaid lsp` starts with nvim, so a lemon can open a file
+here before you have opened one yourself.
+
+critic.lua's CriticMarkup and Relay comments have keys of their own,
+`<leader>rc` and `<leader>rp`, so both kinds of comment work in any markdown
+buffer. `:LmaMarkers` shows the hidden markers, and `:LmaDrafts` lists
 comments the server never confirmed.
 
 ### Multiple cursors

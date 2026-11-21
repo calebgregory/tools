@@ -409,13 +409,6 @@ local function refresh_soon(buf)
   end, REFRESH_DELAY_MS)
 end
 
--- Whether the buffer has any CriticMarkup or Relay comment, for code that shares keys
--- with us (config.lsp hands lua/lma's comment keys over in such a buffer).
-function M.has_comments(buf)
-  local st = state_by_buf[buf == 0 and vim.api.nvim_get_current_buf() or buf]
-  return st ~= nil and st.items ~= nil and #st.items > 0
-end
-
 function M.attach(buf)
   buf = buf == 0 and vim.api.nvim_get_current_buf() or buf
   if state_by_buf[buf] then return end
