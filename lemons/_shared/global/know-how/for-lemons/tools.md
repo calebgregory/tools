@@ -29,6 +29,16 @@ shell leaves `~` as it is and `cmd` searches a directory literally named `~`. A 
 through to whatever is next on `PATH`, silently: a test meant to run a worktree's `lemonaid` ran the
 installed one. Write `$HOME` instead of `~` there.
 
+## zsh doesn't split an unquoted variable into words
+
+Caleb's shell is zsh, and zsh doesn't split `$var` on spaces the way bash does. After
+`tests="a.py b.py"`, `pytest $tests` passes one argument, `a.py b.py`, and pytest finds no
+such file. Put the words in an array (`tests=(a.py b.py)`, then `pytest $tests`), or split
+explicitly with `${=tests}`. A mutation check written this way runs no tests, and a grep
+for `FAILED` over its output finds nothing, so it looks like the test passed without the
+fix. Before trusting a check, see that the test actually ran: a pass count, or the test's
+name in the output.
+
 ## End a headless nvim script on every path
 
 `nvim --headless -u script.lua` runs the script and then waits for input. If the script raises before
