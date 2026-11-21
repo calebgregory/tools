@@ -14,7 +14,7 @@
       "Read(~/tools/lemons/_shared/work-org/memory/*)"
     ]
   },
-  "model": "fable",
+  "model": "opus",
   "hooks": {
     "UserPromptSubmit": [
       {
