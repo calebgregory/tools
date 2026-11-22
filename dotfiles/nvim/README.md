@@ -359,16 +359,18 @@ lemonaid's `lsp` extra.
 
 | Key | Does |
 |---|---|
-| `<leader>cc` | On code, comment on the line or the selection. In the panel or a thread float, reply to the comment under the cursor, about the selected part if there is one. `:w` sends, `q` keeps a draft |
-| `<leader>cr` | Resolve the thread under the cursor; in the panel or a float, the comment under the cursor |
-| `<leader>ct` | Show the thread under the cursor in a float; again to move into it |
+| `<leader>cc` | On code, comment on the line or the selection. In the panel, reply to the comment under the cursor, about the selected part if there is one. `:w` sends, `q` keeps a draft |
+| `<leader>cr` | Resolve the thread under the cursor; in the panel, the comment under the cursor |
+| `<leader>ct` | Move to the thread under the cursor in the panel, opening the panel if it is closed |
 | `<leader>cp` | Open the thread panel, or close it |
-| `<leader>cx` | Delete the thread under the cursor; in the panel or a float, the comment under the cursor and its replies. It asks first |
+| `<leader>cu` | Show only unread threads in the panel, or all of them again; opens the panel if it is closed. A thread you read meanwhile stays, dimmed |
+| `]u` / `[u` | Jump to the next or previous unread thread, in the file or in the panel |
+| `<leader>cx` | Delete the thread under the cursor; in the panel, the comment under the cursor and its replies. It asks first |
 | `<leader>cm` | With a selection, move a thread's anchor to it (you choose which thread when the file has several) |
 | `<leader>cw` | Save the file after each comment, so the lemon hears of it at once, or stop. Off when nvim starts, so a batch of comments goes out on one `:w` |
 
-A lemon's reply that arrives while you work is announced, and its thread's sign turns
-to `●` until you visit it. `lemonaid lsp` starts with nvim, so a lemon can open a file
+A lemon's reply that arrives while you work is announced, and its thread shows `●`, by
+its anchor and in the panel, until you visit it there. `lemonaid lsp` starts with nvim, so a lemon can open a file
 here before you have opened one yourself.
 
 critic.lua's CriticMarkup and Relay comments have keys of their own,
