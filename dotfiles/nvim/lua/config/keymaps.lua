@@ -31,6 +31,9 @@ vim.keymap.set('n', '<leader>bb', '<C-^>', { desc = 'Switch to alternate file' }
 
 -- tab nav
 vim.keymap.set('n', '<leader>to', ':tabonly<CR>', { desc = 'Close other tabs' })
+map("n", "<leader>tn", "<cmd>tabnew<CR>",  { desc = "New tab" })
+map("n", "]t", "<cmd>tabnext<CR>",         { desc = "Next tab" })
+map("n", "[t", "<cmd>tabprevious<CR>",     { desc = "Previous tab" })
 
 -- copy the current buffer's path, on the same <C-k> ; chord as the VS Code
 -- copyRelativeFilePath binding

@@ -276,6 +276,9 @@ Carried over from `.vimrc.after` and the VS Code vim settings.
 | `Ctrl+u` | normal | Upcase word under cursor |
 | `Alt+j` / `Alt+k` | normal, visual | Move line or selection down / up |
 | `<leader>bb` | normal | Switch to the alternate file |
+| `[t` / `]t` | normal | Previous / next tab |
+| `<leader>tn` | normal | New tab |
+| `<leader>to` | normal | Close other tabs |
 | `Ctrl+k` `;` | normal | Copy this file's path, relative to the cwd |
 | `Ctrl+k` `'` | normal | Copy this file's absolute path |
 | `Ctrl+w` `h/j/k/l` | normal | Focus window left/down/up/right (native) |
