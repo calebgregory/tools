@@ -14,6 +14,21 @@ The same holds for a replacement. macOS's BSD `sed` has no `\b` either, so `sed 
 silently changes nothing. Do word-boundary replacements with Python's `re`, and grep for the new name
 afterwards.
 
+## Don't trust an empty result from `grep` in Claude Code's shell
+
+In Claude Code's Bash tool, `grep` is a shell function from the session's shell snapshot,
+not `/usr/bin/grep`, and it can return nothing where plain grep finds matches: a
+`grep -rl` over the notes vault reported no files that refer to a name, while Python
+found seven. When an empty search decides what you do next (whether anything refers to a
+file you are moving, say), check it with `command grep` or a few lines of Python.
+
+## Pass a string with a `\u` escape through a file, not a shell argument
+
+A `﻿` written inside single quotes on a Bash tool command line reached the program as
+the actual byte order mark character, so a search for the six characters `﻿` in a
+source file matched nothing. Put such a string in a file or a quoted heredoc
+(`<<'EOF'`) and have the program read it, then check the match count.
+
 ## Write escape sequences with a shell heredoc, not Claude Code's Write tool
 
 Claude Code's Write tool turns `\uXXXX` escapes in the content it writes into the characters
