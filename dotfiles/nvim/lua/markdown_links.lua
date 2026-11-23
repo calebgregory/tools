@@ -26,12 +26,16 @@ local function _unwrapped(destination)
   return destination:match("^%s*(%S+)") or destination
 end
 
+-- A code span can be a link's label, [`name`](dest), so code settles the
+-- question only when no link holds it.
 local function _settling_ancestor(node)
+  local code = nil
   while node do
-    if LINK_NODES[node:type()] or CODE_NODES[node:type()] then return node end
+    if LINK_NODES[node:type()] then return node end
+    if CODE_NODES[node:type()] and not code then code = node end
     node = node:parent()
   end
-  return nil
+  return code
 end
 
 -- Returns the destination, and whether the tree settled the question at all -
@@ -167,6 +171,11 @@ function M.follow()
   local path, fragment = destination:match("^(.-)#(.*)$")
   path = path or destination
 
+  -- "file.py:41" or "file.py:41-57", as a review guide writes a location: open
+  -- the file at the first line
+  local line_path, line = path:match("^(.-):(%d+)%-?%d*$")
+  if line_path and line_path ~= "" then path = line_path end
+
   -- set the ' mark first, so <C-o> comes back to the link from wherever it goes
   vim.cmd("normal! m'")
 
@@ -177,6 +186,12 @@ function M.follow()
         :format(vim.fn.fnamemodify(target, ":~")), vim.log.levels.WARN)
     end
     vim.cmd.edit(vim.fn.fnameescape(target))
+  end
+
+  if line_path and line_path ~= "" then
+    local last = vim.api.nvim_buf_line_count(0)
+    vim.api.nvim_win_set_cursor(0, { math.min(tonumber(line), last), 0 })
+    vim.cmd("normal! zz")
   end
 
   if fragment and fragment ~= "" and not _jump_to_heading(fragment) then
