@@ -1,5 +1,14 @@
 # Review
 
+## A child lemon asks its parent for a reviewer
+
+If your brief has a parent, don't start a reviewer yourself, not even a quick Codex pass. When your
+work needs a review, ask your parent for one (`lemonaid tell --parent`), naming the base commit, what
+changed and what needs the hardest check. The parent starts the reviewer, keeps it in its own tree of
+children, and cleans it up, so the review is recorded where the project's other reviews are. A
+reviewer you start yourself is invisible to your parent and outlives your work. This holds even when
+your brief says the work needs a review: read that as "ask your parent for one".
+
 ## Send fixes back to the reviewer before handing the work over
 
 When a reviewer (a person, or another agent you asked) finds problems and you fix them, send the fixes
