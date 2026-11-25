@@ -15,6 +15,14 @@ local PARSERS = { "python", "lua", "bash", "json", "yaml", "toml", "markdown",
 local function ts_start(buf, lang)
   vim.treesitter.start(buf, lang)
   vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+  -- Fold by the syntax tree (functions, classes, markdown sections), opening
+  -- each file with every fold open.  Fold options belong to the window, and
+  -- after an async parser install this buffer need not be the current one.
+  for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+    vim.wo[win].foldmethod = "expr"
+    vim.wo[win].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+    vim.wo[win].foldlevel = 99
+  end
 end
 
 -- One install per language however many buffers ask for it.  `nvim *.py`

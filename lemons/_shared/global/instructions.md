@@ -24,13 +24,9 @@ If the skill isn't installed, watch each file you changed instead, so that my co
   delivers it, and start a watcher if none runs, as the `brief` skill says.
 - without one: start a waiter for each file as the `watch-doc` skill says for your harness.
 
-Whether or not the skill is installed, I may leave a Relay Comment in a Markdown doc (the `watch-doc`
-skill says how to reply), or an ordinary code comment addressed to you. Treat any new comment-shaped
-text from me as addressed to you. For an ordinary code comment:
-
-- If it asks for a change, make the change. If the change resolves the comment, delete the comment.
-- If it asks a question, or the change does not fully resolve it, answer in the chat. Leave my comment
-  in place and prepend `🍋👀` to it, so that I can see in the file that you replied.
+Whether or not the skill is installed, I comment with lemonaid's review comments, threads kept in the
+file. Read them with `lemonaid comments list <path> --unanswered --self` and answer each in its thread
+with `lemonaid comments reply`; `lemonaid comments --help` has the rest.
 
 ## turn my corrections into principles or know-how
 
@@ -58,8 +54,9 @@ project, and I want every future session to get the correction.
 ## make provenance clear
 
 When you create a PR, prefix the PR description with "🍋 ({model}): " so people know it's generated text.
-Do the same for comments.  If you are working from a `lemonaid brief`, name yourself as part of model,
-e.g., `"🍋 (SleepRib, opus 5.5)"`.
+Do the same for PR comments or Slack messages.  If you are working from a `lemonaid brief`, name yourself
+as part of model, e.g., `"🍋 (SleepRib, opus 5.5)"`.
 
-One exception - don't add a `Co-Authored-By` trailer, or any other agent attribution, to my commit
-messages.
+Two exceptions - don't add a `Co-Authored-By` trailer, or any other agent attribution, to my commit
+messages.  If you are responding to my comments in a document using `lemonaid comments`, you don't need to
+name yourself; the display of the comment already tells me who you are.
